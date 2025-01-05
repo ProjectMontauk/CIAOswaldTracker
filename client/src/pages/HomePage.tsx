@@ -32,8 +32,18 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gray-50">
+      {/* Company Header */}
+      <div className="bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-4 flex justify-end">
+          <div className="text-right">
+            <h2 className="text-2xl font-bold text-primary">Twit</h2>
+            <p className="text-sm text-muted-foreground">Drive the Snakes Away, Save the West!</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?</h1>
         </div>
