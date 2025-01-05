@@ -9,7 +9,7 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Star } from "lucide-react";
 
 type EvidenceFormData = {
   title: string;
@@ -30,6 +30,15 @@ export default function HomePage() {
   const onPredictionSubmit = () => {
     submitPrediction(probability);
   };
+
+  // Sort evidence by vote count (credibility ranking)
+  const sortedEvidence = [...evidence].sort((a, b) => {
+    const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) => 
+      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
+    const bVotes = (b as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) => 
+      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
+    return bVotes - aVotes;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -89,54 +98,60 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          {/* Evidence Section */}
+          {/* Document Collection Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Evidence Collection</CardTitle>
+              <CardTitle>CIA-Oswald Document Collection</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="submit">
+              <Tabs defaultValue="view">
                 <TabsList className="w-full">
-                  <TabsTrigger value="submit" className="flex-1">Submit Evidence</TabsTrigger>
-                  <TabsTrigger value="view" className="flex-1">View Evidence</TabsTrigger>
+                  <TabsTrigger value="submit" className="flex-1">Submit Document</TabsTrigger>
+                  <TabsTrigger value="view" className="flex-1">View Documents</TabsTrigger>
                 </TabsList>
                 <TabsContent value="submit">
                   <form onSubmit={evidenceForm.handleSubmit(onEvidenceSubmit)} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="title">Title</Label>
+                      <Label htmlFor="title">Document Title/Source</Label>
                       <Input
                         id="title"
+                        placeholder="e.g., CIA Memo dated Sept 1963"
                         {...evidenceForm.register("title", { required: true })}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="content">Content</Label>
+                      <Label htmlFor="content">Document Content & Analysis</Label>
                       <Textarea
                         id="content"
+                        placeholder="Describe the document's content and explain how it demonstrates CIA-Oswald connection..."
                         {...evidenceForm.register("content", { required: true })}
                         rows={4}
                       />
                     </div>
                     <Button type="submit" className="w-full" disabled={evidenceLoading}>
-                      Submit Evidence
+                      Submit Document
                     </Button>
                   </form>
                 </TabsContent>
                 <TabsContent value="view">
                   <div className="space-y-4">
-                    {evidence.map((item) => (
-                      <Card key={item.id}>
+                    {sortedEvidence.map((item, index) => (
+                      <Card key={item.id} className="relative">
                         <CardContent className="pt-6">
                           <div className="flex gap-4">
                             <div className="flex flex-col items-center">
+                              <div className="mb-2 text-sm font-semibold text-primary">
+                                #{index + 1}
+                              </div>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => vote({ evidenceId: item.id, isUpvote: true })}
+                                className="text-green-600"
                               >
                                 <ArrowUp className="h-4 w-4" />
                               </Button>
-                              <span className="text-sm">
+                              <span className="text-sm font-medium">
                                 {(item as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
                                   acc + (v.isUpvote ? 1 : -1), 0) ?? 0}
                               </span>
@@ -144,13 +159,17 @@ export default function HomePage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => vote({ evidenceId: item.id, isUpvote: false })}
+                                className="text-red-600"
                               >
                                 <ArrowDown className="h-4 w-4" />
                               </Button>
                             </div>
                             <div className="flex-1">
-                              <h3 className="font-semibold">{item.title}</h3>
-                              <p className="mt-2">{item.content}</p>
+                              <div className="flex items-center gap-2 mb-2">
+                                <FileText className="h-4 w-4 text-muted-foreground" />
+                                <h3 className="font-semibold">{item.title}</h3>
+                              </div>
+                              <p className="mt-2 text-sm text-gray-600">{item.content}</p>
                             </div>
                           </div>
                         </CardContent>
