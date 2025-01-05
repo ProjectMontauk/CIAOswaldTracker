@@ -58,47 +58,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
-          {/* Prediction Market Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Prediction Market</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <Label>Current Consensus: {Math.round(averagePrediction)}%</Label>
-                  <div className="h-2 bg-gray-200 rounded-full mt-2">
-                    <div
-                      className="h-full bg-primary rounded-full"
-                      style={{ width: `${averagePrediction}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <Label>Your Prediction</Label>
-                  <Slider
-                    value={[probability]}
-                    onValueChange={([value]) => setProbability(value)}
-                    min={0}
-                    max={100}
-                    step={1}
-                  />
-                  <div className="text-center text-sm text-gray-600">
-                    {probability}% likelihood of CIA-Oswald connection
-                  </div>
-                  <Button
-                    onClick={onPredictionSubmit}
-                    className="w-full"
-                    disabled={predictionsLoading}
-                  >
-                    Submit Prediction
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Document Collection Section */}
+          {/* Evidence Section */}
           <Card>
             <CardHeader>
               <CardTitle>Evidence</CardTitle>
@@ -178,6 +138,46 @@ export default function HomePage() {
                   </form>
                 </TabsContent>
               </Tabs>
+            </CardContent>
+          </Card>
+
+          {/* Prediction Market Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Prediction Market</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <Label>Current Consensus: {Math.round(averagePrediction)}%</Label>
+                  <div className="h-2 bg-gray-200 rounded-full mt-2">
+                    <div
+                      className="h-full bg-primary rounded-full"
+                      style={{ width: `${averagePrediction}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <Label>Your Prediction</Label>
+                  <Slider
+                    value={[probability]}
+                    onValueChange={([value]) => setProbability(value)}
+                    min={0}
+                    max={100}
+                    step={1}
+                  />
+                  <div className="text-center text-sm text-gray-600">
+                    {probability}% likelihood of CIA-Oswald connection
+                  </div>
+                  <Button
+                    onClick={onPredictionSubmit}
+                    className="w-full"
+                    disabled={predictionsLoading}
+                  >
+                    Submit Prediction
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
