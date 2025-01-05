@@ -35,7 +35,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">CIA-Oswald Connection</h1>
+          <h1 className="text-3xl font-bold">Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?</h1>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
@@ -127,7 +127,7 @@ export default function HomePage() {
                                 <ArrowUp className="h-4 w-4" />
                               </Button>
                               <span className="text-sm">
-                                {(item as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) => 
+                                {(item as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
                                   acc + (v.isUpvote ? 1 : -1), 0) ?? 0}
                               </span>
                               <Button
