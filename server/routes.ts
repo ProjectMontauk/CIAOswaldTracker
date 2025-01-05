@@ -4,6 +4,31 @@ import { db } from "@db";
 import { evidence, predictions, votes } from "@db/schema";
 import { eq, and, desc } from "drizzle-orm";
 
+// Initial evidence data
+const initialEvidence = [
+  {
+    id: 1,
+    userId: 1,
+    title: "Mexico City CIA Station Report - September 1963",
+    content: "CIA surveillance records from Mexico City station documented Oswald's visits to Cuban and Soviet embassies. Station chief Win Scott's detailed memo suggests prior knowledge of Oswald's activities before the assassination.",
+    createdAt: new Date("1963-09-27"),
+  },
+  {
+    id: 2,
+    userId: 1,
+    title: "201 File Opening - December 1960",
+    content: "CIA opened a 201 personality file on Oswald in December 1960, despite officially claiming no interest in him until after the assassination. The existence of this file suggests earlier surveillance.",
+    createdAt: new Date("1960-12-09"),
+  },
+  {
+    id: 3,
+    userId: 1,
+    title: "James Jesus Angleton Testimony - 1964",
+    content: "CIA Counterintelligence Chief Angleton's testimony to the Warren Commission contained notable gaps regarding Oswald's file handling. Later revelations indicated special interest procedures were applied to Oswald's records.",
+    createdAt: new Date("1964-02-15"),
+  }
+];
+
 export function registerRoutes(app: Express): Server {
   // Predictions routes
   app.post("/api/predictions", async (req, res) => {
@@ -51,14 +76,30 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.get("/api/evidence", async (req, res) => {
-    const allEvidence = await db.query.evidence.findMany({
-      orderBy: desc(evidence.createdAt),
-      with: {
-        votes: true,
-      },
-    });
+    try {
+      // Check if there's any evidence in the database
+      const existingEvidence = await db.query.evidence.findMany({
+        limit: 1,
+      });
 
-    res.json(allEvidence);
+      // If no evidence exists, insert the initial data
+      if (existingEvidence.length === 0) {
+        await db.insert(evidence).values(initialEvidence);
+      }
+
+      // Return all evidence with votes
+      const allEvidence = await db.query.evidence.findMany({
+        orderBy: desc(evidence.createdAt),
+        with: {
+          votes: true,
+        },
+      });
+
+      res.json(allEvidence);
+    } catch (error) {
+      console.error('Error handling evidence:', error);
+      res.status(500).json({ error: 'Failed to fetch evidence' });
+    }
   });
 
   // Voting routes
