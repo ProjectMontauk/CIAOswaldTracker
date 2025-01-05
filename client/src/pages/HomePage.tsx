@@ -104,35 +104,11 @@ export default function HomePage() {
               <CardTitle>Evidence</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="view">
+              <Tabs defaultValue="submit">
                 <TabsList className="w-full">
-                  <TabsTrigger value="submit" className="flex-1">Submit Document</TabsTrigger>
                   <TabsTrigger value="view" className="flex-1">View Documents</TabsTrigger>
+                  <TabsTrigger value="submit" className="flex-1">Submit Document</TabsTrigger>
                 </TabsList>
-                <TabsContent value="submit">
-                  <form onSubmit={evidenceForm.handleSubmit(onEvidenceSubmit)} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Document Title/Source</Label>
-                      <Input
-                        id="title"
-                        placeholder="e.g., CIA Memo dated Sept 1963"
-                        {...evidenceForm.register("title", { required: true })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="content">Document Content & Analysis</Label>
-                      <Textarea
-                        id="content"
-                        placeholder="Describe the document's content and explain how it demonstrates CIA-Oswald connection..."
-                        {...evidenceForm.register("content", { required: true })}
-                        rows={4}
-                      />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={evidenceLoading}>
-                      Submit Document
-                    </Button>
-                  </form>
-                </TabsContent>
                 <TabsContent value="view">
                   <div className="space-y-4">
                     {sortedEvidence.map((item, index) => (
@@ -176,6 +152,30 @@ export default function HomePage() {
                       </Card>
                     ))}
                   </div>
+                </TabsContent>
+                <TabsContent value="submit">
+                  <form onSubmit={evidenceForm.handleSubmit(onEvidenceSubmit)} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Document Title/Source</Label>
+                      <Input
+                        id="title"
+                        placeholder="e.g., CIA Memo dated Sept 1963"
+                        {...evidenceForm.register("title", { required: true })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="content">Document Content & Analysis</Label>
+                      <Textarea
+                        id="content"
+                        placeholder="Describe the document's content and explain how it demonstrates CIA-Oswald connection..."
+                        {...evidenceForm.register("content", { required: true })}
+                        rows={4}
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={evidenceLoading}>
+                      Submit Document
+                    </Button>
+                  </form>
                 </TabsContent>
               </Tabs>
             </CardContent>
