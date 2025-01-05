@@ -33,9 +33,9 @@ export default function HomePage() {
 
   // Sort evidence by vote count (credibility ranking)
   const sortedEvidence = [...evidence].sort((a, b) => {
-    const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) => 
+    const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
       acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
-    const bVotes = (b as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) => 
+    const bVotes = (b as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
       acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
     return bVotes - aVotes;
   });
@@ -101,7 +101,7 @@ export default function HomePage() {
           {/* Document Collection Section */}
           <Card>
             <CardHeader>
-              <CardTitle>CIA-Oswald Document Collection</CardTitle>
+              <CardTitle>Evidence</CardTitle>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="view">
