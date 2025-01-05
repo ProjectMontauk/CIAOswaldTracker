@@ -35,8 +35,8 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50">
       {/* Company Header */}
       <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-end">
-          <div className="text-right">
+        <div className="container mx-auto px-4 py-4">
+          <div>
             <h2 className="text-2xl font-bold text-primary">Twit</h2>
             <p className="text-sm text-muted-foreground">Drive the Snakes Away, Save the West!</p>
           </div>
