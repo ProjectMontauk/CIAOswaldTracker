@@ -9,7 +9,7 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Star } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText } from "lucide-react";
 
 type EvidenceFormData = {
   title: string;
@@ -57,7 +57,47 @@ export default function HomePage() {
           <h1 className="text-3xl font-bold">Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?</h1>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="space-y-8 max-w-4xl mx-auto">
+          {/* Prediction Market Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Prediction Market</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <Label>Current Consensus: {Math.round(averagePrediction)}%</Label>
+                  <div className="h-2 bg-gray-200 rounded-full mt-2">
+                    <div
+                      className="h-full bg-primary rounded-full"
+                      style={{ width: `${averagePrediction}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <Label>Your Prediction</Label>
+                  <Slider
+                    value={[probability]}
+                    onValueChange={([value]) => setProbability(value)}
+                    min={0}
+                    max={100}
+                    step={1}
+                  />
+                  <div className="text-center text-sm text-gray-600">
+                    {probability}% likelihood of CIA-Oswald connection
+                  </div>
+                  <Button
+                    onClick={onPredictionSubmit}
+                    className="w-full"
+                    disabled={predictionsLoading}
+                  >
+                    Submit Prediction
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Evidence Section */}
           <Card>
             <CardHeader>
@@ -138,46 +178,6 @@ export default function HomePage() {
                   </form>
                 </TabsContent>
               </Tabs>
-            </CardContent>
-          </Card>
-
-          {/* Prediction Market Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Prediction Market</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <Label>Current Consensus: {Math.round(averagePrediction)}%</Label>
-                  <div className="h-2 bg-gray-200 rounded-full mt-2">
-                    <div
-                      className="h-full bg-primary rounded-full"
-                      style={{ width: `${averagePrediction}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <Label>Your Prediction</Label>
-                  <Slider
-                    value={[probability]}
-                    onValueChange={([value]) => setProbability(value)}
-                    min={0}
-                    max={100}
-                    step={1}
-                  />
-                  <div className="text-center text-sm text-gray-600">
-                    {probability}% likelihood of CIA-Oswald connection
-                  </div>
-                  <Button
-                    onClick={onPredictionSubmit}
-                    className="w-full"
-                    disabled={predictionsLoading}
-                  >
-                    Submit Prediction
-                  </Button>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>
