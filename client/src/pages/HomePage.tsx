@@ -7,10 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useUser } from "@/hooks/use-user";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, LogOut } from "lucide-react";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 type EvidenceFormData = {
   title: string;
@@ -18,14 +17,10 @@ type EvidenceFormData = {
 };
 
 export default function HomePage() {
-  const { user, logout } = useUser();
   const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence();
   const { predictions, averagePrediction, submit: submitPrediction, isLoading: predictionsLoading } = usePredictions();
   const [probability, setProbability] = useState(50);
   const evidenceForm = useForm<EvidenceFormData>();
-
-  // Ensure we have a user
-  if (!user) return null;
 
   const onEvidenceSubmit = (data: EvidenceFormData) => {
     submitEvidence(data);
@@ -39,15 +34,8 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+        <div className="mb-8">
           <h1 className="text-3xl font-bold">CIA-Oswald Connection</h1>
-          <div className="flex items-center gap-4">
-            <span>Welcome, {user.username}</span>
-            <Button variant="ghost" onClick={() => logout()}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </div>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
@@ -152,9 +140,6 @@ export default function HomePage() {
                             </div>
                             <div className="flex-1">
                               <h3 className="font-semibold">{item.title}</h3>
-                              <p className="text-sm text-gray-600 mt-1">
-                                by {(item as any).user?.username}
-                              </p>
                               <p className="mt-2">{item.content}</p>
                             </div>
                           </div>

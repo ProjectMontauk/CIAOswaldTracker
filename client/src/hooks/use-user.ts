@@ -13,6 +13,25 @@ export function useUser() {
 
   const { data: user, error, isLoading } = useQuery<User>({
     queryKey: ['/api/user'],
+    queryFn: async () => {
+      try {
+        const res = await fetch('/api/user', {
+          credentials: 'include'
+        });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            return null;
+          }
+          throw new Error(await res.text());
+        }
+
+        return res.json();
+      } catch (err) {
+        console.error('User fetch error:', err);
+        return null;
+      }
+    },
     retry: false,
   });
 
