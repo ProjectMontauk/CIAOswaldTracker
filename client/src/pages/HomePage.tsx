@@ -31,7 +31,7 @@ export default function HomePage() {
     submitPrediction(probability);
   };
 
-  // Sort evidence by vote count (credibility ranking)
+  // Sort evidence by vote count
   const sortedEvidence = [...evidence].sort((a, b) => {
     const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
       acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
@@ -104,53 +104,64 @@ export default function HomePage() {
               <CardTitle>Evidence</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="submit">
+              <Tabs defaultValue="view">
                 <TabsList className="w-full">
                   <TabsTrigger value="view" className="flex-1">View Documents</TabsTrigger>
                   <TabsTrigger value="submit" className="flex-1">Submit Document</TabsTrigger>
                 </TabsList>
                 <TabsContent value="view">
                   <div className="space-y-4">
-                    {sortedEvidence.map((item, index) => (
-                      <Card key={item.id} className="relative">
-                        <CardContent className="pt-6">
-                          <div className="flex gap-4">
-                            <div className="flex flex-col items-center">
-                              <div className="mb-2 text-sm font-semibold text-primary">
-                                #{index + 1}
+                    {sortedEvidence.map((item, index) => {
+                      const upvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => v.isUpvote).length ?? 0;
+                      const downvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => !v.isUpvote).length ?? 0;
+                      const voteScore = upvotes - downvotes;
+
+                      return (
+                        <Card key={item.id} className="relative">
+                          <CardContent className="pt-6">
+                            <div className="flex gap-4">
+                              <div className="flex flex-col items-center">
+                                <div className="mb-2 text-sm font-semibold text-primary">
+                                  #{index + 1}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => vote({ evidenceId: item.id, isUpvote: true })}
+                                  className="text-green-600 relative"
+                                >
+                                  <ArrowUp className="h-4 w-4" />
+                                  <span className="absolute -top-4 text-xs font-medium">
+                                    {upvotes}
+                                  </span>
+                                </Button>
+                                <span className="text-sm font-medium">
+                                  {voteScore}
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => vote({ evidenceId: item.id, isUpvote: false })}
+                                  className="text-red-600 relative"
+                                >
+                                  <ArrowDown className="h-4 w-4" />
+                                  <span className="absolute -top-4 text-xs font-medium">
+                                    {downvotes}
+                                  </span>
+                                </Button>
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => vote({ evidenceId: item.id, isUpvote: true })}
-                                className="text-green-600"
-                              >
-                                <ArrowUp className="h-4 w-4" />
-                              </Button>
-                              <span className="text-sm font-medium">
-                                {(item as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
-                                  acc + (v.isUpvote ? 1 : -1), 0) ?? 0}
-                              </span>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => vote({ evidenceId: item.id, isUpvote: false })}
-                                className="text-red-600"
-                              >
-                                <ArrowDown className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <FileText className="h-4 w-4 text-muted-foreground" />
-                                <h3 className="font-semibold">{item.title}</h3>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <FileText className="h-4 w-4 text-muted-foreground" />
+                                  <h3 className="font-semibold">{item.title}</h3>
+                                </div>
+                                <p className="mt-2 text-sm text-gray-600">{item.content}</p>
                               </div>
-                              <p className="mt-2 text-sm text-gray-600">{item.content}</p>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 </TabsContent>
                 <TabsContent value="submit">
