@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
 import { ArrowUp, ArrowDown, FileText } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Trophy, ThumbsUp, ThumbsDown } from "lucide-react";
 
 type EvidenceFormData = {
   title: string;
@@ -31,7 +33,6 @@ export default function HomePage() {
     submitPrediction(probability);
   };
 
-  // Sort evidence by vote count
   const sortedEvidence = [...evidence].sort((a, b) => {
     const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
       acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
@@ -42,7 +43,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Company Header */}
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div>
@@ -58,7 +58,6 @@ export default function HomePage() {
         </div>
 
         <div className="space-y-8 max-w-4xl mx-auto">
-          {/* Prediction Market Section */}
           <Card>
             <CardHeader>
               <CardTitle>Prediction Market</CardTitle>
@@ -98,7 +97,6 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          {/* Evidence Section */}
           <Card>
             <CardHeader>
               <CardTitle>Evidence</CardTitle>
@@ -115,38 +113,52 @@ export default function HomePage() {
                       const upvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => v.isUpvote).length ?? 0;
                       const downvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => !v.isUpvote).length ?? 0;
                       const voteScore = upvotes - downvotes;
+                      const user = (item as any).user;
+                      const reputation = user?.reputation ?? 0;
 
                       return (
                         <Card key={item.id} className="relative">
                           <CardContent className="pt-6">
                             <div className="flex gap-4">
                               <div className="flex flex-col items-center">
-                                <div className="mb-2 text-sm font-semibold text-primary">
+                                <div className="mb-2 text-sm font-semibold text-primary flex items-center gap-2">
                                   #{index + 1}
+                                  {reputation > 50 && (
+                                    <Trophy className="h-4 w-4 text-yellow-500" title="High Reputation User" />
+                                  )}
                                 </div>
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => vote({ evidenceId: item.id, isUpvote: true })}
-                                  className="text-green-600 relative"
+                                  className="text-green-600 relative group"
                                 >
                                   <ArrowUp className="h-4 w-4" />
                                   <span className="absolute -top-4 text-xs font-medium">
                                     {upvotes}
                                   </span>
+                                  <span className="absolute opacity-0 group-hover:opacity-100 left-full ml-2 whitespace-nowrap bg-black text-white text-xs rounded px-2 py-1">
+                                    Impact: +{(reputation / 100 + 1).toFixed(1)}
+                                  </span>
                                 </Button>
-                                <span className="text-sm font-medium">
+                                <span className="text-sm font-medium flex items-center gap-1">
                                   {voteScore}
+                                  <Badge variant={voteScore > 0 ? "default" : "destructive"} className="text-xs">
+                                    {Math.abs(voteScore)}
+                                  </Badge>
                                 </span>
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => vote({ evidenceId: item.id, isUpvote: false })}
-                                  className="text-red-600 relative"
+                                  className="text-red-600 relative group"
                                 >
                                   <ArrowDown className="h-4 w-4" />
                                   <span className="absolute -top-4 text-xs font-medium">
                                     {downvotes}
+                                  </span>
+                                  <span className="absolute opacity-0 group-hover:opacity-100 left-full ml-2 whitespace-nowrap bg-black text-white text-xs rounded px-2 py-1">
+                                    Impact: -{(reputation / 100 + 1).toFixed(1)}
                                   </span>
                                 </Button>
                               </div>
@@ -154,6 +166,17 @@ export default function HomePage() {
                                 <div className="flex items-center gap-2 mb-2">
                                   <FileText className="h-4 w-4 text-muted-foreground" />
                                   <h3 className="font-semibold">{item.title}</h3>
+                                  <div className="ml-auto flex items-center gap-2">
+                                    <Badge variant="outline" className="text-xs">
+                                      Rep: {reputation}
+                                    </Badge>
+                                    <div className="flex items-center text-xs text-muted-foreground">
+                                      <ThumbsUp className="h-3 w-3 mr-1" />
+                                      {user?.upvotesReceived ?? 0}
+                                      <ThumbsDown className="h-3 w-3 ml-2 mr-1" />
+                                      {user?.downvotesReceived ?? 0}
+                                    </div>
+                                  </div>
                                 </div>
                                 <p className="mt-2 text-sm text-gray-600">{item.content}</p>
                               </div>

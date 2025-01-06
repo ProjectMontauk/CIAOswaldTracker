@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { evidence, predictions, votes } from "@db/schema";
+import { evidence, predictions, votes, users } from "@db/schema";
 import { eq, and, desc } from "drizzle-orm";
 
 // Initial evidence data
@@ -102,20 +102,89 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Voting routes
+  // Updated vote endpoint with reputation tracking
   app.post("/api/vote", async (req, res) => {
     const { evidenceId, isUpvote } = req.body;
+    const userId = req.user?.id || 1; // Use authenticated user's ID when available
 
-    // Create new vote (simplified without user checking)
-    await db
-      .insert(votes)
-      .values({
-        userId: 1, // Default user for now
-        evidenceId,
-        isUpvote,
+    try {
+      // Start a transaction for atomic updates
+      await db.transaction(async (tx) => {
+        // Create the vote
+        await tx.insert(votes).values({
+          userId,
+          evidenceId,
+          isUpvote,
+        });
+
+        // Get the evidence to find its author
+        const [evidenceItem] = await tx
+          .select()
+          .from(evidence)
+          .where(eq(evidence.id, evidenceId))
+          .limit(1);
+
+        if (!evidenceItem) {
+          throw new Error("Evidence not found");
+        }
+
+        // Update author's reputation and vote counts
+        await tx
+          .update(users)
+          .set({
+            upvotes_received: isUpvote ? tx.sql`upvotes_received + 1` : tx.sql`upvotes_received`,
+            downvotes_received: !isUpvote ? tx.sql`downvotes_received + 1` : tx.sql`downvotes_received`,
+            reputation: isUpvote ? tx.sql`reputation + 1` : tx.sql`reputation - 1`,
+          })
+          .where(eq(users.id, evidenceItem.userId));
+
+        // Update voter's reputation (small bonus for participating)
+        await tx
+          .update(users)
+          .set({
+            reputation: tx.sql`reputation + 0.1`,
+          })
+          .where(eq(users.id, userId));
       });
 
-    res.json({ success: true });
+      // Fetch updated evidence with votes and user info
+      const updatedEvidence = await db.query.evidence.findMany({
+        with: {
+          votes: true,
+          user: true,
+        },
+        orderBy: desc(evidence.createdAt),
+      });
+
+      res.json(updatedEvidence);
+    } catch (error) {
+      console.error('Error handling vote:', error);
+      res.status(500).json({ error: 'Failed to process vote' });
+    }
+  });
+
+  // Add endpoint to get user reputation
+  app.get("/api/user/:id/reputation", async (req, res) => {
+    try {
+      const [user] = await db
+        .select({
+          reputation: users.reputation,
+          upvotesReceived: users.upvotes_received, //Corrected typo here
+          downvotesReceived: users.downvotes_received, //Corrected typo here
+        })
+        .from(users)
+        .where(eq(users.id, parseInt(req.params.id)))
+        .limit(1);
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json(user);
+    } catch (error) {
+      console.error('Error fetching user reputation:', error);
+      res.status(500).json({ error: 'Failed to fetch reputation' });
+    }
   });
 
   const httpServer = createServer(app);

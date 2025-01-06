@@ -6,6 +6,9 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").unique().notNull(),
   password: text("password").notNull(),
+  reputation: integer("reputation").notNull().default(0),
+  upvotesReceived: integer("upvotes_received").notNull().default(0),
+  downvotesReceived: integer("downvotes_received").notNull().default(0),
 });
 
 export const predictions = pgTable("predictions", {
@@ -31,6 +34,12 @@ export const votes = pgTable("votes", {
 });
 
 // Relations
+export const userRelations = relations(users, ({ many }) => ({
+  evidence: many(evidence),
+  votes: many(votes),
+  predictions: many(predictions),
+}));
+
 export const evidenceRelations = relations(evidence, ({ one, many }) => ({
   user: one(users, {
     fields: [evidence.userId],
