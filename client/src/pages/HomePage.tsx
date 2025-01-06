@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
@@ -120,13 +119,13 @@ export default function HomePage() {
 
                 <div className="space-y-4">
                   <div>
-                    <Label>Bet Amount (${probability})</Label>
-                    <Slider
-                      value={[probability]}
-                      onValueChange={(values) => setProbability(values[0])}
+                    <Label>Bet Amount ($)</Label>
+                    <Input
+                      type="number"
+                      value={probability}
+                      onChange={(e) => setProbability(Number(e.target.value))}
                       min={1}
                       max={100}
-                      step={1}
                       className="my-4"
                     />
                   </div>
