@@ -107,6 +107,8 @@ export default function HomePage() {
                       const voteScore = upvotes - downvotes;
                       const user = (item as any).user;
                       const reputation = user?.reputation ?? 0;
+                      const domain = item.content?.startsWith('http') ? getDomainFromUrl(item.content) : null;
+                      const titleWithDomain = domain ? `${item.title} (${domain})` : item.title;
 
                       return (
                         <Card key={item.id} className="relative">
@@ -144,7 +146,18 @@ export default function HomePage() {
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
                                   <FileText className="h-4 w-4 text-muted-foreground" />
-                                  <h3 className="font-semibold">{item.title}</h3>
+                                  {item.content?.startsWith('http') ? (
+                                    <a
+                                      href={item.content}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-semibold hover:underline"
+                                    >
+                                      {titleWithDomain}
+                                    </a>
+                                  ) : (
+                                    <h3 className="font-semibold">{titleWithDomain}</h3>
+                                  )}
                                   <div className="ml-auto flex items-center gap-2">
                                     <div className="flex items-center text-xs text-muted-foreground">
                                       <ThumbsUp className="h-3 w-3 mr-1" />
@@ -154,7 +167,10 @@ export default function HomePage() {
                                     </div>
                                   </div>
                                 </div>
-                                <p className="mt-2 text-sm text-gray-600">{item.content}</p>
+                                {/* Only show content if it's not a URL */}
+                                {(!item.content?.startsWith('http')) && (
+                                  <p className="mt-2 text-sm text-gray-600">{item.content}</p>
+                                )}
                               </div>
                             </div>
                           </CardContent>
