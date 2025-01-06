@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
 import { ArrowUp, ArrowDown, FileText } from "lucide-react";
@@ -88,6 +87,46 @@ export default function HomePage() {
         </div>
 
         <div className="space-y-8 max-w-4xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle>Prediction Market</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Current Consensus</h3>
+                  <p className="text-3xl font-bold text-primary">
+                    {averagePrediction.toFixed(1)}%
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Average probability based on {predictions.length} predictions
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <Label>Your Prediction ({probability}%)</Label>
+                    <Slider
+                      value={[probability]}
+                      onValueChange={(values) => setProbability(values[0])}
+                      min={0}
+                      max={100}
+                      step={1}
+                      className="my-4"
+                    />
+                  </div>
+                  <Button
+                    onClick={onPredictionSubmit}
+                    disabled={predictionsLoading}
+                    className="w-full"
+                  >
+                    Submit Prediction
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Evidence</CardTitle>
@@ -317,46 +356,6 @@ export default function HomePage() {
                   </form>
                 </TabsContent>
               </Tabs>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Prediction Market</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Current Consensus</h3>
-                  <p className="text-3xl font-bold text-primary">
-                    {averagePrediction.toFixed(1)}%
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Average probability based on {predictions.length} predictions
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <Label>Your Prediction ({probability}%)</Label>
-                    <Slider
-                      value={[probability]}
-                      onValueChange={(values) => setProbability(values[0])}
-                      min={0}
-                      max={100}
-                      step={1}
-                      className="my-4"
-                    />
-                  </div>
-                  <Button
-                    onClick={onPredictionSubmit}
-                    disabled={predictionsLoading}
-                    className="w-full"
-                  >
-                    Submit Prediction
-                  </Button>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>
