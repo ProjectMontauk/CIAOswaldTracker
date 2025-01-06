@@ -103,14 +103,15 @@ export default function HomePage() {
               <CardTitle>Evidence</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="view">
+              <Tabs defaultValue="view-yes">
                 <TabsList className="w-full">
-                  <TabsTrigger value="view" className="flex-1">View "Yes" Documents</TabsTrigger>
+                  <TabsTrigger value="view-yes" className="flex-1">View "Yes" Documents</TabsTrigger>
+                  <TabsTrigger value="view-no" className="flex-1">View "No" Documents</TabsTrigger>
                   <TabsTrigger value="submit" className="flex-1">Submit Document</TabsTrigger>
                 </TabsList>
-                <TabsContent value="view">
+                <TabsContent value="view-yes">
                   <div className="space-y-4">
-                    {sortedEvidence.map((item, index) => {
+                    {sortedEvidence.filter(item => !item.content?.includes('no-evidence')).map((item, index) => {
                       const upvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => v.isUpvote).length ?? 0;
                       const downvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => !v.isUpvote).length ?? 0;
                       const voteScore = upvotes - downvotes;
@@ -168,9 +169,84 @@ export default function HomePage() {
                                   <div className="ml-auto flex items-center gap-2">
                                     <div className="flex items-center text-xs text-muted-foreground">
                                       <ThumbsUp className="h-3 w-3 mr-1" />
-                                      {(item as any).votes?.filter((v: { isUpvote: boolean }) => v.isUpvote).length ?? 0}
+                                      {upvotes}
                                       <ThumbsDown className="h-3 w-3 ml-2 mr-1" />
-                                      {(item as any).votes?.filter((v: { isUpvote: boolean }) => !v.isUpvote).length ?? 0}
+                                      {downvotes}
+                                    </div>
+                                  </div>
+                                </div>
+                                <p className="mt-2 text-sm text-gray-600">{item.text || item.content}</p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </TabsContent>
+                <TabsContent value="view-no">
+                  <div className="space-y-4">
+                    {sortedEvidence.filter(item => item.content?.includes('no-evidence')).map((item, index) => {
+                      const upvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => v.isUpvote).length ?? 0;
+                      const downvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => !v.isUpvote).length ?? 0;
+                      const voteScore = upvotes - downvotes;
+                      const user = (item as any).user;
+                      const reputation = user?.reputation ?? 0;
+
+                      return (
+                        <Card key={item.id} className="relative">
+                          <CardContent className="pt-6">
+                            <div className="flex gap-4">
+                              <div className="flex flex-col items-center">
+                                <div className="mb-2 text-sm font-semibold text-primary flex items-center gap-2">
+                                  #{index + 1}
+                                  {reputation > 50 && (
+                                    <Trophy className="h-4 w-4 text-yellow-500" title="High Reputation User" />
+                                  )}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => vote({ evidenceId: item.id, isUpvote: true })}
+                                  className="text-green-600 relative group"
+                                >
+                                  <ArrowUp className="h-4 w-4" />
+                                </Button>
+                                <span className="text-sm font-medium">
+                                  <Badge variant={voteScore > 0 ? "default" : "destructive"} className="text-xs">
+                                    {voteScore}
+                                  </Badge>
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => vote({ evidenceId: item.id, isUpvote: false })}
+                                  className="text-red-600 relative group"
+                                >
+                                  <ArrowDown className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <FileText className="h-4 w-4 text-muted-foreground" />
+                                  {item.content && item.content.startsWith('http') ? (
+                                    <a
+                                      href={item.content}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-semibold hover:underline"
+                                    >
+                                      {item.title}
+                                    </a>
+                                  ) : (
+                                    <h3 className="font-semibold">{item.title}</h3>
+                                  )}
+                                  <div className="ml-auto flex items-center gap-2">
+                                    <div className="flex items-center text-xs text-muted-foreground">
+                                      <ThumbsUp className="h-3 w-3 mr-1" />
+                                      {upvotes}
+                                      <ThumbsDown className="h-3 w-3 ml-2 mr-1" />
+                                      {downvotes}
                                     </div>
                                   </div>
                                 </div>
