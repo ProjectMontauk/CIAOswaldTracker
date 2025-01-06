@@ -16,6 +16,7 @@ import { Trophy, ThumbsUp, ThumbsDown } from "lucide-react";
 type EvidenceFormData = {
   title: string;
   content: string;
+  text: string; // Added text field
 };
 
 export default function HomePage() {
@@ -187,6 +188,15 @@ export default function HomePage() {
                         id="content"
                         placeholder="Enter the URL of the document..."
                         {...evidenceForm.register("content", { required: true })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="text">Text</Label>
+                      <Textarea
+                        id="text"
+                        placeholder="Enter the document text or analysis..."
+                        {...evidenceForm.register("text", { required: true })}
+                        rows={4}
                       />
                     </div>
                     <Button type="submit" className="w-full" disabled={evidenceLoading}>
