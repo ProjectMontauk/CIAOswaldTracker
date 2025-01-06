@@ -153,7 +153,18 @@ export default function HomePage() {
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
                                   <FileText className="h-4 w-4 text-muted-foreground" />
-                                  <h3 className="font-semibold">{item.title}</h3>
+                                  {item.content ? (
+                                    <a
+                                      href={item.content}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-semibold hover:underline"
+                                    >
+                                      {item.title}
+                                    </a>
+                                  ) : (
+                                    <h3 className="font-semibold">{item.title}</h3>
+                                  )}
                                   <div className="ml-auto flex items-center gap-2">
                                     <div className="flex items-center text-xs text-muted-foreground">
                                       <ThumbsUp className="h-3 w-3 mr-1" />
@@ -163,7 +174,7 @@ export default function HomePage() {
                                     </div>
                                   </div>
                                 </div>
-                                <p className="mt-2 text-sm text-gray-600">{item.content}</p>
+                                <p className="mt-2 text-sm text-gray-600">{item.text || item.content}</p>
                               </div>
                             </div>
                           </CardContent>
