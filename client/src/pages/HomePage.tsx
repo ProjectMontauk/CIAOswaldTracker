@@ -134,13 +134,10 @@ export default function HomePage() {
                                   className="text-green-600 relative group"
                                 >
                                   <ArrowUp className="h-4 w-4" />
-                                  <span className="absolute -top-4 text-xs font-medium">
-                                    {upvotes}
-                                  </span>
                                 </Button>
                                 <span className="text-sm font-medium">
                                   <Badge variant={voteScore > 0 ? "default" : "destructive"} className="text-xs">
-                                    {Math.abs(voteScore)}
+                                    {voteScore}
                                   </Badge>
                                 </span>
                                 <Button
@@ -150,9 +147,6 @@ export default function HomePage() {
                                   className="text-red-600 relative group"
                                 >
                                   <ArrowDown className="h-4 w-4" />
-                                  <span className="absolute -top-4 text-xs font-medium">
-                                    {downvotes}
-                                  </span>
                                 </Button>
                               </div>
                               <div className="flex-1">
