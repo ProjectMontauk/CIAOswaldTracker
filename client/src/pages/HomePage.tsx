@@ -156,9 +156,9 @@ export default function HomePage() {
                                   <div className="ml-auto flex items-center gap-2">
                                     <div className="flex items-center text-xs text-muted-foreground">
                                       <ThumbsUp className="h-3 w-3 mr-1" />
-                                      {user?.upvotesReceived ?? 0}
+                                      {(item as any).votes?.filter((v: { isUpvote: boolean }) => v.isUpvote).length ?? 0}
                                       <ThumbsDown className="h-3 w-3 ml-2 mr-1" />
-                                      {user?.downvotesReceived ?? 0}
+                                      {(item as any).votes?.filter((v: { isUpvote: boolean }) => !v.isUpvote).length ?? 0}
                                     </div>
                                   </div>
                                 </div>
