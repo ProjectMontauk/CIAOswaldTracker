@@ -22,6 +22,7 @@ export const evidence = pgTable("evidence", {
   userId: integer("user_id").references(() => users.id).notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
+  text: text("text"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

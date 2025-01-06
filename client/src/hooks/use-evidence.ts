@@ -5,11 +5,13 @@ import { useToast } from "@/hooks/use-toast";
 type EvidenceSubmission = {
   title: string;
   content: string;
+  text: string;
 };
 
 type EvidenceWithRelations = Evidence & {
   user?: User;
   votes?: Vote[];
+  text?: string;
 };
 
 export function useEvidence() {
