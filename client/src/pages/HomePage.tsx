@@ -319,6 +319,46 @@ export default function HomePage() {
               </Tabs>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Prediction Market</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Current Consensus</h3>
+                  <p className="text-3xl font-bold text-primary">
+                    {averagePrediction.toFixed(1)}%
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Average probability based on {predictions.length} predictions
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <Label>Your Prediction ({probability}%)</Label>
+                    <Slider
+                      value={[probability]}
+                      onValueChange={(values) => setProbability(values[0])}
+                      min={0}
+                      max={100}
+                      step={1}
+                      className="my-4"
+                    />
+                  </div>
+                  <Button
+                    onClick={onPredictionSubmit}
+                    disabled={predictionsLoading}
+                    className="w-full"
+                  >
+                    Submit Prediction
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
