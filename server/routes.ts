@@ -46,6 +46,7 @@ export function registerRoutes(app: Express): Server {
       }
       next();
     } catch (error) {
+      console.error('Error ensuring initial user:', error);
       next(error);
     }
   });
@@ -77,22 +78,36 @@ export function registerRoutes(app: Express): Server {
 
   // Evidence routes
   app.post("/api/evidence", async (req, res) => {
-    const { title, content, text } = req.body;
-    if (!title || !content) {
-      return res.status(400).send("Title and content are required");
+    try {
+      const { title, content, text } = req.body;
+      if (!title || !content) {
+        return res.status(400).send("Title and content are required");
+      }
+
+      const [newEvidence] = await db
+        .insert(evidence)
+        .values({
+          userId: 1,
+          title,
+          content,
+          text: text || null, // Ensure text is properly handled
+        })
+        .returning();
+
+      // Return the new evidence with its relationships
+      const evidenceWithRelations = await db.query.evidence.findFirst({
+        where: eq(evidence.id, newEvidence.id),
+        with: {
+          votes: true,
+          user: true,
+        },
+      });
+
+      res.json(evidenceWithRelations);
+    } catch (error) {
+      console.error('Error submitting evidence:', error);
+      res.status(500).json({ error: 'Failed to submit evidence' });
     }
-
-    const [newEvidence] = await db
-      .insert(evidence)
-      .values({
-        userId: 1,
-        title,
-        content,
-        text,
-      })
-      .returning();
-
-    res.json(newEvidence);
   });
 
   app.get("/api/evidence", async (req, res) => {
@@ -118,7 +133,7 @@ export function registerRoutes(app: Express): Server {
 
       res.json(allEvidence);
     } catch (error) {
-      console.error('Error handling evidence:', error);
+      console.error('Error fetching evidence:', error);
       res.status(500).json({ error: 'Failed to fetch evidence' });
     }
   });
