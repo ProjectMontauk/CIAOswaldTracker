@@ -49,8 +49,9 @@ export default function HomePage() {
       (data.evidenceType === 'no' ? 'no-evidence:none' : 'none');
 
     submitEvidence({
-      ...data,
+      title: data.title,
       content: contentWithType,
+      text: data.text, 
     });
     evidenceForm.reset();
   };
@@ -206,8 +207,10 @@ export default function HomePage() {
                                     </div>
                                   </div>
                                 </div>
-                                {/* Only show content if it's not a URL */}
-                                {(!item.content?.startsWith('http')) && (
+                                {(item as any).text && (
+                                  <p className="mt-2 text-sm text-gray-600">{(item as any).text}</p>
+                                )}
+                                {(!item.content?.startsWith('http') && item.content !== 'none') && (
                                   <p className="mt-2 text-sm text-gray-600">{item.content}</p>
                                 )}
                               </div>
@@ -287,8 +290,12 @@ export default function HomePage() {
                                     </div>
                                   </div>
                                 </div>
-                                {/* Only show text if it exists */}
-                                {item.text && <p className="mt-2 text-sm text-gray-600">{item.text}</p>}
+                                {(item as any).text && (
+                                  <p className="mt-2 text-sm text-gray-600">{(item as any).text}</p>
+                                )}
+                                {(!actualContent?.startsWith('http') && actualContent !== 'none') && (
+                                  <p className="mt-2 text-sm text-gray-600">{actualContent}</p>
+                                )}
                               </div>
                             </div>
                           </CardContent>
