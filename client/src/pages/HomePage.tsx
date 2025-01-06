@@ -32,7 +32,7 @@ function getDomainFromUrl(url: string): string | null {
 
 export default function HomePage() {
   const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence();
-  const { predictions, averagePrediction, submit: submitPrediction, isLoading: predictionsLoading } = usePredictions();
+  const { predictions, averagePrediction, submit: submitPrediction, isLoading: predictionsLoading , marketOdds, yesAmount, noAmount, totalLiquidity, submit:betSubmit, isLoading:betLoading} = usePredictions(); // Added market data
   const [probability, setProbability] = useState(50);
   const evidenceForm = useForm<EvidenceFormData>({
     defaultValues: {
@@ -95,34 +95,64 @@ export default function HomePage() {
             <CardContent>
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Current Consensus</h3>
-                  <p className="text-3xl font-bold text-primary">
-                    {averagePrediction.toFixed(1)}%
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Average probability based on {predictions.length} predictions
-                  </p>
+                  <h3 className="text-lg font-semibold mb-2">Market Odds</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 border rounded-lg">
+                      <p className="text-3xl font-bold text-primary">
+                        {(marketOdds * 100).toFixed(1)}%
+                      </p>
+                      <p className="text-sm text-muted-foreground">Yes</p>
+                      <p className="text-xs text-muted-foreground">
+                        Total: ${yesAmount.toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="text-center p-4 border rounded-lg">
+                      <p className="text-3xl font-bold text-primary">
+                        {((1 - marketOdds) * 100).toFixed(1)}%
+                      </p>
+                      <p className="text-sm text-muted-foreground">No</p>
+                      <p className="text-xs text-muted-foreground">
+                        Total: ${noAmount.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <Label>Your Prediction ({probability}%)</Label>
+                    <Label>Bet Amount (${probability})</Label>
                     <Slider
                       value={[probability]}
                       onValueChange={(values) => setProbability(values[0])}
-                      min={0}
+                      min={1}
                       max={100}
                       step={1}
                       className="my-4"
                     />
                   </div>
-                  <Button
-                    onClick={onPredictionSubmit}
-                    disabled={predictionsLoading}
-                    className="w-full"
-                  >
-                    Submit Prediction
-                  </Button>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Button
+                      onClick={() => betSubmit({ position: 'yes', amount: probability })}
+                      disabled={betLoading}
+                      className="w-full"
+                      variant="default"
+                    >
+                      Bet Yes
+                    </Button>
+                    <Button
+                      onClick={() => betSubmit({ position: 'no', amount: probability })}
+                      disabled={betLoading}
+                      className="w-full"
+                      variant="outline"
+                    >
+                      Bet No
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="text-sm text-muted-foreground">
+                  <p>Market Size: ${totalLiquidity.toFixed(2)}</p>
+                  <p>Total Predictions: {predictions.length}</p>
                 </div>
               </div>
             </CardContent>

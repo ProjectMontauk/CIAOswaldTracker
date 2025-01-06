@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const users = pgTable("users", {
@@ -8,12 +8,15 @@ export const users = pgTable("users", {
   reputation: integer("reputation").notNull().default(0),
   upvotesReceived: integer("upvotes_received").notNull().default(0),
   downvotesReceived: integer("downvotes_received").notNull().default(0),
+  balance: decimal("balance").notNull().default("1000"), // Starting balance for betting
 });
 
 export const predictions = pgTable("predictions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
-  probability: integer("probability").notNull(),
+  probability: decimal("probability").notNull(), // Changed to decimal for precise odds
+  amount: decimal("amount").notNull(), // Amount bet
+  position: text("position").notNull(), // 'yes' or 'no'
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

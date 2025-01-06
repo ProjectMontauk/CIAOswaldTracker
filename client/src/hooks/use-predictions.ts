@@ -2,6 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Prediction } from "@db/schema";
 import { useToast } from "@/hooks/use-toast";
 
+type PredictionSubmission = {
+  position: 'yes' | 'no';
+  amount: number;
+};
+
 export function usePredictions() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -11,11 +16,11 @@ export function usePredictions() {
   });
 
   const submitMutation = useMutation({
-    mutationFn: async (probability: number) => {
+    mutationFn: async (data: PredictionSubmission) => {
       const res = await fetch('/api/predictions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ probability }),
+        body: JSON.stringify(data),
         credentials: 'include',
       });
 
@@ -41,14 +46,29 @@ export function usePredictions() {
     },
   });
 
-  // Calculate average prediction
-  const averagePrediction = predictions.length > 0
-    ? predictions.reduce((acc, p) => acc + p.probability, 0) / predictions.length
-    : 0;
+  // Calculate market odds based on total bets
+  const marketState = predictions.reduce((acc, p) => {
+    if (p.position === 'yes') {
+      acc.totalYes += Number(p.amount);
+    } else {
+      acc.totalNo += Number(p.amount);
+    }
+    return acc;
+  }, { totalYes: 0, totalNo: 0 });
+
+  const totalLiquidity = marketState.totalYes + marketState.totalNo;
+
+  // Calculate probability using constant product formula
+  // This creates a price impact - larger bets move the price more
+  const probability = totalLiquidity === 0 ? 0.5 : 
+    marketState.totalYes / totalLiquidity;
 
   return {
     predictions,
-    averagePrediction,
+    marketOdds: probability,
+    totalLiquidity,
+    yesAmount: marketState.totalYes,
+    noAmount: marketState.totalNo,
     isLoading,
     submit: submitMutation.mutate,
   };

@@ -42,6 +42,7 @@ export function registerRoutes(app: Express): Server {
           id: 1,
           username: 'researcher',
           password: 'password123',
+          balance: 1000, // Added balance for prediction market
         });
       }
       next();
@@ -53,27 +54,70 @@ export function registerRoutes(app: Express): Server {
 
   // Predictions routes
   app.post("/api/predictions", async (req, res) => {
-    const { probability } = req.body;
-    if (typeof probability !== "number" || probability < 0 || probability > 100) {
-      return res.status(400).send("Invalid probability value");
+    try {
+      const { position, amount } = req.body;
+      if (!position || !amount || amount <= 0) {
+        return res.status(400).send("Position and amount are required");
+      }
+
+      // Start a transaction to update user balance and create prediction
+      const [prediction] = await db.transaction(async (tx) => {
+        // Get current user balance
+        const [user] = await tx
+          .select()
+          .from(users)
+          .where(eq(users.id, 1))
+          .limit(1);
+
+        if (!user || Number(user.balance) < amount) {
+          throw new Error("Insufficient balance");
+        }
+
+        // Update user balance
+        await tx
+          .update(users)
+          .set({
+            balance: sql`${users.balance} - ${amount}`,
+          })
+          .where(eq(users.id, 1));
+
+        // Create prediction
+        return await tx
+          .insert(predictions)
+          .values({
+            userId: 1,
+            position,
+            amount,
+            probability: 0, // Will be calculated on frontend
+          })
+          .returning();
+      });
+
+      // Get updated market state
+      const marketState = await db.query.predictions.findMany({
+        orderBy: desc(predictions.createdAt),
+      });
+
+      res.json({ prediction, marketState });
+    } catch (error) {
+      console.error('Error processing prediction:', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to process prediction' });
     }
-
-    const [prediction] = await db
-      .insert(predictions)
-      .values({
-        userId: 1,
-        probability,
-      })
-      .returning();
-
-    res.json(prediction);
   });
 
   app.get("/api/predictions", async (req, res) => {
-    const allPredictions = await db.query.predictions.findMany({
-      orderBy: desc(predictions.createdAt),
-    });
-    res.json(allPredictions);
+    try {
+      const allPredictions = await db.query.predictions.findMany({
+        orderBy: desc(predictions.createdAt),
+        with: {
+          user: true,
+        },
+      });
+      res.json(allPredictions);
+    } catch (error) {
+      console.error('Error fetching predictions:', error);
+      res.status(500).json({ error: 'Failed to fetch predictions' });
+    }
   });
 
   // Evidence routes
