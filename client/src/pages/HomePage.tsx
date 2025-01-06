@@ -174,7 +174,7 @@ export default function HomePage() {
                 <TabsContent value="submit">
                   <form onSubmit={evidenceForm.handleSubmit(onEvidenceSubmit)} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="title">Document Title/Source</Label>
+                      <Label htmlFor="title">Title</Label>
                       <Input
                         id="title"
                         placeholder="e.g., CIA Memo dated Sept 1963"
