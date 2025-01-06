@@ -198,6 +198,9 @@ export default function HomePage() {
                         {...evidenceForm.register("text", { required: true })}
                         rows={4}
                       />
+                      <p className="text-sm text-muted-foreground">
+                        Leave URL blank to submit a question for discussion. If there is no URL, text will appear at the top of the thread. If there is a URL, text is optional.
+                      </p>
                     </div>
                     <Button type="submit" className="w-full" disabled={evidenceLoading}>
                       Submit Document
