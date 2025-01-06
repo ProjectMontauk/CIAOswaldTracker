@@ -51,7 +51,7 @@ export default function HomePage() {
     submitEvidence({
       title: data.title,
       content: contentWithType,
-      text: data.text, 
+      text: data.text,
     });
     evidenceForm.reset();
   };
@@ -76,7 +76,7 @@ export default function HomePage() {
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div>
-            <h2 className="text-2xl font-bold text-primary">Historical Research Platform</h2>
+            <h2 className="text-2xl font-bold text-primary">Twit</h2>
             <p className="text-sm text-muted-foreground">Collaborative Evidence Analysis</p>
           </div>
         </div>
