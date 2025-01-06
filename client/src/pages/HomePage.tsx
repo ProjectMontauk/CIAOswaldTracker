@@ -153,7 +153,7 @@ export default function HomePage() {
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
                                   <FileText className="h-4 w-4 text-muted-foreground" />
-                                  {item.content ? (
+                                  {item.content && item.content.startsWith('http') ? (
                                     <a
                                       href={item.content}
                                       target="_blank"
