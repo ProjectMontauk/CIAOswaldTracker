@@ -268,7 +268,8 @@ export default function HomePage() {
                                     </div>
                                   </div>
                                 </div>
-                                <p className="mt-2 text-sm text-gray-600">{item.text || actualContent}</p>
+                                {/* Only show text if it exists and is not a URL */}
+                                {item.text && <p className="mt-2 text-sm text-gray-600">{item.text}</p>}
                               </div>
                             </div>
                           </CardContent>
