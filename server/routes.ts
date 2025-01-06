@@ -33,6 +33,7 @@ export function registerRoutes(app: Express): Server {
       const [user] = await db.select().from(users).limit(1);
       if (!user) {
         await db.insert(users).values({
+          id: 1,
           username: 'researcher',
           password: 'password123',
         });
@@ -121,44 +122,33 @@ export function registerRoutes(app: Express): Server {
     const userId = 1; // Default user ID
 
     try {
-      // Start a transaction for atomic updates
-      await db.transaction(async (tx) => {
-        // Create the vote
-        await tx.insert(votes).values({
-          userId,
-          evidenceId,
-          isUpvote,
-        });
+      // Get the evidence to find its author
+      const [evidenceItem] = await db
+        .select()
+        .from(evidence)
+        .where(eq(evidence.id, evidenceId))
+        .limit(1);
 
-        // Get the evidence to find its author
-        const [evidenceItem] = await tx
-          .select()
-          .from(evidence)
-          .where(eq(evidence.id, evidenceId))
-          .limit(1);
+      if (!evidenceItem) {
+        return res.status(404).json({ error: "Evidence not found" });
+      }
 
-        if (!evidenceItem) {
-          throw new Error("Evidence not found");
-        }
-
-        // Update author's reputation and vote counts
-        await tx
-          .update(users)
-          .set({
-            upvotesReceived: sql`${users.upvotesReceived} + ${isUpvote ? 1 : 0}`,
-            downvotesReceived: sql`${users.downvotesReceived} + ${!isUpvote ? 1 : 0}`,
-            reputation: sql`${users.reputation} + ${isUpvote ? 1 : -1}`,
-          })
-          .where(eq(users.id, evidenceItem.userId));
-
-        // Update voter's reputation (small bonus for participating)
-        await tx
-          .update(users)
-          .set({
-            reputation: sql`${users.reputation} + 0.1`,
-          })
-          .where(eq(users.id, userId));
+      // Create the vote
+      await db.insert(votes).values({
+        userId,
+        evidenceId,
+        isUpvote,
       });
+
+      // Update author's reputation and vote counts
+      await db
+        .update(users)
+        .set({
+          upvotesReceived: sql`${users.upvotesReceived} + ${isUpvote ? 1 : 0}`,
+          downvotesReceived: sql`${users.downvotesReceived} + ${!isUpvote ? 1 : 0}`,
+          reputation: sql`${users.reputation} + ${isUpvote ? 1 : -1}`,
+        })
+        .where(eq(users.id, evidenceItem.userId));
 
       // Fetch updated evidence with votes and user info
       const updatedEvidence = await db.query.evidence.findMany({
@@ -182,8 +172,8 @@ export function registerRoutes(app: Express): Server {
       const [user] = await db
         .select({
           reputation: users.reputation,
-          upvotesReceived: users.upvotes_received,
-          downvotesReceived: users.downvotes_received,
+          upvotesReceived: users.upvotesReceived,
+          downvotesReceived: users.downvotesReceived,
         })
         .from(users)
         .where(eq(users.id, parseInt(req.params.id)))

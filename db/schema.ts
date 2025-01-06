@@ -1,5 +1,4 @@
 import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
 export const users = pgTable("users", {
@@ -65,19 +64,6 @@ export const predictionsRelations = relations(predictions, ({ one }) => ({
     references: [users.id],
   }),
 }));
-
-// Schemas
-export const insertUserSchema = createInsertSchema(users);
-export const selectUserSchema = createSelectSchema(users);
-
-export const insertEvidenceSchema = createInsertSchema(evidence);
-export const selectEvidenceSchema = createSelectSchema(evidence);
-
-export const insertPredictionSchema = createInsertSchema(predictions);
-export const selectPredictionSchema = createSelectSchema(predictions);
-
-export const insertVoteSchema = createInsertSchema(votes);
-export const selectVoteSchema = createSelectSchema(votes);
 
 // Types
 export type User = typeof users.$inferSelect;
