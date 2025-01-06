@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
 import { ArrowUp, ArrowDown, FileText } from "lucide-react";
@@ -16,7 +17,8 @@ import { Trophy, ThumbsUp, ThumbsDown } from "lucide-react";
 type EvidenceFormData = {
   title: string;
   content: string;
-  text: string; // Added text field
+  text: string;
+  evidenceType: 'yes' | 'no';
 };
 
 export default function HomePage() {
@@ -26,7 +28,14 @@ export default function HomePage() {
   const evidenceForm = useForm<EvidenceFormData>();
 
   const onEvidenceSubmit = (data: EvidenceFormData) => {
-    submitEvidence(data);
+    const contentWithType = data.content ? 
+      (data.evidenceType === 'no' ? `no-evidence:${data.content}` : data.content) :
+      (data.evidenceType === 'no' ? 'no-evidence:none' : 'none');
+
+    submitEvidence({
+      ...data,
+      content: contentWithType,
+    });
     evidenceForm.reset();
   };
 
@@ -261,6 +270,23 @@ export default function HomePage() {
                 </TabsContent>
                 <TabsContent value="submit">
                   <form onSubmit={evidenceForm.handleSubmit(onEvidenceSubmit)} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Evidence Type</Label>
+                      <RadioGroup
+                        defaultValue="yes"
+                        {...evidenceForm.register("evidenceType")}
+                        className="flex flex-row space-x-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="yes" id="yes" />
+                          <Label htmlFor="yes">Yes Evidence</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="no" id="no" />
+                          <Label htmlFor="no">No Evidence</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="title">Title</Label>
                       <Input
