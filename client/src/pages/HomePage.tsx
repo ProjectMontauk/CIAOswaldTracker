@@ -182,12 +182,11 @@ export default function HomePage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="content">Document Content & Analysis</Label>
-                      <Textarea
+                      <Label htmlFor="content">URL</Label>
+                      <Input
                         id="content"
-                        placeholder="Describe the document's content and explain how it demonstrates CIA-Oswald connection..."
+                        placeholder="Enter the URL of the document..."
                         {...evidenceForm.register("content", { required: true })}
-                        rows={4}
                       />
                     </div>
                     <Button type="submit" className="w-full" disabled={evidenceLoading}>
