@@ -25,7 +25,14 @@ export default function HomePage() {
   const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence();
   const { predictions, averagePrediction, submit: submitPrediction, isLoading: predictionsLoading } = usePredictions();
   const [probability, setProbability] = useState(50);
-  const evidenceForm = useForm<EvidenceFormData>();
+  const evidenceForm = useForm<EvidenceFormData>({
+    defaultValues: {
+      title: '',
+      content: '',
+      text: '',
+      evidenceType: 'yes'
+    }
+  });
 
   const onEvidenceSubmit = (data: EvidenceFormData) => {
     const contentWithType = data.content ? 
@@ -135,7 +142,7 @@ export default function HomePage() {
                                 <div className="mb-2 text-sm font-semibold text-primary flex items-center gap-2">
                                   #{index + 1}
                                   {reputation > 50 && (
-                                    <Trophy className="h-4 w-4 text-yellow-500" title="High Reputation User" />
+                                    <Trophy className="h-4 w-4 text-yellow-500" aria-label="High Reputation User" />
                                   )}
                                 </div>
                                 <Button
@@ -210,7 +217,7 @@ export default function HomePage() {
                                 <div className="mb-2 text-sm font-semibold text-primary flex items-center gap-2">
                                   #{index + 1}
                                   {reputation > 50 && (
-                                    <Trophy className="h-4 w-4 text-yellow-500" title="High Reputation User" />
+                                    <Trophy className="h-4 w-4 text-yellow-500" aria-label="High Reputation User" />
                                   )}
                                 </div>
                                 <Button
@@ -272,20 +279,29 @@ export default function HomePage() {
                   <form onSubmit={evidenceForm.handleSubmit(onEvidenceSubmit)} className="space-y-4">
                     <div className="space-y-2">
                       <Label>Evidence Type</Label>
-                      <RadioGroup
-                        defaultValue="yes"
-                        {...evidenceForm.register("evidenceType")}
-                        className="flex flex-row space-x-4"
-                      >
+                      <div className="flex flex-row space-x-4">
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="yes" />
+                          <input
+                            type="radio"
+                            id="yes"
+                            value="yes"
+                            {...evidenceForm.register("evidenceType")}
+                            defaultChecked
+                            className="text-primary"
+                          />
                           <Label htmlFor="yes">Yes Evidence</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="no" />
+                          <input
+                            type="radio"
+                            id="no"
+                            value="no"
+                            {...evidenceForm.register("evidenceType")}
+                            className="text-primary"
+                          />
                           <Label htmlFor="no">No Evidence</Label>
                         </div>
-                      </RadioGroup>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="title">Title</Label>
