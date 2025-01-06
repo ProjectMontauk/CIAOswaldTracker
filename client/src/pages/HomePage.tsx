@@ -137,12 +137,8 @@ export default function HomePage() {
                                   <span className="absolute -top-4 text-xs font-medium">
                                     {upvotes}
                                   </span>
-                                  <span className="absolute opacity-0 group-hover:opacity-100 left-full ml-2 whitespace-nowrap bg-black text-white text-xs rounded px-2 py-1">
-                                    Impact: +{(reputation / 100 + 1).toFixed(1)}
-                                  </span>
                                 </Button>
-                                <span className="text-sm font-medium flex items-center gap-1">
-                                  {voteScore}
+                                <span className="text-sm font-medium">
                                   <Badge variant={voteScore > 0 ? "default" : "destructive"} className="text-xs">
                                     {Math.abs(voteScore)}
                                   </Badge>
@@ -156,9 +152,6 @@ export default function HomePage() {
                                   <ArrowDown className="h-4 w-4" />
                                   <span className="absolute -top-4 text-xs font-medium">
                                     {downvotes}
-                                  </span>
-                                  <span className="absolute opacity-0 group-hover:opacity-100 left-full ml-2 whitespace-nowrap bg-black text-white text-xs rounded px-2 py-1">
-                                    Impact: -{(reputation / 100 + 1).toFixed(1)}
                                   </span>
                                 </Button>
                               </div>
