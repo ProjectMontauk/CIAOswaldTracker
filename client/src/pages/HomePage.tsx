@@ -35,7 +35,7 @@ export default function HomePage() {
   });
 
   const onEvidenceSubmit = (data: EvidenceFormData) => {
-    const contentWithType = data.content ? 
+    const contentWithType = data.content ?
       (data.evidenceType === 'no' ? `no-evidence:${data.content}` : data.content) :
       (data.evidenceType === 'no' ? 'no-evidence:none' : 'none');
 
@@ -208,6 +208,8 @@ export default function HomePage() {
                       const voteScore = upvotes - downvotes;
                       const user = (item as any).user;
                       const reputation = user?.reputation ?? 0;
+                      // Extract the actual content without the prefix
+                      const actualContent = item.content?.replace('no-evidence:', '');
 
                       return (
                         <Card key={item.id} className="relative">
@@ -245,9 +247,9 @@ export default function HomePage() {
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
                                   <FileText className="h-4 w-4 text-muted-foreground" />
-                                  {item.content && item.content.startsWith('http') ? (
+                                  {actualContent && actualContent.startsWith('http') ? (
                                     <a
-                                      href={item.content}
+                                      href={actualContent}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="font-semibold hover:underline"
@@ -266,7 +268,7 @@ export default function HomePage() {
                                     </div>
                                   </div>
                                 </div>
-                                <p className="mt-2 text-sm text-gray-600">{item.text || item.content}</p>
+                                <p className="mt-2 text-sm text-gray-600">{item.text || actualContent}</p>
                               </div>
                             </div>
                           </CardContent>
