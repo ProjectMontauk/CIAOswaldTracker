@@ -105,7 +105,7 @@ export default function HomePage() {
             <CardContent>
               <Tabs defaultValue="view">
                 <TabsList className="w-full">
-                  <TabsTrigger value="view" className="flex-1">View Documents</TabsTrigger>
+                  <TabsTrigger value="view" className="flex-1">View "Yes" Documents</TabsTrigger>
                   <TabsTrigger value="submit" className="flex-1">Submit Document</TabsTrigger>
                 </TabsList>
                 <TabsContent value="view">
