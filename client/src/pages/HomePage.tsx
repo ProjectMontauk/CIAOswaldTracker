@@ -154,9 +154,6 @@ export default function HomePage() {
                                   <FileText className="h-4 w-4 text-muted-foreground" />
                                   <h3 className="font-semibold">{item.title}</h3>
                                   <div className="ml-auto flex items-center gap-2">
-                                    <Badge variant="outline" className="text-xs">
-                                      Rep: {reputation}
-                                    </Badge>
                                     <div className="flex items-center text-xs text-muted-foreground">
                                       <ThumbsUp className="h-3 w-3 mr-1" />
                                       {user?.upvotesReceived ?? 0}
