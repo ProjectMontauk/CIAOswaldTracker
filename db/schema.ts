@@ -14,7 +14,7 @@ export const users = pgTable("users", {
 export const predictions = pgTable("predictions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
-  probability: integer("probability").notNull(), // 0-100
+  probability: integer("probability").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

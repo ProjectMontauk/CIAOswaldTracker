@@ -2,26 +2,23 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { evidence, predictions, votes, users } from "@db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 // Initial evidence data
 const initialEvidence = [
   {
-    id: 1,
     userId: 1,
     title: "Mexico City CIA Station Report - September 1963",
     content: "CIA surveillance records from Mexico City station documented Oswald's visits to Cuban and Soviet embassies. Station chief Win Scott's detailed memo suggests prior knowledge of Oswald's activities before the assassination.",
     createdAt: new Date("1963-09-27"),
   },
   {
-    id: 2,
     userId: 1,
     title: "201 File Opening - December 1960",
     content: "CIA opened a 201 personality file on Oswald in December 1960, despite officially claiming no interest in him until after the assassination. The existence of this file suggests earlier surveillance.",
     createdAt: new Date("1960-12-09"),
   },
   {
-    id: 3,
     userId: 1,
     title: "James Jesus Angleton Testimony - 1964",
     content: "CIA Counterintelligence Chief Angleton's testimony to the Warren Commission contained notable gaps regarding Oswald's file handling. Later revelations indicated special interest procedures were applied to Oswald's records.",
@@ -30,6 +27,22 @@ const initialEvidence = [
 ];
 
 export function registerRoutes(app: Express): Server {
+  // Ensure initial user exists
+  app.use(async (req, res, next) => {
+    try {
+      const [user] = await db.select().from(users).limit(1);
+      if (!user) {
+        await db.insert(users).values({
+          username: 'researcher',
+          password: 'password123',
+        });
+      }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
+
   // Predictions routes
   app.post("/api/predictions", async (req, res) => {
     const { probability } = req.body;
@@ -40,7 +53,7 @@ export function registerRoutes(app: Express): Server {
     const [prediction] = await db
       .insert(predictions)
       .values({
-        userId: 1, // Default user for now
+        userId: 1,
         probability,
       })
       .returning();
@@ -52,7 +65,6 @@ export function registerRoutes(app: Express): Server {
     const allPredictions = await db.query.predictions.findMany({
       orderBy: desc(predictions.createdAt),
     });
-
     res.json(allPredictions);
   });
 
@@ -66,7 +78,7 @@ export function registerRoutes(app: Express): Server {
     const [newEvidence] = await db
       .insert(evidence)
       .values({
-        userId: 1, // Default user for now
+        userId: 1,
         title,
         content,
       })
@@ -87,12 +99,13 @@ export function registerRoutes(app: Express): Server {
         await db.insert(evidence).values(initialEvidence);
       }
 
-      // Return all evidence with votes
+      // Return all evidence with votes and user info
       const allEvidence = await db.query.evidence.findMany({
-        orderBy: desc(evidence.createdAt),
         with: {
           votes: true,
+          user: true,
         },
+        orderBy: desc(evidence.createdAt),
       });
 
       res.json(allEvidence);
@@ -105,7 +118,7 @@ export function registerRoutes(app: Express): Server {
   // Updated vote endpoint with reputation tracking
   app.post("/api/vote", async (req, res) => {
     const { evidenceId, isUpvote } = req.body;
-    const userId = req.user?.id || 1; // Use authenticated user's ID when available
+    const userId = 1; // Default user ID
 
     try {
       // Start a transaction for atomic updates
@@ -132,9 +145,9 @@ export function registerRoutes(app: Express): Server {
         await tx
           .update(users)
           .set({
-            upvotes_received: isUpvote ? tx.sql`upvotes_received + 1` : tx.sql`upvotes_received`,
-            downvotes_received: !isUpvote ? tx.sql`downvotes_received + 1` : tx.sql`downvotes_received`,
-            reputation: isUpvote ? tx.sql`reputation + 1` : tx.sql`reputation - 1`,
+            upvotesReceived: sql`${users.upvotesReceived} + ${isUpvote ? 1 : 0}`,
+            downvotesReceived: sql`${users.downvotesReceived} + ${!isUpvote ? 1 : 0}`,
+            reputation: sql`${users.reputation} + ${isUpvote ? 1 : -1}`,
           })
           .where(eq(users.id, evidenceItem.userId));
 
@@ -142,7 +155,7 @@ export function registerRoutes(app: Express): Server {
         await tx
           .update(users)
           .set({
-            reputation: tx.sql`reputation + 0.1`,
+            reputation: sql`${users.reputation} + 0.1`,
           })
           .where(eq(users.id, userId));
       });
@@ -169,8 +182,8 @@ export function registerRoutes(app: Express): Server {
       const [user] = await db
         .select({
           reputation: users.reputation,
-          upvotesReceived: users.upvotes_received, //Corrected typo here
-          downvotesReceived: users.downvotes_received, //Corrected typo here
+          upvotesReceived: users.upvotes_received,
+          downvotesReceived: users.downvotes_received,
         })
         .from(users)
         .where(eq(users.id, parseInt(req.params.id)))
