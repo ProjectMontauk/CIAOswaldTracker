@@ -31,7 +31,8 @@ type EvidenceFormData = {
 };
 
 export default function PredictionPage({ params }: { params?: { id?: string } }) {
-  const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence();
+  const marketId = params?.id ? parseInt(params.id) : undefined;
+  const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(marketId);
   const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
   const [betAmount, setBetAmount] = useState(50);
 
@@ -99,8 +100,8 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
 
   // Get the appropriate title and description based on whether we're viewing a specific market or the CIA market
-  const title = params?.id 
-    ? market?.title 
+  const title = params?.id
+    ? market?.title
     : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?";
 
   return (

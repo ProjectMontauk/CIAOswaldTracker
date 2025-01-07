@@ -6,6 +6,7 @@ type EvidenceSubmission = {
   title: string;
   content: string;
   text: string;
+  marketId?: number;
 };
 
 type EvidenceWithRelations = Evidence & {
@@ -14,12 +15,12 @@ type EvidenceWithRelations = Evidence & {
   text?: string;
 };
 
-export function useEvidence() {
+export function useEvidence(marketId?: number) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: evidence = [], isLoading } = useQuery<EvidenceWithRelations[]>({
-    queryKey: ['/api/evidence'],
+    queryKey: ['/api/evidence', marketId],
   });
 
   const submitMutation = useMutation({
@@ -38,7 +39,7 @@ export function useEvidence() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/evidence'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
       toast({
         title: "Success",
         description: "Evidence submitted successfully",
@@ -69,7 +70,7 @@ export function useEvidence() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/evidence'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
     },
     onError: (error: Error) => {
       toast({

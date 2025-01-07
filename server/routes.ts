@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { evidence, predictions, votes, users, markets } from "@db/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { setupAuth } from "./auth";
 
 export function registerRoutes(app: Express): Server {
@@ -45,45 +45,6 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Create new market
-  app.post("/api/markets", async (req, res) => {
-    try {
-      const { title, description, initialEvidence, startingOdds } = req.body;
-
-      // Validate required fields
-      if (!title || !description || startingOdds === undefined) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-
-      // Create new market
-      const [market] = await db.insert(markets).values({
-        title,
-        description,
-        initialEvidence: initialEvidence || null,
-        startingOdds: startingOdds.toString(),
-        creatorId: 1, // Default user for now
-        participants: 0,
-        totalLiquidity: "0",
-      }).returning();
-
-      // Add initial evidence if provided
-      if (initialEvidence) {
-        await db.insert(evidence).values({
-          userId: 1,
-          marketId: market.id,
-          title: "Initial Context",
-          content: initialEvidence,
-          text: initialEvidence,
-        });
-      }
-
-      res.status(201).json(market);
-    } catch (error) {
-      console.error('Error creating market:', error);
-      res.status(500).json({ error: 'Failed to create market' });
-    }
-  });
-
   // Get all markets
   app.get("/api/markets", async (req, res) => {
     try {
@@ -100,6 +61,81 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ error: 'Failed to fetch markets' });
     }
   });
+
+  // Evidence routes
+  app.get("/api/evidence", async (req, res) => {
+    try {
+      const marketId = req.query.marketId ? parseInt(req.query.marketId as string) : undefined;
+
+      // If no marketId is provided and there's no evidence, insert initial CIA market evidence
+      if (!marketId) {
+        const existingEvidence = await db.query.evidence.findMany({ limit: 1 });
+        if (existingEvidence.length === 0) {
+          await db.insert(evidence).values(initialEvidence);
+        }
+      }
+
+      // Query evidence with optional market filter
+      const query = marketId 
+        ? db.query.evidence.findMany({
+            where: eq(evidence.marketId, marketId),
+            with: {
+              votes: true,
+              user: true,
+            },
+            orderBy: desc(evidence.createdAt),
+          })
+        : db.query.evidence.findMany({
+            with: {
+              votes: true,
+              user: true,
+            },
+            orderBy: desc(evidence.createdAt),
+          });
+
+      const allEvidence = await query;
+      res.json(allEvidence);
+    } catch (error) {
+      console.error('Error fetching evidence:', error);
+      res.status(500).json({ error: 'Failed to fetch evidence' });
+    }
+  });
+
+  // Submit evidence
+  app.post("/api/evidence", async (req, res) => {
+    try {
+      const { title, content, text, marketId } = req.body;
+      if (!title || !content) {
+        return res.status(400).send("Title and content are required");
+      }
+
+      const [newEvidence] = await db
+        .insert(evidence)
+        .values({
+          userId: 1, // Default user for now
+          marketId: marketId || null,
+          title,
+          content,
+          text: text || null,
+        })
+        .returning();
+
+      // Return the new evidence with its relationships
+      const evidenceWithRelations = await db.query.evidence.findFirst({
+        where: eq(evidence.id, newEvidence.id),
+        with: {
+          votes: true,
+          user: true,
+        },
+      });
+
+      res.json(evidenceWithRelations);
+    } catch (error) {
+      console.error('Error submitting evidence:', error);
+      res.status(500).json({ error: 'Failed to submit evidence' });
+    }
+  });
+
   // Predictions routes
   app.post("/api/predictions", async (req, res) => {
     try {
@@ -168,69 +204,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Evidence routes
-  app.post("/api/evidence", async (req, res) => {
-    try {
-      const { title, content, text } = req.body;
-      if (!title || !content) {
-        return res.status(400).send("Title and content are required");
-      }
 
-      const [newEvidence] = await db
-        .insert(evidence)
-        .values({
-          userId: 1,
-          title,
-          content,
-          text: text || null, // Ensure text is properly handled
-        })
-        .returning();
-
-      // Return the new evidence with its relationships
-      const evidenceWithRelations = await db.query.evidence.findFirst({
-        where: eq(evidence.id, newEvidence.id),
-        with: {
-          votes: true,
-          user: true,
-        },
-      });
-
-      res.json(evidenceWithRelations);
-    } catch (error) {
-      console.error('Error submitting evidence:', error);
-      res.status(500).json({ error: 'Failed to submit evidence' });
-    }
-  });
-
-  app.get("/api/evidence", async (req, res) => {
-    try {
-      // Check if there's any evidence in the database
-      const existingEvidence = await db.query.evidence.findMany({
-        limit: 1,
-      });
-
-      // If no evidence exists, insert the initial data
-      if (existingEvidence.length === 0) {
-        await db.insert(evidence).values(initialEvidence);
-      }
-
-      // Return all evidence with votes and user info
-      const allEvidence = await db.query.evidence.findMany({
-        with: {
-          votes: true,
-          user: true,
-        },
-        orderBy: desc(evidence.createdAt),
-      });
-
-      res.json(allEvidence);
-    } catch (error) {
-      console.error('Error fetching evidence:', error);
-      res.status(500).json({ error: 'Failed to fetch evidence' });
-    }
-  });
-
-  // Updated vote endpoint with reputation tracking
   app.post("/api/vote", async (req, res) => {
     const { evidenceId, isUpvote } = req.body;
     const userId = 1; // Default user ID
@@ -315,6 +289,7 @@ const initialEvidence = [
     content: "CIA surveillance records from Mexico City station documented Oswald's visits to Cuban and Soviet embassies. Station chief Win Scott's detailed memo suggests prior knowledge of Oswald's activities before the assassination.",
     text: "The CIA's Mexico City station maintained extensive surveillance operations that captured Oswald's interactions with foreign embassies.",
     createdAt: new Date("1963-09-27"),
+    marketId: null
   },
   {
     userId: 1,
@@ -322,6 +297,7 @@ const initialEvidence = [
     content: "CIA opened a 201 personality file on Oswald in December 1960, despite officially claiming no interest in him until after the assassination. The existence of this file suggests earlier surveillance.",
     text: "The existence of a CIA 201 file on Oswald three years before the assassination contradicts official statements.",
     createdAt: new Date("1960-12-09"),
+    marketId: null
   },
   {
     userId: 1,
@@ -329,5 +305,6 @@ const initialEvidence = [
     content: "CIA Counterintelligence Chief Angleton's testimony to the Warren Commission contained notable gaps regarding Oswald's file handling. Later revelations indicated special interest procedures were applied to Oswald's records.",
     text: "Angleton's testimony shows inconsistencies in how the CIA handled Oswald's records.",
     createdAt: new Date("1964-02-15"),
+    marketId: null
   }
 ];
