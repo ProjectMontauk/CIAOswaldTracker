@@ -37,7 +37,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   const [betAmount, setBetAmount] = useState(50);
 
   // Fetch market data if we have an ID
-  const { data: market } = useQuery<Market>({
+  const { data: market, isLoading: marketLoading } = useQuery<Market>({
     queryKey: ['/api/markets', params?.id],
     enabled: !!params?.id,
   });
@@ -51,14 +51,28 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     }
   });
 
-  // Default title for CIA market or use market title
-  const marketTitle = params?.id 
-    ? market?.title 
-    : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?";
+  // Display loading state while market data is being fetched
+  if (params?.id && marketLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg text-muted-foreground">Loading market data...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const marketDescription = params?.id
-    ? market?.description
-    : null;
+  // Show error if market not found
+  if (params?.id && !market) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-destructive mb-2">Market Not Found</h1>
+          <p className="text-muted-foreground">The requested prediction market could not be found.</p>
+        </div>
+      </div>
+    );
+  }
 
   const onEvidenceSubmit = (data: EvidenceFormData) => {
     const contentWithType = data.content ?
@@ -98,9 +112,13 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">{marketTitle}</h1>
-          {marketDescription && (
-            <p className="mt-4 text-lg text-muted-foreground">{marketDescription}</p>
+          <h1 className="text-4xl font-bold text-center mb-4">
+            {market?.title || "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
+          </h1>
+          {market?.description && (
+            <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto">
+              {market.description}
+            </p>
           )}
         </div>
 
