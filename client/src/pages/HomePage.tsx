@@ -107,7 +107,7 @@ export default function HomePage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <FileText className="h-5 w-5" />
-                    Create Your Own Market
+                    Create New Market
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
