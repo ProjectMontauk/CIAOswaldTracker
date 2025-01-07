@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { TrendingUp, Vote, Shield } from "lucide-react";
@@ -33,7 +33,7 @@ type EvidenceFormData = {
 
 export default function HomePage() {
   const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence();
-  const { predictions, averagePrediction, submit: submitPrediction, isLoading: predictionsLoading , marketOdds, yesAmount, noAmount, totalLiquidity, submit:betSubmit, isLoading:betLoading} = usePredictions(); 
+  const { predictions, averagePrediction, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity, submit: betSubmit, isLoading: betLoading } = usePredictions();
   const [probability, setProbability] = useState(50);
   const evidenceForm = useForm<EvidenceFormData>({
     defaultValues: {
@@ -120,6 +120,31 @@ export default function HomePage() {
                 <Link href="/predict">
                   <Button variant="outline" className="w-full">View Evidence</Button>
                 </Link>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Active Markets Section */}
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-center mb-6">Active Markets</h2>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <Link href="/predict" className="block">
+                    <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors">
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">
+                          CIA's Contact with Lee Harvey Oswald
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?
+                        </p>
+                      </div>
+                      <ExternalLink className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  </Link>
+                  {/* Add more prediction markets here as they are created */}
+                </div>
               </CardContent>
             </Card>
           </div>
