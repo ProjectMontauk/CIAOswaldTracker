@@ -104,19 +104,19 @@ export default function HomePage() {
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Evidence Tracking
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="mb-4">Submit and verify evidence through our advanced tracking system.</p>
-                <Link href="/predict">
-                  <Button variant="outline" className="w-full">View Evidence</Button>
-                </Link>
-              </CardContent>
-            </Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Create Your Own Market
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="mb-4">Start your own prediction market and let the crowd discover the truth.</p>
+                  <Link href="/predict">
+                    <Button variant="outline" className="w-full">Create Market</Button>
+                  </Link>
+                </CardContent>
+              </Card>
           </div>
 
           {/* Trending Markets Section */}
