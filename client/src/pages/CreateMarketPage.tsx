@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 type MarketFormData = {
   title: string;
@@ -35,6 +37,9 @@ const steps = [
 
 export default function CreateMarketPage() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [, navigate] = useLocation();
+  const { toast } = useToast();
+
   const form = useForm<MarketFormData>({
     defaultValues: {
       title: "",
@@ -56,8 +61,34 @@ export default function CreateMarketPage() {
     }
   };
 
-  const onSubmit = (data: MarketFormData) => {
-    console.log(data); // We'll implement the actual submission later
+  const onSubmit = async (data: MarketFormData) => {
+    try {
+      const response = await fetch('/api/markets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      toast({
+        title: "Success",
+        description: "Market created successfully",
+      });
+
+      // Redirect to markets page
+      navigate('/markets');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to create market',
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -109,7 +140,7 @@ export default function CreateMarketPage() {
                     <Textarea
                       id="initialEvidence"
                       placeholder="Share any relevant information, data, or context..."
-                      {...form.register("initialEvidence", { required: true })}
+                      {...form.register("initialEvidence")}
                       rows={4}
                     />
                   </div>
@@ -127,6 +158,7 @@ export default function CreateMarketPage() {
                         required: true,
                         min: 1,
                         max: 99,
+                        valueAsNumber: true,
                       })}
                     />
                     <p className="text-sm text-muted-foreground">

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { evidence, predictions, votes, users } from "@db/schema";
+import { evidence, predictions, votes, users, markets } from "@db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { setupAuth } from "./auth";
 
@@ -11,6 +11,62 @@ export function registerRoutes(app: Express): Server {
   // Add a heartbeat route to verify server is running
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Create new market
+  app.post("/api/markets", async (req, res) => {
+    try {
+      const { title, description, initialEvidence, startingOdds } = req.body;
+
+      // Validate required fields
+      if (!title || !description || startingOdds === undefined) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      // Create new market
+      const [market] = await db.insert(markets).values({
+        title,
+        description,
+        initialEvidence: initialEvidence || null,
+        startingOdds,
+        creatorId: 1, // Default user for now
+        participants: 0,
+        totalLiquidity: 0,
+      }).returning();
+
+      // Add initial evidence if provided
+      if (initialEvidence) {
+        await db.insert(evidence).values({
+          userId: 1,
+          marketId: market.id,
+          title: "Initial Context",
+          content: initialEvidence,
+          text: initialEvidence,
+        });
+      }
+
+      res.status(201).json(market);
+    } catch (error) {
+      console.error('Error creating market:', error);
+      res.status(500).json({ error: 'Failed to create market' });
+    }
+  });
+
+  // Get all markets
+  app.get("/api/markets", async (req, res) => {
+    try {
+      const allMarkets = await db.query.markets.findMany({
+        orderBy: desc(markets.createdAt),
+        with: {
+          predictions: true,
+        },
+      });
+
+      res.json(allMarkets);
+    } catch (error) {
+      console.error('Error fetching markets:', error);
+      res.status(500).json({ error: 'Failed to fetch markets' });
+    }
   });
 
   // Ensure initial user exists
