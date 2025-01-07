@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { TrendingUp, Vote, Shield } from "lucide-react";
 
-
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
   try {
@@ -57,10 +56,6 @@ export default function HomePage() {
     evidenceForm.reset();
   };
 
-  const onPredictionSubmit = () => {
-    submitPrediction(probability);
-  };
-
   const sortedEvidence = [...evidence].sort((a, b) => {
     const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
       acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
@@ -88,7 +83,7 @@ export default function HomePage() {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Welcome to Twit</h1>
             <p className="text-xl text-muted-foreground">
-              A cutting-edge social research and collaboration platform that revolutionizes digital investigation
+              A home for truth and good spirited debate on the internet
             </p>
           </div>
 
