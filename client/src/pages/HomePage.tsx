@@ -96,7 +96,7 @@ export default function HomePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="mb-4">Make predictions and earn rewards by contributing to collective intelligence.</p>
+                <p className="mb-4">Make predictions and earn rewards by contributing to collective knowledge.</p>
                 <Link href="/markets">
                   <Button className="w-full">View Prediction Markets</Button>
                 </Link>
