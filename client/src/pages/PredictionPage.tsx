@@ -9,9 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Market } from "@db/schema";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
@@ -32,7 +33,7 @@ type EvidenceFormData = {
 
 export default function PredictionPage({ params }: { params?: { id?: string } }) {
   const marketId = params?.id ? parseInt(params.id) : undefined;
-  const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(marketId);
+  const { evidence, submit: submitEvidence, vote, clear, isLoading: evidenceLoading } = useEvidence(marketId);
   const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
   const [betAmount, setBetAmount] = useState(50);
 
@@ -198,7 +199,34 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
 
           <Card>
             <CardHeader>
-              <CardTitle>Evidence</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Evidence</CardTitle>
+                {marketId && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Clear All Evidence
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action will clear all evidence documents for this prediction market.
+                          This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => marketId && clear(marketId)}>
+                          Clear Evidence
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="view-yes">

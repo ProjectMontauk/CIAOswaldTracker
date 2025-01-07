@@ -13,6 +13,37 @@ export function registerRoutes(app: Express): Server {
     res.json({ status: "ok" });
   });
 
+  // New endpoint to clear evidence for a specific market
+  app.post("/api/markets/:id/clear-evidence", async (req, res) => {
+    try {
+      const marketId = parseInt(req.params.id);
+
+      // Verify the market exists
+      const market = await db.query.markets.findFirst({
+        where: eq(markets.id, marketId),
+      });
+
+      if (!market) {
+        return res.status(404).json({ error: "Market not found" });
+      }
+
+      // Soft delete by updating evidence entries to be marked as cleared
+      // This is safer than actually deleting the records
+      await db
+        .update(evidence)
+        .set({
+          content: "[Cleared]",
+          text: "[Cleared]",
+        })
+        .where(eq(evidence.marketId, marketId));
+
+      res.json({ message: "Evidence cleared successfully" });
+    } catch (error) {
+      console.error('Error clearing evidence:', error);
+      res.status(500).json({ error: 'Failed to clear evidence' });
+    }
+  });
+
   // Get specific market with its evidence and predictions
   app.get("/api/markets/:id", async (req, res) => {
     try {
@@ -76,7 +107,7 @@ export function registerRoutes(app: Express): Server {
       }
 
       // Query evidence with optional market filter
-      const query = marketId 
+      const query = marketId
         ? db.query.evidence.findMany({
             where: eq(evidence.marketId, marketId),
             with: {

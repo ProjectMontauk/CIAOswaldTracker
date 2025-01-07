@@ -54,6 +54,35 @@ export function useEvidence(marketId?: number) {
     },
   });
 
+  const clearMutation = useMutation({
+    mutationFn: async (marketId: number) => {
+      const res = await fetch(`/api/markets/${marketId}/clear-evidence`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
+      toast({
+        title: "Success",
+        description: "Evidence cleared successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const voteMutation = useMutation({
     mutationFn: async ({ evidenceId, isUpvote }: { evidenceId: number, isUpvote: boolean }) => {
       const res = await fetch('/api/vote', {
@@ -86,5 +115,6 @@ export function useEvidence(marketId?: number) {
     isLoading,
     submit: submitMutation.mutate,
     vote: voteMutation.mutate,
+    clear: clearMutation.mutate,
   };
 }
