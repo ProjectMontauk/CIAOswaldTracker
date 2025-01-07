@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +12,7 @@ import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
 import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import type { Market } from "@db/schema";
 
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
@@ -28,10 +31,17 @@ type EvidenceFormData = {
   evidenceType: 'yes' | 'no';
 };
 
-export default function PredictionPage() {
+export default function PredictionPage({ params }: { params?: { id?: string } }) {
   const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence();
   const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
   const [betAmount, setBetAmount] = useState(50);
+
+  // Fetch market data if we have an ID
+  const { data: market } = useQuery<Market>({
+    queryKey: ['/api/markets', params?.id],
+    enabled: !!params?.id,
+  });
+
   const evidenceForm = useForm<EvidenceFormData>({
     defaultValues: {
       title: '',
@@ -40,6 +50,15 @@ export default function PredictionPage() {
       evidenceType: 'yes'
     }
   });
+
+  // Default title for CIA market or use market title
+  const marketTitle = params?.id 
+    ? market?.title 
+    : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?";
+
+  const marketDescription = params?.id
+    ? market?.description
+    : null;
 
   const onEvidenceSubmit = (data: EvidenceFormData) => {
     const contentWithType = data.content ?
@@ -50,6 +69,7 @@ export default function PredictionPage() {
       title: data.title,
       content: contentWithType,
       text: data.text,
+      marketId: params?.id ? parseInt(params.id) : undefined,
     });
     evidenceForm.reset();
   };
@@ -78,7 +98,10 @@ export default function PredictionPage() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?</h1>
+          <h1 className="text-3xl font-bold">{marketTitle}</h1>
+          {marketDescription && (
+            <p className="mt-4 text-lg text-muted-foreground">{marketDescription}</p>
+          )}
         </div>
 
         <div className="space-y-8 max-w-4xl mx-auto">

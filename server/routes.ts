@@ -13,6 +13,38 @@ export function registerRoutes(app: Express): Server {
     res.json({ status: "ok" });
   });
 
+  // Get specific market with its evidence and predictions
+  app.get("/api/markets/:id", async (req, res) => {
+    try {
+      const marketId = parseInt(req.params.id);
+      const market = await db.query.markets.findFirst({
+        where: eq(markets.id, marketId),
+        with: {
+          evidence: {
+            with: {
+              votes: true,
+              user: true,
+            },
+          },
+          predictions: {
+            with: {
+              user: true,
+            },
+          },
+        },
+      });
+
+      if (!market) {
+        return res.status(404).json({ error: "Market not found" });
+      }
+
+      res.json(market);
+    } catch (error) {
+      console.error('Error fetching market:', error);
+      res.status(500).json({ error: 'Failed to fetch market' });
+    }
+  });
+
   // Create new market
   app.post("/api/markets", async (req, res) => {
     try {
@@ -28,10 +60,10 @@ export function registerRoutes(app: Express): Server {
         title,
         description,
         initialEvidence: initialEvidence || null,
-        startingOdds,
+        startingOdds: startingOdds.toString(),
         creatorId: 1, // Default user for now
         participants: 0,
-        totalLiquidity: 0,
+        totalLiquidity: "0",
       }).returning();
 
       // Add initial evidence if provided
@@ -68,26 +100,6 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ error: 'Failed to fetch markets' });
     }
   });
-
-  // Ensure initial user exists
-  app.use(async (req, res, next) => {
-    try {
-      const [user] = await db.select().from(users).limit(1);
-      if (!user) {
-        await db.insert(users).values({
-          id: 1,
-          username: 'researcher',
-          password: 'password123',
-          balance: 1000,
-        });
-      }
-      next();
-    } catch (error) {
-      console.error('Error ensuring initial user:', error);
-      next(error);
-    }
-  });
-
   // Predictions routes
   app.post("/api/predictions", async (req, res) => {
     try {
