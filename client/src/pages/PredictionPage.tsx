@@ -35,7 +35,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
   const [betAmount, setBetAmount] = useState(50);
 
-  // Fetch market data if we have an ID
+  // Only fetch market data if we have an ID (not the CIA market)
   const { data: market, isLoading: marketLoading } = useQuery<Market>({
     queryKey: ['/api/markets', params?.id],
     enabled: !!params?.id,
@@ -98,6 +98,11 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
   const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
 
+  // Get the appropriate title and description based on whether we're viewing a specific market or the CIA market
+  const title = params?.id 
+    ? market?.title 
+    : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?";
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
@@ -111,9 +116,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-center mb-4">
-            {market?.title || "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
-          </h1>
+          <h1 className="text-4xl font-bold text-center mb-4">{title}</h1>
           {market?.description && (
             <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto">
               {market.description}
