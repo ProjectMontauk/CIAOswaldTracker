@@ -119,9 +119,9 @@ export default function HomePage() {
             </Card>
           </div>
 
-          {/* Active Markets Section */}
+          {/* Trending Markets Section */}
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-center mb-6">Active Markets</h2>
+            <h2 className="text-2xl font-bold text-center mb-6">Trending Markets</h2>
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-4">
