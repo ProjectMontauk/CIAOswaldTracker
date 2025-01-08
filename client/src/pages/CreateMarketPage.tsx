@@ -20,12 +20,8 @@ type MarketFormData = {
 
 const steps = [
   {
-    title: "Market Question",
-    description: "What question would you like the market to predict?",
-  },
-  {
-    title: "Resolution Criteria",
-    description: "Define clear conditions for how this market will be resolved.",
+    title: "Market Details",
+    description: "Define your market question and resolution criteria.",
   },
   {
     title: "Initial Evidence",
@@ -115,27 +111,16 @@ export default function CreateMarketPage() {
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 {currentStep === 0 && (
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Question</Label>
-                    <Input
-                      id="title"
-                      placeholder="e.g., Will Bitcoin reach $100,000 by the end of 2024?"
-                      {...form.register("title", { required: true })}
-                    />
-                  </div>
-                )}
-
-                {currentStep === 1 && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="description">Market Description</Label>
-                      <Textarea
-                        id="description"
-                        placeholder="Provide an overview of what this market is about..."
-                        {...form.register("description", { required: true })}
-                        rows={3}
+                      <Label htmlFor="title">Market Question</Label>
+                      <Input
+                        id="title"
+                        placeholder="e.g., Will Bitcoin reach $100,000 by the end of 2024?"
+                        {...form.register("title", { required: true })}
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="yesCondition">"Yes" Condition</Label>
                       <Textarea
@@ -145,6 +130,7 @@ export default function CreateMarketPage() {
                         rows={3}
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="noCondition">"No" Condition</Label>
                       <Textarea
@@ -154,10 +140,20 @@ export default function CreateMarketPage() {
                         rows={3}
                       />
                     </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Additional Description</Label>
+                      <Textarea
+                        id="description"
+                        placeholder="Provide any additional context or details about this market..."
+                        {...form.register("description", { required: true })}
+                        rows={3}
+                      />
+                    </div>
                   </div>
                 )}
 
-                {currentStep === 2 && (
+                {currentStep === 1 && (
                   <div className="space-y-2">
                     <Label htmlFor="initialEvidence">Initial Evidence</Label>
                     <Textarea
@@ -169,7 +165,7 @@ export default function CreateMarketPage() {
                   </div>
                 )}
 
-                {currentStep === 3 && (
+                {currentStep === 2 && (
                   <div className="space-y-2">
                     <Label htmlFor="startingOdds">Starting Probability (%)</Label>
                     <Input
