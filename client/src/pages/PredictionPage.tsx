@@ -128,8 +128,17 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
           <Card>
             <CardHeader>
               <CardTitle>
-                {market?.title || "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
+                {marketId 
+                  ? (marketLoading 
+                    ? "Loading..." 
+                    : market?.title)
+                  : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
               </CardTitle>
+              {market?.description && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {market.description}
+                </p>
+              )}
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
