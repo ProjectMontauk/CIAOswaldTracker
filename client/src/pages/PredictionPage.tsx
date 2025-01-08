@@ -102,7 +102,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
 
   // Get the appropriate title and description based on whether we're viewing a specific market or the CIA market
   const title = params?.id
-    ? market?.title
+    ? "Did COVID-19 Originate from the Wuhan Lab?"
     : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?";
 
   return (
