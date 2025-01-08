@@ -161,6 +161,21 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
                   </div>
                 </div>
 
+                {/* New Rules Section */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Rules</h3>
+                  <div className="space-y-4">
+                    <div className="p-4 border rounded-lg">
+                      <p className="font-medium text-sm mb-2">Yes Condition:</p>
+                      <p className="text-sm text-muted-foreground">{market?.yesCondition}</p>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <p className="font-medium text-sm mb-2">No Condition:</p>
+                      <p className="text-sm text-muted-foreground">{market?.noCondition}</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-4">
                   <div>
                     <Label>Bet Amount ($)</Label>
