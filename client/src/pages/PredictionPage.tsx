@@ -63,16 +63,17 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     }
   });
 
-  // Display loading state while market data is being fetched
-  if (marketId && marketLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-lg text-muted-foreground">Loading market data...</p>
-        </div>
-      </div>
-    );
-  }
+  // Sort evidence by votes
+  const sortedEvidence = [...evidence].sort((a, b) => {
+    const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
+      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
+    const bVotes = (b as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
+      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
+    return bVotes - aVotes;
+  });
+
+  const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
+  const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
 
   const onEvidenceSubmit = (data: EvidenceFormData) => {
     const contentWithType = data.content ?
@@ -87,6 +88,29 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     });
     evidenceForm.reset();
   };
+
+  // Display loading state while market data is being fetched
+  if (marketId && marketLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg text-muted-foreground">Loading market data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if market not found
+  if (marketId && !market) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-destructive mb-2">Market Not Found</h1>
+          <p className="text-muted-foreground">The requested prediction market could not be found.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -114,7 +138,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">
-                {marketId ? market?.title : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
+                {market?.title || "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
               </CardTitle>
               {market?.description && (
                 <p className="text-sm text-muted-foreground mt-2">
