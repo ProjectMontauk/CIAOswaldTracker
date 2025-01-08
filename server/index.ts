@@ -36,7 +36,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 (async () => {
   const server = registerRoutes(app);
 
@@ -54,7 +53,8 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  const PORT = 5000;
+  // Use port 5001 instead of 5000 to avoid conflicts
+  const PORT = 5001;
   server.listen(PORT, "0.0.0.0", () => {
     log(`serving on port ${PORT}`);
   });
