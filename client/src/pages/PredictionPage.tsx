@@ -9,10 +9,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Home } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Home, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import type { Market } from "@db/schema";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
