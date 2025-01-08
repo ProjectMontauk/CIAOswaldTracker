@@ -117,14 +117,11 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-center mb-4">{title}</h1>
-          {market?.description && (
-            <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto">
-              {market.description}
-            </p>
-          )}
-        </div>
+        {market?.description && (
+          <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto mb-8">
+            {market.description}
+          </p>
+        )}
 
         <div className="space-y-8 max-w-4xl mx-auto">
           <Card>
