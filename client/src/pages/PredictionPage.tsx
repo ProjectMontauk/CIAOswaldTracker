@@ -122,10 +122,10 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
             </div>
             <nav className="flex items-center space-x-4 border-t pt-4">
               <Link href="/">
-                <a className="flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                <Button variant="ghost" className="flex items-center text-sm">
                   <Home className="h-4 w-4 mr-2" />
                   Home
-                </a>
+                </Button>
               </Link>
             </nav>
           </div>
