@@ -101,9 +101,9 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
   const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
 
-  // Get the appropriate title and description based on whether we're viewing a specific market or the CIA market
-  const title = params?.id
-    ? "Did COVID-19 Originate from the Wuhan Lab?"
+  // Get the appropriate title based on whether we're viewing a specific market or the CIA market
+  const title = params?.id && market
+    ? market.title
     : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?";
 
   return (
