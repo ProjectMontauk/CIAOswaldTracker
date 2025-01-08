@@ -14,7 +14,6 @@ type MarketFormData = {
   description: string;
   yesCondition: string;
   noCondition: string;
-  initialEvidence: string;
   startingOdds: number;
 };
 
@@ -22,10 +21,6 @@ const steps = [
   {
     title: "Market Details",
     description: "Define your market question and resolution criteria.",
-  },
-  {
-    title: "Initial Evidence",
-    description: "Add any initial evidence or context to help participants.",
   },
   {
     title: "Market Parameters",
@@ -44,7 +39,6 @@ export default function CreateMarketPage() {
       description: "",
       yesCondition: "",
       noCondition: "",
-      initialEvidence: "",
       startingOdds: 50,
     },
   });
@@ -154,18 +148,6 @@ export default function CreateMarketPage() {
                 )}
 
                 {currentStep === 1 && (
-                  <div className="space-y-2">
-                    <Label htmlFor="initialEvidence">Initial Evidence</Label>
-                    <Textarea
-                      id="initialEvidence"
-                      placeholder="Share any relevant information, data, or context..."
-                      {...form.register("initialEvidence")}
-                      rows={4}
-                    />
-                  </div>
-                )}
-
-                {currentStep === 2 && (
                   <div className="space-y-2">
                     <Label htmlFor="startingOdds">Starting Probability (%)</Label>
                     <Input
