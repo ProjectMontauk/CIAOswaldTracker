@@ -74,18 +74,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     );
   }
 
-  // Show error if market not found
-  if (marketId && !market) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-destructive mb-2">Market Not Found</h1>
-          <p className="text-muted-foreground">The requested prediction market could not be found.</p>
-        </div>
-      </div>
-    );
-  }
-
   const onEvidenceSubmit = (data: EvidenceFormData) => {
     const contentWithType = data.content ?
       (data.evidenceType === 'no' ? `no-evidence:${data.content}` : data.content) :
@@ -99,17 +87,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     });
     evidenceForm.reset();
   };
-
-  const sortedEvidence = [...evidence].sort((a, b) => {
-    const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
-      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
-    const bVotes = (b as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
-      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
-    return bVotes - aVotes;
-  });
-
-  const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
-  const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -136,7 +113,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
         <div className="space-y-8 max-w-4xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>
+              <CardTitle className="text-2xl">
                 {marketId ? market?.title : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
               </CardTitle>
               {market?.description && (

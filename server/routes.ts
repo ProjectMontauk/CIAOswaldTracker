@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { markets, evidence, predictions, votes, users } from "@db/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export function registerRoutes(app: Express): Server {
   // Add a market creation endpoint
@@ -49,11 +49,13 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/markets/:id", async (req, res) => {
     try {
       const marketId = parseInt(req.params.id);
+
+      if (isNaN(marketId)) {
+        return res.status(400).json({ error: "Invalid market ID" });
+      }
+
       const market = await db.query.markets.findFirst({
         where: eq(markets.id, marketId),
-        with: {
-          predictions: true,
-        },
       });
 
       if (!market) {
