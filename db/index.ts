@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/neon-serverless";
-import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import * as schema from "@db/schema";
 
 if (!process.env.DATABASE_URL) {
@@ -8,5 +8,10 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-const sql = neon(process.env.DATABASE_URL);
-export const db = drizzle(sql, { schema });
+// Create postgres client with native pg driver
+const client = postgres(process.env.DATABASE_URL, {
+  max: 1,
+  ssl: true,
+});
+
+export const db = drizzle(client, { schema });
