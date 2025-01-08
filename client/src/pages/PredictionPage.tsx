@@ -9,8 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2 } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2, Home } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "wouter";
 import type { Market } from "@db/schema";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
@@ -109,9 +110,19 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <div>
-            <h2 className="text-2xl font-bold text-primary">Twit</h2>
-            <p className="text-sm text-muted-foreground">In Truth We Trust</p>
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-2xl font-bold text-primary">Twit</h2>
+              <p className="text-sm text-muted-foreground">In Truth We Trust</p>
+            </div>
+            <nav className="flex items-center space-x-4 border-t pt-4">
+              <Link href="/">
+                <a className="flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                  <Home className="h-4 w-4 mr-2" />
+                  Home
+                </a>
+              </Link>
+            </nav>
           </div>
         </div>
       </div>
