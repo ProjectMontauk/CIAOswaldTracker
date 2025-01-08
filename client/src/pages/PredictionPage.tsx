@@ -9,11 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2, Home } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Home } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import type { Market } from "@db/schema";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
@@ -90,7 +89,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     evidenceForm.reset();
   };
 
-  // Sort evidence by votes
   const sortedEvidence = [...evidence].sort((a, b) => {
     const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
       acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
@@ -128,11 +126,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
           <Card>
             <CardHeader>
               <CardTitle>
-                {marketId 
-                  ? (marketLoading 
-                    ? "Loading..." 
-                    : market?.title)
-                  : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
+                {marketId ? market?.title : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
               </CardTitle>
               {market?.description && (
                 <p className="text-sm text-muted-foreground mt-2">
