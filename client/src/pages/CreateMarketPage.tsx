@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 type MarketFormData = {
   title: string;
   description: string;
+  yesCondition: string;
+  noCondition: string;
   initialEvidence: string;
   startingOdds: number;
 };
@@ -22,8 +24,8 @@ const steps = [
     description: "What question would you like the market to predict?",
   },
   {
-    title: "Description",
-    description: "Provide more context about the prediction market.",
+    title: "Resolution Criteria",
+    description: "Define clear conditions for how this market will be resolved.",
   },
   {
     title: "Initial Evidence",
@@ -44,6 +46,8 @@ export default function CreateMarketPage() {
     defaultValues: {
       title: "",
       description: "",
+      yesCondition: "",
+      noCondition: "",
       initialEvidence: "",
       startingOdds: 50,
     },
@@ -80,7 +84,6 @@ export default function CreateMarketPage() {
         description: "Market created successfully",
       });
 
-      // Redirect to markets page
       navigate('/markets');
     } catch (error) {
       toast({
@@ -123,14 +126,34 @@ export default function CreateMarketPage() {
                 )}
 
                 {currentStep === 1 && (
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Market Description</Label>
-                    <Textarea
-                      id="description"
-                      placeholder="Provide details about what constitutes a correct prediction..."
-                      {...form.register("description", { required: true })}
-                      rows={4}
-                    />
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Market Description</Label>
+                      <Textarea
+                        id="description"
+                        placeholder="Provide an overview of what this market is about..."
+                        {...form.register("description", { required: true })}
+                        rows={3}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="yesCondition">"Yes" Condition</Label>
+                      <Textarea
+                        id="yesCondition"
+                        placeholder="Define what needs to happen for this market to resolve as 'Yes'..."
+                        {...form.register("yesCondition", { required: true })}
+                        rows={3}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="noCondition">"No" Condition</Label>
+                      <Textarea
+                        id="noCondition"
+                        placeholder="Define what needs to happen for this market to resolve as 'No'..."
+                        {...form.register("noCondition", { required: true })}
+                        rows={3}
+                      />
+                    </div>
                   </div>
                 )}
 
