@@ -129,7 +129,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
         <div className="space-y-8 max-w-4xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>Prediction Market</CardTitle>
+              <CardTitle>{title}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
