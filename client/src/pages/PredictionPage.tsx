@@ -38,10 +38,10 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
   const [betAmount, setBetAmount] = useState(50);
 
-  // Only fetch market data if we have an ID (not the CIA market)
+  // Fetch market data if we have an ID
   const { data: market, isLoading: marketLoading } = useQuery<Market>({
-    queryKey: ['/api/markets', params?.id],
-    enabled: !!params?.id,
+    queryKey: ['/api/markets', marketId],
+    enabled: !!marketId,
   });
 
   const evidenceForm = useForm<EvidenceFormData>({
@@ -54,7 +54,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   });
 
   // Display loading state while market data is being fetched
-  if (params?.id && marketLoading) {
+  if (marketId && marketLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -65,7 +65,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   }
 
   // Show error if market not found
-  if (params?.id && !market) {
+  if (marketId && !market) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -85,11 +85,12 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       title: data.title,
       content: contentWithType,
       text: data.text,
-      marketId: params?.id ? parseInt(params.id) : undefined,
+      marketId,
     });
     evidenceForm.reset();
   };
 
+  // Sort evidence by votes
   const sortedEvidence = [...evidence].sort((a, b) => {
     const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
       acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
@@ -100,11 +101,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
 
   const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
   const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
-
-  // Get the appropriate title based on whether we're viewing a specific market or the CIA market
-  const title = params?.id && market
-    ? market.title
-    : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -128,16 +124,12 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {market?.description && (
-          <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto mb-8">
-            {market.description}
-          </p>
-        )}
-
         <div className="space-y-8 max-w-4xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>{title}</CardTitle>
+              <CardTitle>
+                {market?.title || "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
