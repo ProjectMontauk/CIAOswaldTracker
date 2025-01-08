@@ -32,6 +32,50 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Get predictions for a specific market
+  app.get("/api/markets/:id/predictions", async (req, res) => {
+    try {
+      const marketId = parseInt(req.params.id);
+      if (isNaN(marketId)) {
+        return res.status(400).json({ error: "Invalid market ID" });
+      }
+
+      const marketPredictions = await db.query.predictions.findMany({
+        where: eq(predictions.marketId, marketId),
+        orderBy: desc(predictions.createdAt),
+      });
+
+      res.json(marketPredictions);
+    } catch (error) {
+      console.error('Error fetching predictions:', error);
+      res.status(500).json({ error: 'Failed to fetch predictions' });
+    }
+  });
+
+  // Get evidence for a specific market
+  app.get("/api/markets/:id/evidence", async (req, res) => {
+    try {
+      const marketId = parseInt(req.params.id);
+      if (isNaN(marketId)) {
+        return res.status(400).json({ error: "Invalid market ID" });
+      }
+
+      const marketEvidence = await db.query.evidence.findMany({
+        where: eq(evidence.marketId, marketId),
+        orderBy: desc(evidence.createdAt),
+        with: {
+          user: true,
+          votes: true,
+        },
+      });
+
+      res.json(marketEvidence);
+    } catch (error) {
+      console.error('Error fetching evidence:', error);
+      res.status(500).json({ error: 'Failed to fetch evidence' });
+    }
+  });
+
   // Get all markets
   app.get("/api/markets", async (req, res) => {
     try {

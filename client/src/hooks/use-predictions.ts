@@ -5,14 +5,24 @@ import { useToast } from "@/hooks/use-toast";
 type PredictionSubmission = {
   position: 'yes' | 'no';
   amount: number;
+  marketId?: number;
 };
 
-export function usePredictions() {
+export function usePredictions(marketId?: number) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: predictions = [], isLoading } = useQuery<Prediction[]>({
-    queryKey: ['/api/predictions'],
+    queryKey: ['/api/markets', marketId, 'predictions'],
+    queryFn: async () => {
+      if (!marketId) return [];
+      const response = await fetch(`/api/markets/${marketId}/predictions`, {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error(await response.text());
+      return response.json();
+    },
+    enabled: !!marketId,
   });
 
   const submitMutation = useMutation({
@@ -20,7 +30,7 @@ export function usePredictions() {
       const res = await fetch('/api/predictions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, marketId }),
         credentials: 'include',
       });
 
@@ -31,7 +41,7 @@ export function usePredictions() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/markets', marketId, 'predictions'] });
       toast({
         title: "Success",
         description: "Prediction submitted successfully",

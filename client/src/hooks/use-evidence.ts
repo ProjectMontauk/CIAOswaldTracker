@@ -12,7 +12,6 @@ type EvidenceSubmission = {
 type EvidenceWithRelations = Evidence & {
   user?: User;
   votes?: Vote[];
-  text?: string;
 };
 
 export function useEvidence(marketId?: number) {
@@ -20,7 +19,16 @@ export function useEvidence(marketId?: number) {
   const queryClient = useQueryClient();
 
   const { data: evidence = [], isLoading } = useQuery<EvidenceWithRelations[]>({
-    queryKey: ['/api/evidence', marketId],
+    queryKey: ['/api/markets', marketId, 'evidence'],
+    queryFn: async () => {
+      if (!marketId) return [];
+      const response = await fetch(`/api/markets/${marketId}/evidence`, {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error(await response.text());
+      return response.json();
+    },
+    enabled: !!marketId,
   });
 
   const submitMutation = useMutation({
@@ -39,39 +47,10 @@ export function useEvidence(marketId?: number) {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/markets', marketId, 'evidence'] });
       toast({
         title: "Success",
         description: "Evidence submitted successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const clearMutation = useMutation({
-    mutationFn: async (marketId: number) => {
-      const res = await fetch(`/api/markets/${marketId}/clear-evidence`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
-      toast({
-        title: "Success",
-        description: "Evidence cleared successfully",
       });
     },
     onError: (error: Error) => {
@@ -99,7 +78,7 @@ export function useEvidence(marketId?: number) {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/markets', marketId, 'evidence'] });
     },
     onError: (error: Error) => {
       toast({
@@ -115,6 +94,5 @@ export function useEvidence(marketId?: number) {
     isLoading,
     submit: submitMutation.mutate,
     vote: voteMutation.mutate,
-    clear: clearMutation.mutate,
   };
 }
