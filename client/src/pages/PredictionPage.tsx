@@ -9,21 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Home, Trash2 } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Home } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import type { Market } from "@db/schema";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
@@ -44,15 +33,20 @@ type EvidenceFormData = {
 
 export default function PredictionPage({ params }: { params?: { id?: string } }) {
   const marketId = params?.id ? parseInt(params.id) : undefined;
-  const { evidence, submit: submitEvidence, vote, clear, isLoading: evidenceLoading } = useEvidence(marketId);
-  const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
-  const [betAmount, setBetAmount] = useState(50);
-
-  // Fetch market data if we have an ID
   const { data: market, isLoading: marketLoading } = useQuery<Market>({
     queryKey: ['/api/markets', marketId],
+    queryFn: async () => {
+      if (!marketId) throw new Error("Market ID is required");
+      const response = await fetch(`/api/markets/${marketId}`);
+      if (!response.ok) throw new Error(await response.text());
+      return response.json();
+    },
     enabled: !!marketId,
   });
+
+  const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(marketId);
+  const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions(marketId);
+  const [betAmount, setBetAmount] = useState(50);
 
   const evidenceForm = useForm<EvidenceFormData>({
     defaultValues: {
@@ -138,7 +132,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">
-                {market?.title || "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
+                {market?.title}
               </CardTitle>
               {market?.description && (
                 <p className="text-sm text-muted-foreground mt-2">
