@@ -134,11 +134,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
               <CardTitle className="text-2xl">
                 {market?.title}
               </CardTitle>
-              {market?.description && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  {market.description}
-                </p>
-              )}
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
