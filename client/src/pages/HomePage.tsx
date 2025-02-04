@@ -125,7 +125,7 @@ export default function HomePage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-4">
-                  <Link href="/predict" className="block">
+                  <Link href="/predict/1" className="block">
                     <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors">
                       <div>
                         <h3 className="font-semibold text-lg mb-1">
