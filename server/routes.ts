@@ -116,6 +116,7 @@ export function registerRoutes(app: Express): Server {
   // Add prediction endpoint
   app.post("/api/predictions", async (req, res) => {
     try {
+      res.setHeader('Content-Type', 'application/json');
       const { position, amount, marketId } = req.body;
       
       if (!position || amount === undefined || !marketId) {
@@ -144,10 +145,10 @@ export function registerRoutes(app: Express): Server {
         throw new Error("Failed to create prediction");
       }
 
-      res.json(newPrediction);
+      return res.json(newPrediction);
     } catch (error) {
       console.error('Error creating prediction:', error);
-      res.status(500).json({ error: 'Failed to create prediction' });
+      return res.status(500).json({ error: 'Failed to create prediction' });
     }
   });
 
