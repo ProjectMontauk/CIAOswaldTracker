@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { markets, evidence, predictions, votes, users } from "@db/schema";
@@ -111,6 +111,12 @@ export function registerRoutes(app: Express): Server {
       console.error('Error fetching market:', error);
       res.status(500).json({ error: 'Failed to fetch market' });
     }
+  });
+
+  //Error Handling Middleware
+  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    console.error(err.stack);
+    res.status(500).json({ error: err.message || 'Internal server error' });
   });
 
   const httpServer = createServer(app);
