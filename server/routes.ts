@@ -182,6 +182,34 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Add vote endpoint
+  app.post("/api/vote", async (req, res) => {
+    try {
+      res.setHeader('Content-Type', 'application/json');
+      const { evidenceId, isUpvote } = req.body;
+      
+      if (!evidenceId || isUpvote === undefined) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const [newVote] = await db.insert(votes).values({
+        evidenceId: Number(evidenceId),
+        userId: 1, // Default user for now
+        isUpvote,
+        createdAt: new Date(),
+      }).returning();
+
+      if (!newVote) {
+        throw new Error("Failed to create vote");
+      }
+
+      return res.json(newVote);
+    } catch (error) {
+      console.error('Error creating vote:', error);
+      return res.status(500).json({ error: 'Failed to create vote' });
+    }
+  });
+
   //Error Handling Middleware
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
