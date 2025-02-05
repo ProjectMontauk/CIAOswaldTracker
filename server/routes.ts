@@ -136,6 +136,7 @@ export function registerRoutes(app: Express): Server {
         amount: Number(amount),
         marketId: Number(marketId),
         userId: 1,
+        probability: position.toLowerCase() === 'yes' ? 1 : 0,
         createdAt: new Date(),
       }).returning();
 
