@@ -72,7 +72,7 @@ export default function HomePage() {
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div>
-            <h2 className="text-2xl font-bold text-primary">Twit</h2>
+            <h2 className="text-2xl font-bold text-primary">Kane</h2>
             <p className="text-sm text-muted-foreground">In Truth We Trust</p>
           </div>
         </div>
