@@ -190,16 +190,16 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      onClick={() => submitPrediction({ position: 'yes', amount: betAmount })}
-                      disabled={predictionsLoading}
+                      onClick={() => submitPrediction({ position: 'yes', amount: betAmount, marketId: marketId })}
+                      disabled={!marketId || predictionsLoading}
                       className="w-full"
                       variant="default"
                     >
                       Bet Yes
                     </Button>
                     <Button
-                      onClick={() => submitPrediction({ position: 'no', amount: betAmount })}
-                      disabled={predictionsLoading}
+                      onClick={() => submitPrediction({ position: 'no', amount: betAmount, marketId: marketId })}
+                      disabled={!marketId || predictionsLoading}
                       className="w-full"
                       variant="outline"
                     >
