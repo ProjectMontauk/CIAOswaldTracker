@@ -118,17 +118,30 @@ export function registerRoutes(app: Express): Server {
     try {
       const { position, amount, marketId } = req.body;
       
-      if (!position || !amount || !marketId) {
+      if (!position || amount === undefined || !marketId) {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
+      // Validate market exists
+      const market = await db.query.markets.findFirst({
+        where: eq(markets.id, Number(marketId))
+      });
+
+      if (!market) {
+        return res.status(404).json({ error: "Market not found" });
+      }
+
       const [newPrediction] = await db.insert(predictions).values({
-        position,
+        position: position.toLowerCase(),
         amount: Number(amount),
         marketId: Number(marketId),
-        userId: 1, // Default user for now
+        userId: 1,
         createdAt: new Date(),
       }).returning();
+
+      if (!newPrediction) {
+        throw new Error("Failed to create prediction");
+      }
 
       res.json(newPrediction);
     } catch (error) {
