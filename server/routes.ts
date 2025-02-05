@@ -152,6 +152,36 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Add evidence endpoint
+  app.post("/api/evidence", async (req, res) => {
+    try {
+      res.setHeader('Content-Type', 'application/json');
+      const { title, content, text, marketId } = req.body;
+      
+      if (!title || !content || !text || !marketId) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const [newEvidence] = await db.insert(evidence).values({
+        title,
+        content,
+        text,
+        marketId: Number(marketId),
+        userId: 1, // Default user for now
+        createdAt: new Date(),
+      }).returning();
+
+      if (!newEvidence) {
+        throw new Error("Failed to create evidence");
+      }
+
+      return res.json(newEvidence);
+    } catch (error) {
+      console.error('Error creating evidence:', error);
+      return res.status(500).json({ error: 'Failed to create evidence' });
+    }
+  });
+
   //Error Handling Middleware
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
