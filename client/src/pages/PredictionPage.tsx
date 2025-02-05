@@ -78,7 +78,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       title: data.title,
       content: contentWithType,
       text: data.text,
-      marketId,
+      marketId: marketId,
     });
     evidenceForm.reset();
   };
