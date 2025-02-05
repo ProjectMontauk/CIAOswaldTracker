@@ -113,6 +113,29 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Add prediction endpoint
+  app.post("/api/predictions", async (req, res) => {
+    try {
+      const { position, amount, marketId } = req.body;
+      
+      if (!position || !amount || !marketId) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const [newPrediction] = await db.insert(predictions).values({
+        position,
+        amount,
+        marketId,
+        userId: 1, // Default user for now
+      }).returning();
+
+      res.json(newPrediction);
+    } catch (error) {
+      console.error('Error creating prediction:', error);
+      res.status(500).json({ error: 'Failed to create prediction' });
+    }
+  });
+
   //Error Handling Middleware
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
