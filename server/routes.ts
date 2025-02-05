@@ -124,9 +124,10 @@ export function registerRoutes(app: Express): Server {
 
       const [newPrediction] = await db.insert(predictions).values({
         position,
-        amount,
-        marketId,
+        amount: Number(amount),
+        marketId: Number(marketId),
         userId: 1, // Default user for now
+        createdAt: new Date(),
       }).returning();
 
       res.json(newPrediction);
