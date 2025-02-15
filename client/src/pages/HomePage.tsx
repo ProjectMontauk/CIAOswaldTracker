@@ -104,19 +104,19 @@ export default function HomePage() {
             </Card>
 
             <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Create New Market
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="mb-4">Start your own prediction market and let the crowd discover the truth.</p>
-                  <Link href="/markets/create">
-                    <Button variant="outline" className="w-full">Create Market</Button>
-                  </Link>
-                </CardContent>
-              </Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Create New Market
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">Start your own prediction market and let the crowd discover the truth.</p>
+                <Link href="/markets/create">
+                  <Button variant="outline" className="w-full">Create Market</Button>
+                </Link>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Trending Markets Section */}
