@@ -113,7 +113,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
           <div className="space-y-4">
             <div>
               <h2 className="text-2xl font-bold text-primary">Kane</h2>
-              <p className="text-sm text-muted-foreground">In Truth We Trust</p>
             </div>
             <nav className="flex items-center space-x-4 border-t pt-4">
               <Link href="/">
@@ -161,7 +160,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
                   </div>
                 </div>
 
-                {/* New Rules Section */}
+                {/* Rules Section */}
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Rules</h3>
                   <div className="space-y-4">
