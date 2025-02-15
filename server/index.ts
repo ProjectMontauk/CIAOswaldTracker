@@ -8,10 +8,11 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Enhanced CORS handling for Replit domains with verbose logging
+// Update the CORS middleware to explicitly allow the Replit host
 app.use((req, res, next) => {
   const replit_host = req.headers.host || '';
   const origin = req.headers.origin;
+  const allowedHost = '21b48b09-ef8c-4895-b1ad-6aedaac87b54-00-1bkgh5x0uy7ad.janeway.replit.dev';
 
   // Detailed logging for debugging
   console.log('Request details:', {
@@ -21,8 +22,8 @@ app.use((req, res, next) => {
     path: req.path
   });
 
-  // Accept any origin in development, but validate it's from replit.dev
-  if (origin && (origin.endsWith('.replit.dev') || origin.includes('replit.co'))) {
+  // Accept the specific Replit host
+  if (origin && (origin.includes(allowedHost) || origin.endsWith('.replit.dev') || origin.includes('replit.co'))) {
     res.header('Access-Control-Allow-Origin', origin);
     console.log('Setting CORS for origin:', origin);
   } else {
