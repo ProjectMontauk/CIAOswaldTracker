@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { evidence, predictions, votes, users, markets } from "@db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { setupAuth } from "./auth";
 
 export function registerRoutes(app: Express): Server {
@@ -100,7 +100,7 @@ export function registerRoutes(app: Express): Server {
 
       // Only allow evidence without marketId for the initial CIA market
       if (!marketId) {
-        const existingEvidence = await db.query.evidence.findMany({ 
+        const existingEvidence = await db.query.evidence.findMany({
           where: eq(evidence.marketId, null), // Only get evidence with null marketId
           with: {
             votes: true,
@@ -173,7 +173,7 @@ export function registerRoutes(app: Express): Server {
   // Predictions routes
   app.post("/api/predictions", async (req, res) => {
     try {
-      const { position, amount } = req.body;
+      const { position, amount, marketId } = req.body;
       if (!position || !amount || amount <= 0) {
         return res.status(400).send("Position and amount are required");
       }
@@ -204,15 +204,17 @@ export function registerRoutes(app: Express): Server {
           .insert(predictions)
           .values({
             userId: 1,
+            marketId: marketId || 1, // Default to market 1 if not provided
             position,
             amount,
-            probability: 0, // Will be calculated on frontend
+            probability: "0.5", // Initial probability
           })
           .returning();
       });
 
       // Get updated market state
       const marketState = await db.query.predictions.findMany({
+        where: marketId ? eq(predictions.marketId, marketId) : undefined,
         orderBy: desc(predictions.createdAt),
       });
 
