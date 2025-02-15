@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { ExternalLink, Plus } from "lucide-react";
+import { ExternalLink, Plus, Home } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -19,12 +19,20 @@ export default function PredictionMarketsPage() {
               <h2 className="text-2xl font-bold text-primary">Kane</h2>
               <p className="text-sm text-muted-foreground">In Truth We Trust</p>
             </div>
-            <Link href="/markets/create">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Market
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link href="/">
+                <Button variant="ghost">
+                  <Home className="h-4 w-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
+              <Link href="/markets/create">
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Market
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
