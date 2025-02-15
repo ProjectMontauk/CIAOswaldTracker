@@ -78,7 +78,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       title: data.title,
       content: contentWithType,
       text: data.text,
-      marketId: marketId,
+      marketId,
     });
     evidenceForm.reset();
   };
@@ -112,7 +112,8 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
         <div className="container mx-auto px-4 py-4">
           <div className="space-y-4">
             <div>
-              <h2 className="text-2xl font-bold text-primary">Kane</h2>
+              <h2 className="text-2xl font-bold text-primary">Twit</h2>
+              <p className="text-sm text-muted-foreground">In Truth We Trust</p>
             </div>
             <nav className="flex items-center space-x-4 border-t pt-4">
               <Link href="/">
@@ -160,21 +161,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
                   </div>
                 </div>
 
-                {/* Rules Section */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Rules</h3>
-                  <div className="space-y-4">
-                    <div className="p-4 border rounded-lg">
-                      <p className="font-medium text-sm mb-2">Yes Condition:</p>
-                      <p className="text-sm text-muted-foreground">{market?.yesCondition}</p>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                      <p className="font-medium text-sm mb-2">No Condition:</p>
-                      <p className="text-sm text-muted-foreground">{market?.noCondition}</p>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="space-y-4">
                   <div>
                     <Label>Bet Amount ($)</Label>
@@ -189,16 +175,16 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      onClick={() => submitPrediction({ position: 'yes', amount: betAmount, marketId: marketId })}
-                      disabled={!marketId || predictionsLoading}
+                      onClick={() => submitPrediction({ position: 'yes', amount: betAmount })}
+                      disabled={predictionsLoading}
                       className="w-full"
                       variant="default"
                     >
                       Bet Yes
                     </Button>
                     <Button
-                      onClick={() => submitPrediction({ position: 'no', amount: betAmount, marketId: marketId })}
-                      disabled={!marketId || predictionsLoading}
+                      onClick={() => submitPrediction({ position: 'no', amount: betAmount })}
+                      disabled={predictionsLoading}
                       className="w-full"
                       variant="outline"
                     >

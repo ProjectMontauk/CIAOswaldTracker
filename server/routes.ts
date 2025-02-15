@@ -1,10 +1,81 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { markets, evidence, predictions, votes } from "@db/schema";
+import { markets, evidence, predictions, votes, users } from "@db/schema";
 import { eq, desc } from "drizzle-orm";
 
 export function registerRoutes(app: Express): Server {
+  // Add a market creation endpoint
+  app.post("/api/markets", async (req, res) => {
+    try {
+      const { title, description, yesCondition, noCondition, startingOdds } = req.body;
+
+      // Validate required fields
+      if (!title || !description || !yesCondition || !noCondition || !startingOdds) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      // Create new market
+      const [newMarket] = await db.insert(markets).values({
+        title,
+        description,
+        yesCondition,
+        noCondition,
+        startingOdds: startingOdds / 100, // Convert percentage to decimal
+        creatorId: 1, // Default user for now
+      }).returning();
+
+      res.json(newMarket);
+    } catch (error) {
+      console.error('Error creating market:', error);
+      res.status(500).json({ error: 'Failed to create market' });
+    }
+  });
+
+  // Get predictions for a specific market
+  app.get("/api/markets/:id/predictions", async (req, res) => {
+    try {
+      const marketId = parseInt(req.params.id);
+      if (isNaN(marketId)) {
+        return res.status(400).json({ error: "Invalid market ID" });
+      }
+
+      const marketPredictions = await db.query.predictions.findMany({
+        where: eq(predictions.marketId, marketId),
+        orderBy: desc(predictions.createdAt),
+      });
+
+      res.json(marketPredictions);
+    } catch (error) {
+      console.error('Error fetching predictions:', error);
+      res.status(500).json({ error: 'Failed to fetch predictions' });
+    }
+  });
+
+  // Get evidence for a specific market
+  app.get("/api/markets/:id/evidence", async (req, res) => {
+    try {
+      const marketId = parseInt(req.params.id);
+      if (isNaN(marketId)) {
+        return res.status(400).json({ error: "Invalid market ID" });
+      }
+
+      const marketEvidence = await db.query.evidence.findMany({
+        where: eq(evidence.marketId, marketId),
+        orderBy: desc(evidence.createdAt),
+        with: {
+          user: true,
+          votes: true,
+        },
+      });
+
+      res.json(marketEvidence);
+    } catch (error) {
+      console.error('Error fetching evidence:', error);
+      res.status(500).json({ error: 'Failed to fetch evidence' });
+    }
+  });
+
   // Get all markets
   app.get("/api/markets", async (req, res) => {
     try {
@@ -18,9 +89,28 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Basic health check endpoint
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "healthy" });
+  // Get specific market
+  app.get("/api/markets/:id", async (req, res) => {
+    try {
+      const marketId = parseInt(req.params.id);
+
+      if (isNaN(marketId)) {
+        return res.status(400).json({ error: "Invalid market ID" });
+      }
+
+      const market = await db.query.markets.findFirst({
+        where: eq(markets.id, marketId),
+      });
+
+      if (!market) {
+        return res.status(404).json({ error: "Market not found" });
+      }
+
+      res.json(market);
+    } catch (error) {
+      console.error('Error fetching market:', error);
+      res.status(500).json({ error: 'Failed to fetch market' });
+    }
   });
 
   const httpServer = createServer(app);

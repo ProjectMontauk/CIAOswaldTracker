@@ -8,11 +8,6 @@ import type { Market } from "@db/schema";
 export default function PredictionMarketsPage() {
   const { data: markets = [] } = useQuery<Market[]>({
     queryKey: ['/api/markets'],
-    queryFn: async () => {
-      const response = await fetch('/api/markets');
-      if (!response.ok) throw new Error(await response.text());
-      return response.json();
-    }
   });
 
   return (
@@ -21,11 +16,11 @@ export default function PredictionMarketsPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-primary">Kane</h2>
+              <h2 className="text-2xl font-bold text-primary">Twit</h2>
               <p className="text-sm text-muted-foreground">In Truth We Trust</p>
             </div>
             <Link href="/markets/create">
-              <Button variant="secondary" className="bg-gray-300"> {/* Changed to light grey */}
+              <Button>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Market
               </Button>

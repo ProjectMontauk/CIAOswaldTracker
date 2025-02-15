@@ -72,7 +72,7 @@ export default function HomePage() {
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div>
-            <h2 className="text-2xl font-bold text-primary">Kane</h2>
+            <h2 className="text-2xl font-bold text-primary">Twit</h2>
             <p className="text-sm text-muted-foreground">In Truth We Trust</p>
           </div>
         </div>
@@ -119,7 +119,30 @@ export default function HomePage() {
               </Card>
           </div>
 
-          
+          {/* Trending Markets Section */}
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-center mb-6">Trending Markets</h2>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <Link href="/predict" className="block">
+                    <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors">
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">
+                          CIA's Contact with Lee Harvey Oswald
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?
+                        </p>
+                      </div>
+                      <ExternalLink className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  </Link>
+                  {/* Add more prediction markets here as they are created */}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           <div className="space-y-8">
             <h2 className="text-2xl font-bold text-center">Key Features</h2>
