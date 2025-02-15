@@ -21,7 +21,7 @@ export function registerRoutes(app: Express): Server {
         description,
         yesCondition,
         noCondition,
-        startingOdds: startingOdds / 100, // Convert percentage to decimal
+        startingOdds: (startingOdds / 100).toString(), // Convert to string for database
         creatorId: 1, // Default user for now
       }).returning();
 
