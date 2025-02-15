@@ -20,4 +20,9 @@ export default defineConfig({
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
   },
+  server: {
+    allowedHosts: [
+      "21b48b09-ef8c-4895-b1ad-6aedaac87b54-00-1bkgh5x0uy7ad.janeway.replit.dev"
+    ]
+  }
 });
