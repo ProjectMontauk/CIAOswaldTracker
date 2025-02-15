@@ -12,15 +12,22 @@ import { useToast } from "@/hooks/use-toast";
 type MarketFormData = {
   title: string;
   description: string;
-  yesCondition: string;
-  noCondition: string;
+  initialEvidence: string;
   startingOdds: number;
 };
 
 const steps = [
   {
-    title: "Market Details",
-    description: "Define your market question and resolution criteria.",
+    title: "Market Question",
+    description: "What question would you like the market to predict?",
+  },
+  {
+    title: "Description",
+    description: "Provide more context about the prediction market.",
+  },
+  {
+    title: "Initial Evidence",
+    description: "Add any initial evidence or context to help participants.",
   },
   {
     title: "Market Parameters",
@@ -37,8 +44,7 @@ export default function CreateMarketPage() {
     defaultValues: {
       title: "",
       description: "",
-      yesCondition: "",
-      noCondition: "",
+      initialEvidence: "",
       startingOdds: 50,
     },
   });
@@ -74,6 +80,7 @@ export default function CreateMarketPage() {
         description: "Market created successfully",
       });
 
+      // Redirect to markets page
       navigate('/markets');
     } catch (error) {
       toast({
@@ -105,49 +112,41 @@ export default function CreateMarketPage() {
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 {currentStep === 0 && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Market Question</Label>
-                      <Input
-                        id="title"
-                        placeholder="e.g., Will Bitcoin reach $100,000 by the end of 2024?"
-                        {...form.register("title", { required: true })}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="yesCondition">"Yes" Condition</Label>
-                      <Textarea
-                        id="yesCondition"
-                        placeholder="Define what needs to happen for this market to resolve as 'Yes'..."
-                        {...form.register("yesCondition", { required: true })}
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="noCondition">"No" Condition</Label>
-                      <Textarea
-                        id="noCondition"
-                        placeholder="Define what needs to happen for this market to resolve as 'No'..."
-                        {...form.register("noCondition", { required: true })}
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="description">Additional Description</Label>
-                      <Textarea
-                        id="description"
-                        placeholder="Provide any additional context or details about this market..."
-                        {...form.register("description", { required: true })}
-                        rows={3}
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Question</Label>
+                    <Input
+                      id="title"
+                      placeholder="e.g., Will Bitcoin reach $100,000 by the end of 2024?"
+                      {...form.register("title", { required: true })}
+                    />
                   </div>
                 )}
 
                 {currentStep === 1 && (
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Market Description</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Provide details about what constitutes a correct prediction..."
+                      {...form.register("description", { required: true })}
+                      rows={4}
+                    />
+                  </div>
+                )}
+
+                {currentStep === 2 && (
+                  <div className="space-y-2">
+                    <Label htmlFor="initialEvidence">Initial Evidence</Label>
+                    <Textarea
+                      id="initialEvidence"
+                      placeholder="Share any relevant information, data, or context..."
+                      {...form.register("initialEvidence")}
+                      rows={4}
+                    />
+                  </div>
+                )}
+
+                {currentStep === 3 && (
                   <div className="space-y-2">
                     <Label htmlFor="startingOdds">Starting Probability (%)</Label>
                     <Input

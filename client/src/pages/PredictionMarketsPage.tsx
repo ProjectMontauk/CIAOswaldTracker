@@ -61,6 +61,29 @@ export default function PredictionMarketsPage() {
                 </Card>
               </Link>
             ))}
+
+            {/* Always show the CIA example market */}
+            <Link href="/predict" className="block">
+              <Card className="hover:bg-gray-50 transition-colors">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">
+                        CIA's Contact with Lee Harvey Oswald
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?
+                      </p>
+                      <div className="flex items-center gap-4 mt-3">
+                        <span className="text-sm text-muted-foreground">Active Participants: 24</span>
+                        <span className="text-sm text-muted-foreground">Market Size: $2,450</span>
+                      </div>
+                    </div>
+                    <ExternalLink className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </div>

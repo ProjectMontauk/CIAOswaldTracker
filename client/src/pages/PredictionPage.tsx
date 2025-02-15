@@ -9,9 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2, Home } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "wouter";
 import type { Market } from "@db/schema";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
@@ -38,10 +37,10 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
   const [betAmount, setBetAmount] = useState(50);
 
-  // Fetch market data if we have an ID
+  // Only fetch market data if we have an ID (not the CIA market)
   const { data: market, isLoading: marketLoading } = useQuery<Market>({
-    queryKey: ['/api/markets', marketId],
-    enabled: !!marketId,
+    queryKey: ['/api/markets', params?.id],
+    enabled: !!params?.id,
   });
 
   const evidenceForm = useForm<EvidenceFormData>({
@@ -54,7 +53,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   });
 
   // Display loading state while market data is being fetched
-  if (marketId && marketLoading) {
+  if (params?.id && marketLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -65,7 +64,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   }
 
   // Show error if market not found
-  if (marketId && !market) {
+  if (params?.id && !market) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -85,12 +84,11 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       title: data.title,
       content: contentWithType,
       text: data.text,
-      marketId,
+      marketId: params?.id ? parseInt(params.id) : undefined,
     });
     evidenceForm.reset();
   };
 
-  // Sort evidence by votes
   const sortedEvidence = [...evidence].sort((a, b) => {
     const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
       acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
@@ -102,34 +100,36 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
   const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
 
+  // Get the appropriate title and description based on whether we're viewing a specific market or the CIA market
+  const title = params?.id
+    ? market?.title
+    : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?";
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold text-primary">Twit</h2>
-              <p className="text-sm text-muted-foreground">In Truth We Trust</p>
-            </div>
-            <nav className="flex items-center space-x-4 border-t pt-4">
-              <Link href="/">
-                <a className="flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                  <Home className="h-4 w-4 mr-2" />
-                  Home
-                </a>
-              </Link>
-            </nav>
+          <div>
+            <h2 className="text-2xl font-bold text-primary">Twit</h2>
+            <p className="text-sm text-muted-foreground">In Truth We Trust</p>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-center mb-4">{title}</h1>
+          {market?.description && (
+            <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto">
+              {market.description}
+            </p>
+          )}
+        </div>
+
         <div className="space-y-8 max-w-4xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>
-                {market?.title || "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
-              </CardTitle>
+              <CardTitle>Prediction Market</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
