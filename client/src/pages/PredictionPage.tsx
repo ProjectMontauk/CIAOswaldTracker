@@ -9,10 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Home } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2, Home } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import type { Market } from "@db/schema";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
@@ -33,20 +34,15 @@ type EvidenceFormData = {
 
 export default function PredictionPage({ params }: { params?: { id?: string } }) {
   const marketId = params?.id ? parseInt(params.id) : undefined;
+  const { evidence, submit: submitEvidence, vote, clear, isLoading: evidenceLoading } = useEvidence(marketId);
+  const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
+  const [betAmount, setBetAmount] = useState(50);
+
+  // Fetch market data if we have an ID
   const { data: market, isLoading: marketLoading } = useQuery<Market>({
     queryKey: ['/api/markets', marketId],
-    queryFn: async () => {
-      if (!marketId) throw new Error("Market ID is required");
-      const response = await fetch(`/api/markets/${marketId}`);
-      if (!response.ok) throw new Error(await response.text());
-      return response.json();
-    },
     enabled: !!marketId,
   });
-
-  const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(marketId);
-  const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions(marketId);
-  const [betAmount, setBetAmount] = useState(50);
 
   const evidenceForm = useForm<EvidenceFormData>({
     defaultValues: {
@@ -56,32 +52,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       evidenceType: 'yes'
     }
   });
-
-  // Sort evidence by votes
-  const sortedEvidence = [...evidence].sort((a, b) => {
-    const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
-      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
-    const bVotes = (b as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
-      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
-    return bVotes - aVotes;
-  });
-
-  const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
-  const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
-
-  const onEvidenceSubmit = (data: EvidenceFormData) => {
-    const contentWithType = data.content ?
-      (data.evidenceType === 'no' ? `no-evidence:${data.content}` : data.content) :
-      (data.evidenceType === 'no' ? 'no-evidence:none' : 'none');
-
-    submitEvidence({
-      title: data.title,
-      content: contentWithType,
-      text: data.text,
-      marketId,
-    });
-    evidenceForm.reset();
-  };
 
   // Display loading state while market data is being fetched
   if (marketId && marketLoading) {
@@ -106,6 +76,32 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     );
   }
 
+  const onEvidenceSubmit = (data: EvidenceFormData) => {
+    const contentWithType = data.content ?
+      (data.evidenceType === 'no' ? `no-evidence:${data.content}` : data.content) :
+      (data.evidenceType === 'no' ? 'no-evidence:none' : 'none');
+
+    submitEvidence({
+      title: data.title,
+      content: contentWithType,
+      text: data.text,
+      marketId,
+    });
+    evidenceForm.reset();
+  };
+
+  // Sort evidence by votes
+  const sortedEvidence = [...evidence].sort((a, b) => {
+    const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
+      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
+    const bVotes = (b as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
+      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
+    return bVotes - aVotes;
+  });
+
+  const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
+  const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
@@ -117,10 +113,10 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
             </div>
             <nav className="flex items-center space-x-4 border-t pt-4">
               <Link href="/">
-                <Button variant="ghost" className="flex items-center text-sm">
+                <a className="flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                   <Home className="h-4 w-4 mr-2" />
                   Home
-                </Button>
+                </a>
               </Link>
             </nav>
           </div>
@@ -131,14 +127,9 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
         <div className="space-y-8 max-w-4xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">
-                {market?.title}
+              <CardTitle>
+                {market?.title || "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?"}
               </CardTitle>
-              {market?.description && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  {market.description}
-                </p>
-              )}
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -208,7 +199,34 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
 
           <Card>
             <CardHeader>
-              <CardTitle>Evidence</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Evidence</CardTitle>
+                {marketId && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Clear All Evidence
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action will clear all evidence documents for this prediction market.
+                          This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => marketId && clear(marketId)}>
+                          Clear Evidence
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="view-yes">

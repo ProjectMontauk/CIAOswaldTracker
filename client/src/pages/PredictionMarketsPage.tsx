@@ -1,27 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus } from "lucide-react";
+import { ExternalLink, Plus } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import type { Market } from "@db/schema";
 
 export default function PredictionMarketsPage() {
-  const { data: markets = [], isLoading } = useQuery<Market[]>({
+  const { data: markets = [] } = useQuery<Market[]>({
     queryKey: ['/api/markets'],
-    queryFn: async () => {
-      const response = await fetch('/api/markets');
-      if (!response.ok) throw new Error('Failed to fetch markets');
-      return response.json();
-    },
   });
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-lg text-muted-foreground">Loading markets...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -29,8 +16,8 @@ export default function PredictionMarketsPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-primary">Prediction Markets</h2>
-              <p className="text-sm text-muted-foreground">View and participate in prediction markets</p>
+              <h2 className="text-2xl font-bold text-primary">Twit</h2>
+              <p className="text-sm text-muted-foreground">In Truth We Trust</p>
             </div>
             <Link href="/markets/create">
               <Button>
@@ -44,17 +31,32 @@ export default function PredictionMarketsPage() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8 text-center">Active Prediction Markets</h1>
+
           <div className="space-y-4">
             {markets.map((market) => (
-              <Link key={market.id} href={`/predict/${market.id}`}>
-                <Card className="hover:bg-gray-50 transition-colors cursor-pointer">
+              <Link key={market.id} href={`/predict/${market.id}`} className="block">
+                <Card className="hover:bg-gray-50 transition-colors">
                   <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-2">
-                      {market.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {market.description}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-lg mb-2">
+                          {market.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {market.description}
+                        </p>
+                        <div className="flex items-center gap-4 mt-3">
+                          <span className="text-sm text-muted-foreground">
+                            Active Participants: {market.participants}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            Market Size: ${Number(market.totalLiquidity).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                      <ExternalLink className="h-5 w-5 text-muted-foreground" />
+                    </div>
                   </CardContent>
                 </Card>
               </Link>
