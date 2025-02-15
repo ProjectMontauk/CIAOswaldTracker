@@ -31,93 +31,6 @@ type EvidenceFormData = {
   evidenceType: 'yes' | 'no';
 };
 
-interface EvidenceCardProps {
-  item: any;
-  index: number;
-  vote: (params: { evidenceId: number; isUpvote: boolean }) => void;
-  isYesEvidence: boolean;
-}
-
-function EvidenceCard({ item, index, vote, isYesEvidence }: EvidenceCardProps) {
-  const content = isYesEvidence ? item.content : item.content?.replace('no-evidence:', '');
-  const upvotes = item.votes?.filter((v: { isUpvote: boolean }) => v.isUpvote).length ?? 0;
-  const downvotes = item.votes?.filter((v: { isUpvote: boolean }) => !v.isUpvote).length ?? 0;
-  const voteScore = upvotes - downvotes;
-  const user = item.user;
-  const reputation = user?.reputation ?? 0;
-  const domain = content?.startsWith('http') ? getDomainFromUrl(content) : null;
-  const titleWithDomain = domain ? `${item.title} (${domain})` : item.title;
-
-  return (
-    <Card key={item.id} className="relative">
-      <CardContent className="pt-6">
-        <div className="flex gap-4">
-          <div className="flex flex-col items-center">
-            <div className="mb-2 text-sm font-semibold text-primary flex items-center gap-2">
-              #{index + 1}
-              {reputation > 50 && (
-                <Trophy className="h-4 w-4 text-yellow-500" aria-label="High Reputation User" />
-              )}
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => vote({ evidenceId: item.id, isUpvote: true })}
-              className="text-green-600 relative group"
-            >
-              <ArrowUp className="h-4 w-4" />
-            </Button>
-            <span className="text-sm font-medium">
-              <Badge variant={voteScore > 0 ? "default" : "destructive"} className="text-xs">
-                {voteScore}
-              </Badge>
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => vote({ evidenceId: item.id, isUpvote: false })}
-              className="text-red-600 relative group"
-            >
-              <ArrowDown className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <FileText className="h-4 w-4 text-muted-foreground" />
-              {content?.startsWith('http') ? (
-                <a
-                  href={content}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold hover:underline"
-                >
-                  {titleWithDomain}
-                </a>
-              ) : (
-                <h3 className="font-semibold">{titleWithDomain}</h3>
-              )}
-              <div className="ml-auto flex items-center gap-2">
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <ThumbsUp className="h-3 w-3 mr-1" />
-                  {upvotes}
-                  <ThumbsDown className="h-3 w-3 ml-2 mr-1" />
-                  {downvotes}
-                </div>
-              </div>
-            </div>
-            {item.text && (
-              <p className="mt-2 text-sm text-gray-600">{item.text}</p>
-            )}
-            {(!content?.startsWith('http') && content !== 'none') && (
-              <p className="mt-2 text-sm text-gray-600">{content}</p>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 export default function PredictionPage({ params }: { params?: { id?: string } }) {
   const marketId = params?.id ? parseInt(params.id) : undefined;
   const { data: market, isLoading: marketLoading } = useQuery<Market>({
@@ -144,6 +57,18 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     }
   });
 
+  // Sort evidence by votes
+  const sortedEvidence = [...evidence].sort((a, b) => {
+    const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
+      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
+    const bVotes = (b as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
+      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
+    return bVotes - aVotes;
+  });
+
+  const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
+  const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
+
   const onEvidenceSubmit = (data: EvidenceFormData) => {
     const contentWithType = data.content ?
       (data.evidenceType === 'no' ? `no-evidence:${data.content}` : data.content) :
@@ -158,6 +83,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     evidenceForm.reset();
   };
 
+  // Display loading state while market data is being fetched
   if (marketId && marketLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -168,6 +94,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     );
   }
 
+  // Show error if market not found
   if (marketId && !market) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -178,18 +105,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       </div>
     );
   }
-
-  // Sort evidence by votes
-  const sortedEvidence = [...evidence].sort((a, b) => {
-    const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
-      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
-    const bVotes = (b as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
-      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
-    return bVotes - aVotes;
-  });
-
-  const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
-  const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -216,7 +131,14 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
         <div className="space-y-8 max-w-4xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">{market?.title}</CardTitle>
+              <CardTitle className="text-2xl">
+                {market?.title}
+              </CardTitle>
+              {market?.description && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {market.description}
+                </p>
+              )}
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -291,39 +213,175 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
             <CardContent>
               <Tabs defaultValue="view-yes">
                 <TabsList className="w-full">
-                  <TabsTrigger value="view-yes" className="flex-1">Yes Evidence</TabsTrigger>
-                  <TabsTrigger value="view-no" className="flex-1">No Evidence</TabsTrigger>
-                  <TabsTrigger value="submit" className="flex-1">Submit Evidence</TabsTrigger>
+                  <TabsTrigger value="view-yes" className="flex-1">View "Yes" Documents</TabsTrigger>
+                  <TabsTrigger value="view-no" className="flex-1">View "No" Documents</TabsTrigger>
+                  <TabsTrigger value="submit" className="flex-1">Submit Document</TabsTrigger>
                 </TabsList>
-
                 <TabsContent value="view-yes">
                   <div className="space-y-4">
-                    {yesEvidence.map((item, index) => (
-                      <EvidenceCard
-                        key={item.id}
-                        item={item}
-                        index={index}
-                        vote={vote}
-                        isYesEvidence={true}
-                      />
-                    ))}
+                    {yesEvidence.map((item, index) => {
+                      const upvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => v.isUpvote).length ?? 0;
+                      const downvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => !v.isUpvote).length ?? 0;
+                      const voteScore = upvotes - downvotes;
+                      const user = (item as any).user;
+                      const reputation = user?.reputation ?? 0;
+                      const domain = item.content?.startsWith('http') ? getDomainFromUrl(item.content) : null;
+                      const titleWithDomain = domain ? `${item.title} (${domain})` : item.title;
+
+                      return (
+                        <Card key={item.id} className="relative">
+                          <CardContent className="pt-6">
+                            <div className="flex gap-4">
+                              <div className="flex flex-col items-center">
+                                <div className="mb-2 text-sm font-semibold text-primary flex items-center gap-2">
+                                  #{index + 1}
+                                  {reputation > 50 && (
+                                    <Trophy className="h-4 w-4 text-yellow-500" aria-label="High Reputation User" />
+                                  )}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => vote({ evidenceId: item.id, isUpvote: true })}
+                                  className="text-green-600 relative group"
+                                >
+                                  <ArrowUp className="h-4 w-4" />
+                                </Button>
+                                <span className="text-sm font-medium">
+                                  <Badge variant={voteScore > 0 ? "default" : "destructive"} className="text-xs">
+                                    {voteScore}
+                                  </Badge>
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => vote({ evidenceId: item.id, isUpvote: false })}
+                                  className="text-red-600 relative group"
+                                >
+                                  <ArrowDown className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <FileText className="h-4 w-4 text-muted-foreground" />
+                                  {item.content?.startsWith('http') ? (
+                                    <a
+                                      href={item.content}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-semibold hover:underline"
+                                    >
+                                      {titleWithDomain}
+                                    </a>
+                                  ) : (
+                                    <h3 className="font-semibold">{titleWithDomain}</h3>
+                                  )}
+                                  <div className="ml-auto flex items-center gap-2">
+                                    <div className="flex items-center text-xs text-muted-foreground">
+                                      <ThumbsUp className="h-3 w-3 mr-1" />
+                                      {upvotes}
+                                      <ThumbsDown className="h-3 w-3 ml-2 mr-1" />
+                                      {downvotes}
+                                    </div>
+                                  </div>
+                                </div>
+                                {(item as any).text && (
+                                  <p className="mt-2 text-sm text-gray-600">{(item as any).text}</p>
+                                )}
+                                {(!item.content?.startsWith('http') && item.content !== 'none') && (
+                                  <p className="mt-2 text-sm text-gray-600">{item.content}</p>
+                                )}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 </TabsContent>
-
                 <TabsContent value="view-no">
                   <div className="space-y-4">
-                    {noEvidence.map((item, index) => (
-                      <EvidenceCard
-                        key={item.id}
-                        item={item}
-                        index={index}
-                        vote={vote}
-                        isYesEvidence={false}
-                      />
-                    ))}
+                    {noEvidence.map((item, index) => {
+                      const upvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => v.isUpvote).length ?? 0;
+                      const downvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => !v.isUpvote).length ?? 0;
+                      const voteScore = upvotes - downvotes;
+                      const user = (item as any).user;
+                      const reputation = user?.reputation ?? 0;
+                      const actualContent = item.content?.replace('no-evidence:', '');
+                      const domain = actualContent && actualContent.startsWith('http') ? getDomainFromUrl(actualContent) : null;
+                      const titleWithDomain = domain ? `${item.title} (${domain})` : item.title;
+
+                      return (
+                        <Card key={item.id} className="relative">
+                          <CardContent className="pt-6">
+                            <div className="flex gap-4">
+                              <div className="flex flex-col items-center">
+                                <div className="mb-2 text-sm font-semibold text-primary flex items-center gap-2">
+                                  #{index + 1}
+                                  {reputation > 50 && (
+                                    <Trophy className="h-4 w-4 text-yellow-500" aria-label="High Reputation User" />
+                                  )}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => vote({ evidenceId: item.id, isUpvote: true })}
+                                  className="text-green-600 relative group"
+                                >
+                                  <ArrowUp className="h-4 w-4" />
+                                </Button>
+                                <span className="text-sm font-medium">
+                                  <Badge variant={voteScore > 0 ? "default" : "destructive"} className="text-xs">
+                                    {voteScore}
+                                  </Badge>
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => vote({ evidenceId: item.id, isUpvote: false })}
+                                  className="text-red-600 relative group"
+                                >
+                                  <ArrowDown className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <FileText className="h-4 w-4 text-muted-foreground" />
+                                  {actualContent && actualContent.startsWith('http') ? (
+                                    <a
+                                      href={actualContent}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-semibold hover:underline"
+                                    >
+                                      {titleWithDomain}
+                                    </a>
+                                  ) : (
+                                    <h3 className="font-semibold">{titleWithDomain}</h3>
+                                  )}
+                                  <div className="ml-auto flex items-center gap-2">
+                                    <div className="flex items-center text-xs text-muted-foreground">
+                                      <ThumbsUp className="h-3 w-3 mr-1" />
+                                      {upvotes}
+                                      <ThumbsDown className="h-3 w-3 ml-2 mr-1" />
+                                      {downvotes}
+                                    </div>
+                                  </div>
+                                </div>
+                                {(item as any).text && (
+                                  <p className="mt-2 text-sm text-gray-600">{(item as any).text}</p>
+                                )}
+                                {(!actualContent?.startsWith('http') && actualContent !== 'none') && (
+                                  <p className="mt-2 text-sm text-gray-600">{actualContent}</p>
+                                )}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 </TabsContent>
-
                 <TabsContent value="submit">
                   <form onSubmit={evidenceForm.handleSubmit(onEvidenceSubmit)} className="space-y-4">
                     <div className="space-y-2">
@@ -356,7 +414,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
                       <Label htmlFor="title">Title</Label>
                       <Input
                         id="title"
-                        placeholder="Enter title..."
+                        placeholder="e.g., CIA Memo dated Sept 1963"
                         {...evidenceForm.register("title", { required: true })}
                       />
                     </div>
@@ -364,7 +422,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
                       <Label htmlFor="content">URL</Label>
                       <Input
                         id="content"
-                        placeholder="Enter URL..."
+                        placeholder="Enter the URL of the document..."
                         {...evidenceForm.register("content", { required: true })}
                       />
                     </div>
@@ -372,13 +430,13 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
                       <Label htmlFor="text">Text</Label>
                       <Textarea
                         id="text"
-                        placeholder="Enter your analysis..."
+                        placeholder="Enter the document text or analysis..."
                         {...evidenceForm.register("text", { required: true })}
                         rows={4}
                       />
                     </div>
                     <Button type="submit" className="w-full" disabled={evidenceLoading}>
-                      Submit Evidence
+                      Submit Document
                     </Button>
                   </form>
                 </TabsContent>
