@@ -35,7 +35,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   const marketId = params?.id ? parseInt(params.id) : undefined;
   const { evidence, submit: submitEvidence, vote, clear, isLoading: evidenceLoading } = useEvidence(marketId);
   const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
-  const [betAmount, setBetAmount] = useState(50);
+  const [betAmount, setBetAmount] = useState(0);
 
   // Only fetch market data if we have an ID (not the CIA market)
   const { data: market, isLoading: marketLoading } = useQuery<Market>({
@@ -162,11 +162,17 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
                     <Label>Bet Amount ($)</Label>
                     <Input
                       type="number"
-                      value={betAmount}
-                      onChange={(e) => setBetAmount(Number(e.target.value))}
+                      value={betAmount === 0 ? '' : betAmount}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Remove leading zeros and convert to number
+                        const numValue = value ? parseInt(value.replace(/^0+/, '')) : 0;
+                        setBetAmount(numValue);
+                      }}
                       min={1}
                       max={100}
                       className="my-4"
+                      placeholder="Enter bet amount"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
