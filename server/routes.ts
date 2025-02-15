@@ -98,34 +98,37 @@ export function registerRoutes(app: Express): Server {
     try {
       const marketId = req.query.marketId ? parseInt(req.query.marketId as string) : undefined;
 
-      // If no marketId is provided and there's no evidence, insert initial CIA market evidence
+      // Only allow evidence without marketId for the initial CIA market
       if (!marketId) {
-        const existingEvidence = await db.query.evidence.findMany({ limit: 1 });
+        const existingEvidence = await db.query.evidence.findMany({ 
+          where: eq(evidence.marketId, null), // Only get evidence with null marketId
+          with: {
+            votes: true,
+            user: true,
+          },
+          orderBy: desc(evidence.createdAt),
+        });
+
+        // Insert initial CIA market evidence if none exists
         if (existingEvidence.length === 0) {
           await db.insert(evidence).values(initialEvidence);
+          return res.json(initialEvidence);
         }
+
+        return res.json(existingEvidence);
       }
 
-      // Query evidence with optional market filter
-      const query = marketId
-        ? db.query.evidence.findMany({
-            where: eq(evidence.marketId, marketId),
-            with: {
-              votes: true,
-              user: true,
-            },
-            orderBy: desc(evidence.createdAt),
-          })
-        : db.query.evidence.findMany({
-            with: {
-              votes: true,
-              user: true,
-            },
-            orderBy: desc(evidence.createdAt),
-          });
+      // For all other markets, strictly filter by marketId
+      const marketEvidence = await db.query.evidence.findMany({
+        where: eq(evidence.marketId, marketId),
+        with: {
+          votes: true,
+          user: true,
+        },
+        orderBy: desc(evidence.createdAt),
+      });
 
-      const allEvidence = await query;
-      res.json(allEvidence);
+      res.json(marketEvidence);
     } catch (error) {
       console.error('Error fetching evidence:', error);
       res.status(500).json({ error: 'Failed to fetch evidence' });
