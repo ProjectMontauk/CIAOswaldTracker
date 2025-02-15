@@ -25,7 +25,7 @@ export default function PredictionMarketsPage() {
               <p className="text-sm text-muted-foreground">In Truth We Trust</p>
             </div>
             <Link href="/markets/create">
-              <Button variant="secondary" className="bg-gray-100">
+              <Button variant="secondary" className="bg-gray-300"> {/* Changed to light grey */}
                 <Plus className="h-4 w-4 mr-2" />
                 Create Market
               </Button>
