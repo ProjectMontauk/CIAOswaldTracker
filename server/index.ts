@@ -77,6 +77,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  process.env.NODE_ENV = "production";
   const server = registerRoutes(app);
   setupAuth(app);
 
