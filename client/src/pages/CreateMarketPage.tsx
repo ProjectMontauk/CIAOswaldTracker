@@ -80,7 +80,6 @@ export default function CreateMarketPage() {
         description: "Market created successfully",
       });
 
-      // Redirect to markets page
       navigate('/markets');
     } catch (error) {
       toast({
@@ -96,8 +95,8 @@ export default function CreateMarketPage() {
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div>
-            <h2 className="text-2xl font-bold text-primary">Create New Market</h2>
-            <p className="text-sm text-muted-foreground">Step {currentStep + 1} of {steps.length}</p>
+            <h2 className="text-2xl font-bold text-primary">Kane</h2>
+            <p className="text-sm text-muted-foreground">In Truth We Trust</p>
           </div>
         </div>
       </div>
