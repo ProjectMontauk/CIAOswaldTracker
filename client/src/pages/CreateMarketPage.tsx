@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type MarketFormData = {
@@ -94,9 +94,17 @@ export default function CreateMarketPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <div>
-            <h2 className="text-2xl font-bold text-primary">Kane</h2>
-            <p className="text-sm text-muted-foreground">In Truth We Trust</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-primary">Kane</h2>
+              <p className="text-sm text-muted-foreground">In Truth We Trust</p>
+            </div>
+            <Link href="/">
+              <Button variant="ghost">
+                <Home className="h-4 w-4 mr-2" />
+                Home
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
