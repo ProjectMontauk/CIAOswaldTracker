@@ -113,7 +113,7 @@ export default function HomePage() {
               <CardContent>
                 <p className="mb-4">Start your own prediction market and let the crowd discover the truth.</p>
                 <Link href="/markets/create">
-                  <Button variant="outline" className="w-full">Create Market</Button>
+                  <Button variant="secondary" className="w-3/4 mx-auto block">Create Market</Button>
                 </Link>
               </CardContent>
             </Card>
