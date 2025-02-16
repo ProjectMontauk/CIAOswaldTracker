@@ -23,13 +23,16 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, X-Requested-With, Accept');
     res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.header('Cross-Origin-Opener-Policy', 'same-origin');
 
     // Log headers in development for debugging
     console.log('Development request:', {
       url: req.url,
       headers: {
         host: replit_host,
-        origin: origin
+        origin: origin,
+        method: req.method
       }
     });
   } else {
@@ -41,6 +44,7 @@ app.use((req, res, next) => {
       const fallbackOrigin = `https://${replit_host}`;
       res.header('Access-Control-Allow-Origin', fallbackOrigin);
     }
+    res.header('Access-Control-Allow-Credentials', 'true');
   }
 
   // Handle preflight requests
@@ -80,11 +84,10 @@ app.use((req, res, next) => {
 
 // Initialize routes and server
 (async () => {
-  // Force development mode
-  process.env.NODE_ENV = "development";
+  // Set production mode
+  process.env.NODE_ENV = "production";
 
   const server = registerRoutes(app);
-  //setupAuth(app); 
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
