@@ -96,7 +96,7 @@ export default function CreateMarketPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-primary">Kane</h2>
+              <h2 className="text-2xl font-bold text-primary">Kane Inquirer</h2>
               <p className="text-sm text-muted-foreground">In Truth We Trust</p>
             </div>
             <div className="flex gap-2">
