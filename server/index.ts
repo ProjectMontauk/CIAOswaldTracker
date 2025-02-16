@@ -1,38 +1,40 @@
-import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import express, { type Express } from "express";
 import { setupVite, serveStatic, log } from "./vite";
-import { setupAuth } from "./auth";
+import { registerRoutes } from "./routes";
+import { Server } from "http";
 import path from "path";
 
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
-// Enhanced CORS middleware with development-friendly settings and logging
+// Enhanced CORS and proxy middleware with development-friendly settings
 app.use((req, res, next) => {
   const replit_host = req.headers.host || '';
-  const origin = req.headers.origin;
 
-  // Log all headers for debugging
-  console.log('Request headers:', {
-    ...req.headers,
-    host: replit_host,
-    origin: origin,
-    url: req.url
-  });
-
-  // In development mode, be more permissive with CORS
+  // Set development-friendly headers
   if (process.env.NODE_ENV !== 'production') {
-    // If no origin is set, use the host as origin
-    if (!origin) {
-      const protocol = req.secure ? 'https' : 'http';
-      req.headers.origin = `${protocol}://${replit_host}`;
-      console.log('Setting origin header:', req.headers.origin);
-    }
-    // Accept any origin in development
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    // Always set the origin in development to match the host
+    const protocol = req.secure ? 'https' : 'http';
+    const origin = `${protocol}://${replit_host}`;
+
+    // Set headers that Vite expects
+    req.headers.origin = origin;
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, X-Requested-With, Accept');
+    res.header('Access-Control-Allow-Credentials', 'true');
+
+    // Log headers in development for debugging
+    console.log('Development request:', {
+      url: req.url,
+      headers: {
+        host: replit_host,
+        origin: origin
+      }
+    });
   } else {
     // Production mode - only accept Replit domains
+    const origin = req.headers.origin;
     if (origin && (origin.endsWith('.replit.dev') || origin.includes('replit.co'))) {
       res.header('Access-Control-Allow-Origin', origin);
     } else {
@@ -41,13 +43,12 @@ app.use((req, res, next) => {
     }
   }
 
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
+    res.status(200).end();
+    return;
   }
+
   next();
 });
 
@@ -77,12 +78,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// Initialize routes and server
 (async () => {
   // Force development mode
   process.env.NODE_ENV = "development";
 
   const server = registerRoutes(app);
-  setupAuth(app);
+  //setupAuth(app); 
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -111,3 +113,5 @@ app.use((req, res, next) => {
     log(`Server running in ${isProduction ? 'production' : 'development'} mode on port ${PORT}`);
   });
 })();
+
+import { type Request, Response, NextFunction } from "express";
