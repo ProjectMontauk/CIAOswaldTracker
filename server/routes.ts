@@ -129,7 +129,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Submit evidence
+  // Submit evidence endpoint
   app.post("/api/evidence", async (req, res) => {
     try {
       const { title, content, text, marketId } = req.body;
@@ -137,7 +137,9 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).send("Title and content are required");
       }
 
-      // Ensure marketId is properly handled
+      console.log('Creating evidence with marketId:', marketId);
+
+      // Create the new evidence
       const [newEvidence] = await db
         .insert(evidence)
         .values({
@@ -149,6 +151,8 @@ export function registerRoutes(app: Express): Server {
         })
         .returning();
 
+      console.log('Created evidence:', newEvidence);
+
       // Return the new evidence with its relationships
       const evidenceWithRelations = await db.query.evidence.findFirst({
         where: eq(evidence.id, newEvidence.id),
@@ -158,6 +162,7 @@ export function registerRoutes(app: Express): Server {
         },
       });
 
+      console.log('Returning evidence with relations:', evidenceWithRelations);
       res.json(evidenceWithRelations);
     } catch (error) {
       console.error('Error submitting evidence:', error);
