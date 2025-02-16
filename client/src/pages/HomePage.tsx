@@ -90,7 +90,7 @@ export default function HomePage() {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Welcome to Kane Inquirer</h1>
             <p className="text-xl text-muted-foreground">
-              A home for truth and good spirited debate on the internet
+              Question Everything
             </p>
           </div>
 
