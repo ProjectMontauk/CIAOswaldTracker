@@ -8,15 +8,29 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Enhanced CORS middleware with development-friendly settings
+// Enhanced CORS middleware with development-friendly settings and logging
 app.use((req, res, next) => {
   const replit_host = req.headers.host || '';
   const origin = req.headers.origin;
 
+  // Log all headers for debugging
+  console.log('Request headers:', {
+    ...req.headers,
+    host: replit_host,
+    origin: origin,
+    url: req.url
+  });
+
   // In development mode, be more permissive with CORS
   if (process.env.NODE_ENV !== 'production') {
+    // If no origin is set, use the host as origin
+    if (!origin) {
+      const protocol = req.secure ? 'https' : 'http';
+      req.headers.origin = `${protocol}://${replit_host}`;
+      console.log('Setting origin header:', req.headers.origin);
+    }
     // Accept any origin in development
-    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   } else {
     // Production mode - only accept Replit domains
     if (origin && (origin.endsWith('.replit.dev') || origin.includes('replit.co'))) {
@@ -93,7 +107,7 @@ app.use((req, res, next) => {
   }
 
   const PORT = process.env.PORT || 5000;
-  server.listen(PORT, "0.0.0.0", () => {
+  server.listen(Number(PORT), "0.0.0.0", () => {
     log(`Server running in ${isProduction ? 'production' : 'development'} mode on port ${PORT}`);
   });
 })();
