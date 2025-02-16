@@ -36,7 +36,7 @@ export const predictions = pgTable("predictions", {
 export const evidence = pgTable("evidence", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
-  marketId: integer("market_id").references(() => markets.id).notNull(),
+  marketId: integer("market_id").references(() => markets.id), 
   title: text("title").notNull(),
   content: text("content").notNull(),
   text: text("text"),
