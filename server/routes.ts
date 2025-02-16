@@ -101,7 +101,7 @@ export function registerRoutes(app: Express): Server {
       // Only allow evidence without marketId for the initial CIA market
       if (!marketId) {
         const existingEvidence = await db.query.evidence.findMany({
-          where: eq(evidence.marketId, null), // Only get evidence with null marketId
+          where: sql`${evidence.marketId} IS NULL`,
           with: {
             votes: true,
             user: true,
