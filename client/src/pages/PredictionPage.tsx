@@ -78,8 +78,8 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
 
   const onEvidenceSubmit = (data: EvidenceFormData) => {
     // Don't prefix with no-evidence for 'yes' evidence
-    const contentWithType = data.evidenceType === 'no' 
-      ? `no-evidence:${data.content}` 
+    const contentWithType = data.evidenceType === 'no'
+      ? `no-evidence:${data.content}`
       : data.content;
 
     submitEvidence({
@@ -99,9 +99,14 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     return bVotes - aVotes;
   });
 
-  // Updated filtering logic with clear type separation
+  // Updated filtering logic
   const yesEvidence = sortedEvidence.filter(item => !item.content?.startsWith('no-evidence:'));
   const noEvidence = sortedEvidence.filter(item => item.content?.startsWith('no-evidence:'));
+
+  console.log('Market ID:', params?.id);
+  console.log('Evidence array:', evidence);
+  console.log('Yes evidence:', yesEvidence);
+  console.log('No evidence:', noEvidence);
 
 
   // Get the appropriate title and description based on whether we're viewing a specific market or the CIA market
