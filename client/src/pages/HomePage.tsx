@@ -8,10 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, ExternalLink } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, ExternalLink, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { TrendingUp, Vote, Shield } from "lucide-react";
 
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
@@ -71,9 +70,17 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <div>
-            <h2 className="text-2xl font-bold text-primary">Kane</h2>
-            <p className="text-sm text-muted-foreground">In Truth We Trust</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-primary">Kane</h2>
+              <p className="text-sm text-muted-foreground">In Truth We Trust</p>
+            </div>
+            <Link href="/markets/create">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Market
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

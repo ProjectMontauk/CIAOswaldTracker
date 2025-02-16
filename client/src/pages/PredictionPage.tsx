@@ -9,10 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2 } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2, Home, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "wouter";
 import type { Market } from "@db/schema";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
@@ -109,9 +109,25 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <div>
-            <h2 className="text-2xl font-bold text-primary">Kane</h2>
-            <p className="text-sm text-muted-foreground">In Truth We Trust</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-primary">Kane</h2>
+              <p className="text-sm text-muted-foreground">In Truth We Trust</p>
+            </div>
+            <div className="flex gap-2">
+              <Link href="/">
+                <Button variant="ghost">
+                  <Home className="h-4 w-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
+              <Link href="/markets/create">
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Market
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

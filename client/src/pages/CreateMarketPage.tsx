@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, ArrowRight, Home } from "lucide-react";
+import { ArrowLeft, ArrowRight, Home, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type MarketFormData = {
@@ -99,12 +99,20 @@ export default function CreateMarketPage() {
               <h2 className="text-2xl font-bold text-primary">Kane</h2>
               <p className="text-sm text-muted-foreground">In Truth We Trust</p>
             </div>
-            <Link href="/">
-              <Button variant="ghost">
-                <Home className="h-4 w-4 mr-2" />
-                Home
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link href="/">
+                <Button variant="ghost">
+                  <Home className="h-4 w-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
+              <Link href="/markets/create">
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Market
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
