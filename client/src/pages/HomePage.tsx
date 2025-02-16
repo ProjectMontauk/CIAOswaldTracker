@@ -31,7 +31,7 @@ type EvidenceFormData = {
 
 export default function HomePage() {
   const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence();
-  const { predictions, averagePrediction, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity, submit: betSubmit, isLoading: betLoading } = usePredictions();
+  const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
   const [probability, setProbability] = useState(50);
   const evidenceForm = useForm<EvidenceFormData>({
     defaultValues: {
