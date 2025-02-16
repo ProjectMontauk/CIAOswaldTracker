@@ -98,8 +98,17 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     return bVotes - aVotes;
   });
 
-  const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
-  const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
+  // Updated filtering logic with logging
+  console.log('All evidence:', evidence);
+  const yesEvidence = sortedEvidence.filter(item => {
+    const isYesEvidence = !item.content?.startsWith('no-evidence:');
+    console.log('Filtering item:', item, 'isYesEvidence:', isYesEvidence);
+    return isYesEvidence;
+  });
+  const noEvidence = sortedEvidence.filter(item => item.content?.startsWith('no-evidence:'));
+
+  console.log('Yes evidence:', yesEvidence);
+  console.log('No evidence:', noEvidence);
 
   // Get the appropriate title and description based on whether we're viewing a specific market or the CIA market
   const title = params?.id
