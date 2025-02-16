@@ -98,7 +98,7 @@ export function registerRoutes(app: Express): Server {
     try {
       const marketId = req.query.marketId ? parseInt(req.query.marketId as string) : undefined;
 
-      // Only allow evidence without marketId for the initial CIA market
+      // If no marketId is provided, only return evidence for the CIA market (marketId = null)
       if (!marketId) {
         const existingEvidence = await db.query.evidence.findMany({
           where: sql`${evidence.marketId} IS NULL`,
@@ -108,12 +108,6 @@ export function registerRoutes(app: Express): Server {
           },
           orderBy: desc(evidence.createdAt),
         });
-
-        // Insert initial CIA market evidence if none exists
-        if (existingEvidence.length === 0) {
-          await db.insert(evidence).values(initialEvidence);
-          return res.json(initialEvidence);
-        }
 
         return res.json(existingEvidence);
       }
