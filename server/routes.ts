@@ -137,11 +137,12 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).send("Title and content are required");
       }
 
+      // Ensure marketId is properly handled
       const [newEvidence] = await db
         .insert(evidence)
         .values({
           userId: 1, // Default user for now
-          marketId: marketId || null,
+          marketId: marketId ? parseInt(marketId) : null,
           title,
           content,
           text: text || null,
