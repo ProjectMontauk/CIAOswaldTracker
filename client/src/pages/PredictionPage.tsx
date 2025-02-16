@@ -13,6 +13,7 @@ import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2, Hom
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import type { Market } from "@db/schema";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
