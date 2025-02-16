@@ -73,7 +73,7 @@ export default function HomePage() {
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold text-primary">Kane Inquirer</h2>
-              <p className="text-sm text-muted-foreground">In Truth We Trust</p>
+              <p className="text-sm text-muted-foreground">Question Everything</p>
             </div>
             <Link href="/markets/create">
               <Button>
