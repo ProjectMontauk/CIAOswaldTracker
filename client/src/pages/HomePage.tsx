@@ -88,7 +88,7 @@ export default function HomePage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">Welcome to Kane</h1>
+            <h1 className="text-4xl font-bold mb-4">Welcome to Kane Inquirer</h1>
             <p className="text-xl text-muted-foreground">
               A home for truth and good spirited debate on the internet
             </p>
@@ -98,7 +98,7 @@ export default function HomePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
+                  <FileText className="h-5 w-5" />
                   Prediction Markets
                 </CardTitle>
               </CardHeader>
