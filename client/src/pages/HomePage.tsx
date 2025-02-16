@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, ExternalLink, Plus } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, ExternalLink, Plus, TrendingUp, Shield, Vote } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 
@@ -150,7 +150,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
           </div>
-
           <div className="space-y-8">
             <h2 className="text-2xl font-bold text-center">Key Features</h2>
 
