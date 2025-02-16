@@ -21,6 +21,14 @@ export function useEvidence(marketId?: number) {
 
   const { data: evidence = [], isLoading } = useQuery<EvidenceWithRelations[]>({
     queryKey: ['/api/evidence', marketId],
+    queryFn: async () => {
+      const url = `/api/evidence${marketId ? `?marketId=${marketId}` : ''}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch evidence');
+      }
+      return response.json();
+    }
   });
 
   const submitMutation = useMutation({
