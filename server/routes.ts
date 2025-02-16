@@ -132,12 +132,12 @@ export function registerRoutes(app: Express): Server {
   // Submit evidence endpoint
   app.post("/api/evidence", async (req, res) => {
     try {
-      const { title, content, text, marketId } = req.body;
+      const { title, content, text, marketId, evidenceType } = req.body;
       if (!title || !content) {
         return res.status(400).send("Title and content are required");
       }
 
-      console.log('Creating evidence with marketId:', marketId);
+      console.log('Creating evidence with marketId:', marketId, 'type:', evidenceType);
 
       // Create the new evidence
       const [newEvidence] = await db
@@ -148,6 +148,7 @@ export function registerRoutes(app: Express): Server {
           title,
           content,
           text: text || null,
+          evidenceType: evidenceType || 'yes', // Default to 'yes' if not specified
         })
         .returning();
 
@@ -325,7 +326,8 @@ const initialEvidence = [
     content: "CIA surveillance records from Mexico City station documented Oswald's visits to Cuban and Soviet embassies. Station chief Win Scott's detailed memo suggests prior knowledge of Oswald's activities before the assassination.",
     text: "The CIA's Mexico City station maintained extensive surveillance operations that captured Oswald's interactions with foreign embassies.",
     createdAt: new Date("1963-09-27"),
-    marketId: null
+    marketId: null,
+    evidenceType: 'yes'
   },
   {
     userId: 1,
@@ -333,7 +335,8 @@ const initialEvidence = [
     content: "CIA opened a 201 personality file on Oswald in December 1960, despite officially claiming no interest in him until after the assassination. The existence of this file suggests earlier surveillance.",
     text: "The existence of a CIA 201 file on Oswald three years before the assassination contradicts official statements.",
     createdAt: new Date("1960-12-09"),
-    marketId: null
+    marketId: null,
+    evidenceType: 'yes'
   },
   {
     userId: 1,
@@ -341,6 +344,7 @@ const initialEvidence = [
     content: "CIA Counterintelligence Chief Angleton's testimony to the Warren Commission contained notable gaps regarding Oswald's file handling. Later revelations indicated special interest procedures were applied to Oswald's records.",
     text: "Angleton's testimony shows inconsistencies in how the CIA handled Oswald's records.",
     createdAt: new Date("1964-02-15"),
-    marketId: null
+    marketId: null,
+    evidenceType: 'yes'
   }
 ];

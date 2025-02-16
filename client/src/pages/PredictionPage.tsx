@@ -77,16 +77,12 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   }
 
   const onEvidenceSubmit = (data: EvidenceFormData) => {
-    // Don't prefix with no-evidence for 'yes' evidence
-    const contentWithType = data.evidenceType === 'no'
-      ? `no-evidence:${data.content}`
-      : data.content;
-
     submitEvidence({
       title: data.title,
-      content: contentWithType,
+      content: data.content,
       text: data.text,
       marketId: params?.id ? parseInt(params.id) : undefined,
+      evidenceType: data.evidenceType, // Add evidence type to the submission
     });
     evidenceForm.reset();
   };
@@ -99,9 +95,9 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     return bVotes - aVotes;
   });
 
-  // Updated filtering logic
-  const yesEvidence = sortedEvidence.filter(item => !item.content?.startsWith('no-evidence:'));
-  const noEvidence = sortedEvidence.filter(item => item.content?.startsWith('no-evidence:'));
+  // Updated filtering logic to use the evidence type directly
+  const yesEvidence = sortedEvidence.filter(item => item.evidenceType === 'yes' || !item.evidenceType);
+  const noEvidence = sortedEvidence.filter(item => item.evidenceType === 'no');
 
   console.log('Market ID:', params?.id);
   console.log('Evidence array:', evidence);
@@ -356,7 +352,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
                       const voteScore = upvotes - downvotes;
                       const user = (item as any).user;
                       const reputation = user?.reputation ?? 0;
-                      const actualContent = item.content?.replace('no-evidence:', '');
+                      const actualContent = item.content;
                       const domain = actualContent && actualContent.startsWith('http') ? getDomainFromUrl(actualContent) : null;
                       const titleWithDomain = domain ? `${item.title} (${domain})` : item.title;
 

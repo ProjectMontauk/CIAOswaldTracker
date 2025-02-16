@@ -40,6 +40,7 @@ export const evidence = pgTable("evidence", {
   title: text("title").notNull(),
   content: text("content").notNull(),
   text: text("text"),
+  evidenceType: text("evidence_type").notNull().default('yes'),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
