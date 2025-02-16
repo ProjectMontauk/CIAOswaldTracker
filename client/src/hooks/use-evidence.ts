@@ -7,6 +7,7 @@ type EvidenceSubmission = {
   content: string;
   text: string;
   marketId?: number;
+  evidenceType: 'yes' | 'no';  // Add evidenceType to the type definition
 };
 
 type EvidenceWithRelations = Evidence & {
@@ -19,7 +20,6 @@ export function useEvidence(marketId?: number) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Added logging for marketId
   console.log('useEvidence hook called with marketId:', marketId);
 
   const { data: evidence = [], isLoading } = useQuery<EvidenceWithRelations[]>({
@@ -45,7 +45,7 @@ export function useEvidence(marketId?: number) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          marketId: marketId, // Ensure marketId is included in submission
+          marketId: marketId,
         }),
         credentials: 'include',
       });
@@ -59,7 +59,6 @@ export function useEvidence(marketId?: number) {
       return result;
     },
     onSuccess: () => {
-      // Invalidate both the specific market query and the general evidence query
       queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
       toast({
         title: "Success",
