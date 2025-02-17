@@ -82,7 +82,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       content: data.content,
       text: data.text,
       marketId: params?.id ? parseInt(params.id) : undefined,
-      evidenceType: data.evidenceType, // Add evidence type to the submission
+      evidenceType: data.evidenceType, // Pass the evidence type from the form
     });
     evidenceForm.reset();
   };
@@ -95,8 +95,8 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     return bVotes - aVotes;
   });
 
-  // Updated filtering logic to use the evidence type directly
-  const yesEvidence = sortedEvidence.filter(item => item.evidenceType === 'yes' || !item.evidenceType);
+  // Filter evidence based on type
+  const yesEvidence = sortedEvidence.filter(item => item.evidenceType === 'yes');
   const noEvidence = sortedEvidence.filter(item => item.evidenceType === 'no');
 
   console.log('Market ID:', params?.id);
