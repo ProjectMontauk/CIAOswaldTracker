@@ -7,7 +7,7 @@ type EvidenceSubmission = {
   content: string;
   text: string;
   marketId?: number;
-  evidenceType: 'yes' | 'no';  // Add evidenceType to the type definition
+  evidenceType: 'yes' | 'no';
 };
 
 type EvidenceWithRelations = Evidence & {
@@ -25,7 +25,9 @@ export function useEvidence(marketId?: number) {
   const { data: evidence = [], isLoading } = useQuery<EvidenceWithRelations[]>({
     queryKey: ['/api/evidence', marketId],
     queryFn: async () => {
-      const url = `/api/evidence${marketId ? `?marketId=${marketId}` : ''}`;
+      // If marketId is undefined, we're on the main prediction page (CIA market)
+      // If marketId is a number, we're on a specific market page
+      const url = `/api/evidence${marketId !== undefined ? `?marketId=${marketId}` : ''}`;
       console.log('Fetching evidence from:', url);
       const response = await fetch(url);
       if (!response.ok) {
