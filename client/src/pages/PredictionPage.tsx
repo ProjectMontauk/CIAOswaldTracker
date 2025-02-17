@@ -77,6 +77,11 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   }
 
   const onEvidenceSubmit = (data: EvidenceFormData) => {
+    console.log('Submitting evidence with:', {
+      ...data,
+      marketId
+    });
+
     submitEvidence({
       title: data.title,
       content: data.content,
@@ -95,13 +100,15 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     return bVotes - aVotes;
   });
 
-  // Filter evidence based on type
+  // Filter evidence for this specific market and by type
   const yesEvidence = evidence.filter(item => 
-    item.evidenceType === 'yes'
+    item.evidenceType === 'yes' && 
+    (marketId ? item.marketId === marketId : item.marketId === null)
   );
 
   const noEvidence = evidence.filter(item => 
-    item.evidenceType === 'no'
+    item.evidenceType === 'no' && 
+    (marketId ? item.marketId === marketId : item.marketId === null)
   );
 
   console.log('Market ID:', marketId);

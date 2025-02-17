@@ -136,7 +136,13 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).send("Title and content are required");
       }
 
-      console.log('Creating evidence with marketId:', marketId, 'type:', evidenceType);
+      console.log('Creating evidence with:', {
+        title,
+        content,
+        text,
+        marketId,
+        evidenceType
+      });
 
       // Create the new evidence
       const [newEvidence] = await db
@@ -147,7 +153,7 @@ export function registerRoutes(app: Express): Server {
           title,
           content,
           text: text || null,
-          evidenceType,
+          evidenceType: evidenceType || 'yes',
         })
         .returning();
 

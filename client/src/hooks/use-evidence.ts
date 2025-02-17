@@ -29,7 +29,9 @@ export function useEvidence(marketId?: number) {
       if (!response.ok) {
         throw new Error('Failed to fetch evidence');
       }
-      return response.json();
+      const data = await response.json();
+      console.log('Fetched evidence:', data);
+      return data;
     },
   });
 
@@ -50,7 +52,9 @@ export function useEvidence(marketId?: number) {
         throw new Error(await response.text());
       }
 
-      return response.json();
+      const result = await response.json();
+      console.log('Evidence submission response:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
