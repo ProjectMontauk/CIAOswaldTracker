@@ -148,7 +148,7 @@ export function registerRoutes(app: Express): Server {
           title,
           content,
           text: text || null,
-          evidenceType: evidenceType || 'yes', // Default to 'yes' if not specified
+          evidenceType, // Use the evidenceType directly from request
         })
         .returning();
 
