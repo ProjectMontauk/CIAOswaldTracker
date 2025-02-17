@@ -98,8 +98,8 @@ export function registerRoutes(app: Express): Server {
     try {
       const marketId = req.query.marketId ? parseInt(req.query.marketId as string) : undefined;
 
-      // If no marketId is provided, only return evidence for the CIA market (marketId = null)
-      if (!marketId) {
+      // For the main CIA market (marketId is undefined)
+      if (marketId === undefined) {
         const existingEvidence = await db.query.evidence.findMany({
           where: sql`${evidence.marketId} IS NULL`,
           with: {
@@ -108,11 +108,10 @@ export function registerRoutes(app: Express): Server {
           },
           orderBy: desc(evidence.createdAt),
         });
-
         return res.json(existingEvidence);
       }
 
-      // For all other markets, strictly filter by marketId
+      // For specific markets, strictly filter by marketId
       const marketEvidence = await db.query.evidence.findMany({
         where: eq(evidence.marketId, marketId),
         with: {
@@ -148,7 +147,7 @@ export function registerRoutes(app: Express): Server {
           title,
           content,
           text: text || null,
-          evidenceType, // Use the evidenceType directly from request
+          evidenceType,
         })
         .returning();
 

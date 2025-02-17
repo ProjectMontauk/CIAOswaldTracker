@@ -25,8 +25,7 @@ export function useEvidence(marketId?: number) {
   const { data: evidence = [], isLoading } = useQuery<EvidenceWithRelations[]>({
     queryKey: ['/api/evidence', marketId],
     queryFn: async () => {
-      // If marketId is undefined, we're on the main prediction page (CIA market)
-      // If marketId is a number, we're on a specific market page
+      // Always include marketId in the query, even if it's undefined (for CIA market)
       const url = `/api/evidence${marketId !== undefined ? `?marketId=${marketId}` : ''}`;
       console.log('Fetching evidence from:', url);
       const response = await fetch(url);
@@ -47,7 +46,7 @@ export function useEvidence(marketId?: number) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          marketId: marketId,
+          marketId: marketId, // Always pass the marketId from the hook
         }),
         credentials: 'include',
       });
@@ -69,62 +68,6 @@ export function useEvidence(marketId?: number) {
     },
     onError: (error: Error) => {
       console.error('Evidence submission error:', error);
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const clearMutation = useMutation({
-    mutationFn: async (marketId: number) => {
-      const res = await fetch(`/api/markets/${marketId}/clear-evidence`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
-      toast({
-        title: "Success",
-        description: "Evidence cleared successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const voteMutation = useMutation({
-    mutationFn: async ({ evidenceId, isUpvote }: { evidenceId: number, isUpvote: boolean }) => {
-      const res = await fetch('/api/vote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ evidenceId, isUpvote }),
-        credentials: 'include',
-      });
-
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
-    },
-    onError: (error: Error) => {
       toast({
         title: "Error",
         description: error.message,
