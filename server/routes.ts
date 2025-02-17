@@ -93,41 +93,6 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Evidence routes
-  app.get("/api/evidence", async (req, res) => {
-    try {
-      const marketId = req.query.marketId ? parseInt(req.query.marketId as string) : undefined;
-
-      // For the main CIA market (marketId is undefined)
-      if (marketId === undefined) {
-        const existingEvidence = await db.query.evidence.findMany({
-          where: sql`${evidence.marketId} IS NULL`,
-          with: {
-            votes: true,
-            user: true,
-          },
-          orderBy: desc(evidence.createdAt),
-        });
-        return res.json(existingEvidence);
-      }
-
-      // For specific markets, strictly filter by marketId
-      const marketEvidence = await db.query.evidence.findMany({
-        where: eq(evidence.marketId, marketId),
-        with: {
-          votes: true,
-          user: true,
-        },
-        orderBy: desc(evidence.createdAt),
-      });
-
-      res.json(marketEvidence);
-    } catch (error) {
-      console.error('Error fetching evidence:', error);
-      res.status(500).json({ error: 'Failed to fetch evidence' });
-    }
-  });
-
   // Submit evidence endpoint
   app.post("/api/evidence", async (req, res) => {
     try {
@@ -175,6 +140,44 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ error: 'Failed to submit evidence' });
     }
   });
+
+  // Evidence routes
+  app.get("/api/evidence", async (req, res) => {
+    try {
+      const marketId = req.query.marketId ? parseInt(req.query.marketId as string) : undefined;
+      console.log('Fetching evidence for marketId:', marketId);
+
+      let query = db.query.evidence.findMany({
+        with: {
+          votes: true,
+          user: true,
+        },
+        orderBy: desc(evidence.createdAt),
+      });
+
+      if (marketId === undefined) {
+        // For the CIA market (no marketId)
+        query = {
+          ...query,
+          where: sql`${evidence.marketId} IS NULL`,
+        };
+      } else {
+        // For specific markets
+        query = {
+          ...query,
+          where: eq(evidence.marketId, marketId),
+        };
+      }
+
+      const evidenceData = await query;
+      console.log('Found evidence:', evidenceData);
+      res.json(evidenceData);
+    } catch (error) {
+      console.error('Error fetching evidence:', error);
+      res.status(500).json({ error: 'Failed to fetch evidence' });
+    }
+  });
+
 
   // Predictions routes
   app.post("/api/predictions", async (req, res) => {

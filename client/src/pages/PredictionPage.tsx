@@ -86,7 +86,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       title: data.title,
       content: data.content,
       text: data.text,
-      marketId: marketId,
+      marketId,
       evidenceType: data.evidenceType,
     });
     evidenceForm.reset();
@@ -101,15 +101,15 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   });
 
   // Filter evidence for this specific market and by type
-  const yesEvidence = evidence.filter(item => 
-    item.evidenceType === 'yes' && 
-    (marketId ? item.marketId === marketId : item.marketId === null)
-  );
+  const yesEvidence = evidence.filter(item => {
+    console.log('Filtering item:', item);
+    return item.evidenceType === 'yes' && item.marketId === marketId;
+  });
 
-  const noEvidence = evidence.filter(item => 
-    item.evidenceType === 'no' && 
-    (marketId ? item.marketId === marketId : item.marketId === null)
-  );
+  const noEvidence = evidence.filter(item => {
+    console.log('Filtering item:', item);
+    return item.evidenceType === 'no' && item.marketId === marketId;
+  });
 
   console.log('Market ID:', marketId);
   console.log('Evidence array:', evidence);
