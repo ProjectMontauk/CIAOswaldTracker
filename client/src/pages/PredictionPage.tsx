@@ -81,8 +81,8 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       title: data.title,
       content: data.content,
       text: data.text,
-      marketId: params?.id ? parseInt(params.id) : undefined,
-      evidenceType: data.evidenceType, // Pass the evidence type from the form
+      marketId: marketId,
+      evidenceType: data.evidenceType,
     });
     evidenceForm.reset();
   };
@@ -95,9 +95,15 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     return bVotes - aVotes;
   });
 
-  // Filter evidence based on type
-  const yesEvidence = sortedEvidence.filter(item => item.evidenceType === 'yes');
-  const noEvidence = sortedEvidence.filter(item => item.evidenceType === 'no');
+  // Filter evidence based on type and ensure it belongs to the current market
+  const yesEvidence = sortedEvidence.filter(item => 
+    item.evidenceType === 'yes' && 
+    (marketId ? item.marketId === marketId : item.marketId === null)
+  );
+  const noEvidence = sortedEvidence.filter(item => 
+    item.evidenceType === 'no' && 
+    (marketId ? item.marketId === marketId : item.marketId === null)
+  );
 
   console.log('Market ID:', params?.id);
   console.log('Evidence array:', evidence);
