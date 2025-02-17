@@ -97,15 +97,19 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/evidence", async (req, res) => {
     try {
       const { title, content, text, marketId, evidenceType } = req.body;
+
       if (!title || !content) {
         return res.status(400).send("Title and content are required");
       }
+
+      // Ensure marketId is properly parsed as an integer if provided
+      const parsedMarketId = marketId ? parseInt(marketId) : null;
 
       console.log('Creating evidence with:', {
         title,
         content,
         text,
-        marketId,
+        marketId: parsedMarketId,
         evidenceType
       });
 
@@ -114,7 +118,7 @@ export function registerRoutes(app: Express): Server {
         .insert(evidence)
         .values({
           userId: 1, // Default user for now
-          marketId: marketId ? parseInt(marketId) : null,
+          marketId: parsedMarketId,
           title,
           content,
           text: text || null,
@@ -147,7 +151,8 @@ export function registerRoutes(app: Express): Server {
       const marketId = req.query.marketId ? parseInt(req.query.marketId as string) : undefined;
       console.log('Fetching evidence for marketId:', marketId);
 
-      let query = db.query.evidence.findMany({
+      const evidenceData = await db.query.evidence.findMany({
+        where: marketId !== undefined ? eq(evidence.marketId, marketId) : sql`${evidence.marketId} IS NULL`,
         with: {
           votes: true,
           user: true,
@@ -155,21 +160,6 @@ export function registerRoutes(app: Express): Server {
         orderBy: desc(evidence.createdAt),
       });
 
-      if (marketId === undefined) {
-        // For the CIA market (no marketId)
-        query = {
-          ...query,
-          where: sql`${evidence.marketId} IS NULL`,
-        };
-      } else {
-        // For specific markets
-        query = {
-          ...query,
-          where: eq(evidence.marketId, marketId),
-        };
-      }
-
-      const evidenceData = await query;
       console.log('Found evidence:', evidenceData);
       res.json(evidenceData);
     } catch (error) {

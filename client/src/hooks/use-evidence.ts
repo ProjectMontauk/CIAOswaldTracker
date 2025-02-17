@@ -30,7 +30,7 @@ export function useEvidence(marketId?: number) {
         throw new Error('Failed to fetch evidence');
       }
       const data = await response.json();
-      console.log('Fetched evidence:', data);
+      console.log('Fetched evidence data:', data);
       return data;
     },
   });
@@ -49,7 +49,9 @@ export function useEvidence(marketId?: number) {
       });
 
       if (!response.ok) {
-        throw new Error(await response.text());
+        const errorText = await response.text();
+        console.error('Evidence submission failed:', errorText);
+        throw new Error(errorText);
       }
 
       const result = await response.json();
