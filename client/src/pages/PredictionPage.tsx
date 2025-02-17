@@ -92,15 +92,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     evidenceForm.reset();
   };
 
-  const sortedEvidence = [...evidence].sort((a, b) => {
-    const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
-      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
-    const bVotes = (b as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
-      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
-    return bVotes - aVotes;
-  });
-
-  // Filter evidence for this specific market
+  // Filter evidence based on type
   const yesEvidence = evidence.filter(item => {
     console.log('Filtering yes evidence item:', item);
     return item.evidenceType === 'yes';
