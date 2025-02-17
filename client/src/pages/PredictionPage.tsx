@@ -34,7 +34,7 @@ type EvidenceFormData = {
 
 export default function PredictionPage({ params }: { params?: { id?: string } }) {
   const marketId = params?.id ? parseInt(params.id) : undefined;
-  const { evidence, submit: submitEvidence, vote, clear, isLoading: evidenceLoading } = useEvidence(marketId);
+  const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(marketId);
   const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
   const [betAmount, setBetAmount] = useState(0);
 
@@ -82,7 +82,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       content: data.content,
       text: data.text,
       marketId: marketId,
-      evidenceType: data.evidenceType, // Use the form's evidenceType directly
+      evidenceType: data.evidenceType,
     });
     evidenceForm.reset();
   };
@@ -95,15 +95,13 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     return bVotes - aVotes;
   });
 
-  // Filter evidence based on type and market ID
+  // Filter evidence based on type
   const yesEvidence = evidence.filter(item => 
-    item.evidenceType === 'yes' &&
-    item.marketId === marketId
+    item.evidenceType === 'yes'
   );
 
   const noEvidence = evidence.filter(item => 
-    item.evidenceType === 'no' &&
-    item.marketId === marketId
+    item.evidenceType === 'no'
   );
 
   console.log('Market ID:', marketId);

@@ -20,44 +20,37 @@ export function useEvidence(marketId?: number) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  console.log('useEvidence hook called with marketId:', marketId);
-
   const { data: evidence = [], isLoading } = useQuery<EvidenceWithRelations[]>({
     queryKey: ['/api/evidence', marketId],
     queryFn: async () => {
-      // Always include marketId in the query, even if it's undefined (for CIA market)
       const url = `/api/evidence${marketId !== undefined ? `?marketId=${marketId}` : ''}`;
       console.log('Fetching evidence from:', url);
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch evidence');
       }
-      const data = await response.json();
-      console.log('Fetched evidence:', data);
-      return data;
-    }
+      return response.json();
+    },
   });
 
   const submitMutation = useMutation({
     mutationFn: async (data: EvidenceSubmission) => {
       console.log('Submitting evidence:', { ...data, marketId });
-      const res = await fetch('/api/evidence', {
+      const response = await fetch('/api/evidence', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          marketId: marketId, // Always pass the marketId from the hook
+          marketId: marketId,
         }),
         credentials: 'include',
       });
 
-      if (!res.ok) {
-        throw new Error(await res.text());
+      if (!response.ok) {
+        throw new Error(await response.text());
       }
 
-      const result = await res.json();
-      console.log('Evidence submission response:', result);
-      return result;
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
@@ -76,11 +69,37 @@ export function useEvidence(marketId?: number) {
     },
   });
 
+  const voteMutation = useMutation({
+    mutationFn: async ({ evidenceId, isUpvote }: { evidenceId: number; isUpvote: boolean }) => {
+      const response = await fetch('/api/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ evidenceId, isUpvote }),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/evidence', marketId] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     evidence,
     isLoading,
     submit: submitMutation.mutate,
     vote: voteMutation.mutate,
-    clear: clearMutation.mutate,
   };
 }
