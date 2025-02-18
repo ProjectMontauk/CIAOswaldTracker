@@ -40,21 +40,8 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
 
   // Only fetch market data if we have an ID (not the CIA market)
   const { data: market, isLoading: marketLoading } = useQuery<Market>({
-    queryKey: ['/api/markets', params?.id],
-    enabled: !!params?.id,
-    onSuccess: (data) => {
-      if (data) {
-        console.log('Market Details:', {
-          id: data.id,
-          title: data.title,
-          description: data.description,
-          participants: data.participants,
-          totalLiquidity: data.totalLiquidity,
-          predictions: data.predictions,
-          evidence: data.evidence
-        });
-      }
-    }
+    queryKey: ['/api/markets', marketId],
+    enabled: !!marketId
   });
 
   const evidenceForm = useForm<EvidenceFormData>({
@@ -105,16 +92,10 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     evidenceForm.reset();
   };
 
-  // Filter evidence based on type
-  const yesEvidence = evidence.filter(item => {
-    console.log('Filtering yes evidence item:', item);
-    return item.evidenceType === 'yes';
-  });
+  // Filter evidence based on type directly from the filtered evidence array
+  const yesEvidence = evidence.filter(item => item.evidenceType === 'yes');
+  const noEvidence = evidence.filter(item => item.evidenceType === 'no');
 
-  const noEvidence = evidence.filter(item => {
-    console.log('Filtering no evidence item:', item);
-    return item.evidenceType === 'no';
-  });
 
   console.log('Market ID:', marketId);
   console.log('All evidence:', evidence);

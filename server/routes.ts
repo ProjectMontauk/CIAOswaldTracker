@@ -152,7 +152,7 @@ export function registerRoutes(app: Express): Server {
       console.log('Fetching evidence for marketId:', marketId);
 
       const evidenceData = await db.query.evidence.findMany({
-        where: marketId !== undefined ? eq(evidence.marketId, marketId) : sql`${evidence.marketId} IS NULL`,
+        where: marketId !== undefined ? eq(evidence.marketId, marketId) : undefined,
         with: {
           votes: true,
           user: true,
