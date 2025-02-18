@@ -8,64 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, ExternalLink, Plus, TrendingUp, Shield, Vote } from "lucide-react";
+import { FileText, Trophy, ThumbsUp, ThumbsDown, ExternalLink, Plus, TrendingUp, Shield, Vote } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 
-// Helper function to extract domain from URL
-function getDomainFromUrl(url: string): string | null {
-  try {
-    const urlObj = new URL(url);
-    return urlObj.hostname.replace(/^www\./, '');
-  } catch {
-    return null;
-  }
-}
-
-type EvidenceFormData = {
-  title: string;
-  content: string;
-  text: string;
-  evidenceType: 'yes' | 'no';
-};
-
 export default function HomePage() {
-  const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence();
-  const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
-  const [probability, setProbability] = useState(50);
-  const evidenceForm = useForm<EvidenceFormData>({
-    defaultValues: {
-      title: '',
-      content: '',
-      text: '',
-      evidenceType: 'yes'
-    }
-  });
-
-  const onEvidenceSubmit = (data: EvidenceFormData) => {
-    const contentWithType = data.content ?
-      (data.evidenceType === 'no' ? `no-evidence:${data.content}` : data.content) :
-      (data.evidenceType === 'no' ? 'no-evidence:none' : 'none');
-
-    submitEvidence({
-      title: data.title,
-      content: contentWithType,
-      text: data.text,
-    });
-    evidenceForm.reset();
-  };
-
-  const sortedEvidence = [...evidence].sort((a, b) => {
-    const aVotes = (a as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
-      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
-    const bVotes = (b as any).votes?.reduce((acc: number, v: { isUpvote: boolean }) =>
-      acc + (v.isUpvote ? 1 : -1), 0) ?? 0;
-    return bVotes - aVotes;
-  });
-
-  const yesEvidence = sortedEvidence.filter(item => !item.content?.includes('no-evidence'));
-  const noEvidence = sortedEvidence.filter(item => item.content?.includes('no-evidence'));
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
@@ -126,30 +73,6 @@ export default function HomePage() {
             </Card>
           </div>
 
-          {/* Trending Markets Section */}
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-center mb-6">Trending Markets</h2>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <Link href="/predict" className="block">
-                    <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors">
-                      <div>
-                        <h3 className="font-semibold text-lg mb-1">
-                          CIA's Contact with Lee Harvey Oswald
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?
-                        </p>
-                      </div>
-                      <ExternalLink className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                  </Link>
-                  {/* Add more prediction markets here as they are created */}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
           <div className="space-y-8">
             <h2 className="text-2xl font-bold text-center">Key Features</h2>
 

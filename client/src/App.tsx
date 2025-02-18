@@ -11,7 +11,6 @@ function App() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
-      <Route path="/predict" component={PredictionPage} />
       <Route path="/predict/:id" component={PredictionPage} />
       <Route path="/markets" component={PredictionMarketsPage} />
       <Route path="/markets/create" component={CreateMarketPage} />
