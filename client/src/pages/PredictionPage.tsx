@@ -34,11 +34,17 @@ type EvidenceFormData = {
 
 export default function PredictionPage({ params }: { params?: { id?: string } }) {
   const marketId = params?.id ? parseInt(params.id) : undefined;
+
+  // Redirect to markets page if no marketId is provided
+  if (!marketId) {
+    window.location.href = '/markets';
+    return null;
+  }
+
   const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(marketId);
   const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
   const [betAmount, setBetAmount] = useState(0);
 
-  // Only fetch market data if we have an ID (not the CIA market)
   const { data: market, isLoading: marketLoading } = useQuery<Market>({
     queryKey: ['/api/markets', marketId],
     enabled: !!marketId
@@ -54,7 +60,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   });
 
   // Display loading state while market data is being fetched
-  if (params?.id && marketLoading) {
+  if (marketLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -65,7 +71,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   }
 
   // Show error if market not found
-  if (params?.id && !market) {
+  if (!market) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -77,11 +83,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   }
 
   const onEvidenceSubmit = (data: EvidenceFormData) => {
-    console.log('Submitting evidence with:', {
-      ...data,
-      marketId
-    });
-
     submitEvidence({
       title: data.title,
       content: data.content,
@@ -97,16 +98,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   const noEvidence = evidence.filter(item => item.evidenceType === 'no');
 
 
-  console.log('Market ID:', marketId);
-  console.log('All evidence:', evidence);
-  console.log('Yes evidence:', yesEvidence);
-  console.log('No evidence:', noEvidence);
-
-
-  // Get the appropriate title and description based on whether we're viewing a specific market or the CIA market
-  const title = params?.id
-    ? market?.title
-    : "Did the CIA have contact with Lee Harvey Oswald prior to JFK's assassination?";
+  const title = market?.title;
 
   return (
     <div className="min-h-screen bg-gray-50">
