@@ -42,6 +42,19 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   const { data: market, isLoading: marketLoading } = useQuery<Market>({
     queryKey: ['/api/markets', params?.id],
     enabled: !!params?.id,
+    onSuccess: (data) => {
+      if (data) {
+        console.log('Market Details:', {
+          id: data.id,
+          title: data.title,
+          description: data.description,
+          participants: data.participants,
+          totalLiquidity: data.totalLiquidity,
+          predictions: data.predictions,
+          evidence: data.evidence
+        });
+      }
+    }
   });
 
   const evidenceForm = useForm<EvidenceFormData>({
