@@ -43,6 +43,21 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Delete all evidence with null marketId
+  app.delete("/api/evidence/cleanup", async (req, res) => {
+    try {
+      // Delete evidence with null marketId
+      await db
+        .delete(evidence)
+        .where(eq(evidence.marketId, null));
+
+      res.json({ message: "Successfully deleted all evidence without market ID" });
+    } catch (error) {
+      console.error('Error deleting evidence:', error);
+      res.status(500).json({ error: 'Failed to delete evidence' });
+    }
+  });
+
   // Get specific market with its evidence and predictions
   app.get("/api/markets/:id", async (req, res) => {
     try {
