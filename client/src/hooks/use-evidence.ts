@@ -20,6 +20,7 @@ export function useEvidence(marketId?: number) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Query to fetch evidence
   const { data: evidence = [], isLoading } = useQuery<EvidenceWithRelations[]>({
     queryKey: ['/api/evidence', marketId],
     queryFn: async () => {
@@ -35,6 +36,7 @@ export function useEvidence(marketId?: number) {
     },
   });
 
+  // Mutation to submit new evidence
   const submitMutation = useMutation({
     mutationFn: async (data: EvidenceSubmission) => {
       console.log('Submitting evidence:', { ...data, marketId });
@@ -75,6 +77,7 @@ export function useEvidence(marketId?: number) {
     },
   });
 
+  // Mutation to vote on evidence
   const voteMutation = useMutation({
     mutationFn: async ({ evidenceId, isUpvote }: { evidenceId: number; isUpvote: boolean }) => {
       const response = await fetch('/api/vote', {
