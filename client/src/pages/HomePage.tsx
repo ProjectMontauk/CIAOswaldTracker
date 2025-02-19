@@ -32,7 +32,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -58,7 +58,7 @@ export default function HomePage() {
               <CardContent>
                 <p className="mb-4">Start your own prediction market and let the crowd discover the truth.</p>
                 <Link href="/markets/create">
-                  <Button variant="secondary" className="w-3/4 mx-auto block">Create Market</Button>
+                  <Button variant="secondary" className="w-full">Create Market</Button>
                 </Link>
               </CardContent>
             </Card>
