@@ -9,22 +9,18 @@ import CreateMarketPage from "./pages/CreateMarketPage";
 
 function App() {
   return (
-    <Switch>
-      <Route path="/" component={HomePage} />
-      <Route path="/predict/:id" component={PredictionPage} />
-      <Route path="/markets" component={PredictionMarketsPage} />
-      <Route path="/markets/create" component={CreateMarketPage} />
-    </Switch>
-  );
-}
-
-function AppWrapper() {
-  return (
     <QueryClientProvider client={queryClient}>
-      <App />
-      <Toaster />
+      <div className="min-h-screen">
+        <Switch>
+          <Route path="/" component={HomePage} />
+          <Route path="/markets" component={PredictionMarketsPage} />
+          <Route path="/predict/:id" component={PredictionPage} />
+          <Route path="/markets/create" component={CreateMarketPage} />
+        </Switch>
+        <Toaster />
+      </div>
     </QueryClientProvider>
   );
 }
 
-export default AppWrapper;
+export default App;
