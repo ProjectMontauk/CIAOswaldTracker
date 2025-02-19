@@ -6,10 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEvidence } from "@/hooks/use-evidence";
-import { usePredictions } from "@/hooks/use-predictions";
-import { FileText, Trophy, ThumbsUp, ThumbsDown, ExternalLink, Plus, TrendingUp, Shield, Vote } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { FileText, Plus } from "lucide-react";
 import { Link } from "wouter";
 
 export default function HomePage() {
