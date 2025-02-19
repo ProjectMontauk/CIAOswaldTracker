@@ -133,6 +133,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
           {market?.description && (
             <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto">
               {market.description}
+              console.log("Here", market.description))
             </p>
           )}
         </div>
