@@ -72,42 +72,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
           </div>
-
-          <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-center">Key Features</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="bg-primary/10 rounded-full p-3 inline-block mb-3">
-                  <TrendingUp className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-2">Advanced Markets</h3>
-                <p className="text-sm text-muted-foreground">
-                  Direct numerical bet input and real-time market consensus tracking
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="bg-primary/10 rounded-full p-3 inline-block mb-3">
-                  <Vote className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-2">Collaborative Research</h3>
-                <p className="text-sm text-muted-foreground">
-                  Real-time collaboration and voting on evidence validity
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="bg-primary/10 rounded-full p-3 inline-block mb-3">
-                  <Shield className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-2">AI Enhancement</h3>
-                <p className="text-sm text-muted-foreground">
-                  AI-powered evidence verification and analysis tools
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
