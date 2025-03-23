@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, numeric } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const users = pgTable("users", {
@@ -14,21 +14,23 @@ export const users = pgTable("users", {
 export const markets = pgTable("markets", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  description: text("description").notNull(),
+  description: text("description"),
   initialEvidence: text("initial_evidence"),
-  startingOdds: decimal("starting_odds").notNull(),
-  creatorId: integer("creator_id").references(() => users.id).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  participants: integer("participants").notNull().default(0),
-  totalLiquidity: decimal("total_liquidity").notNull().default("0"),
+  startingOdds: numeric("starting_odds"),
+  creatorId: integer("creator_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  participants: integer("participants").default(0),
+  totalLiquidity: numeric("total_liquidity").default("0"),
+  yes_resolution: text("yes_resolution"),
+  no_resolution: text("no_resolution"),
 });
 
 export const predictions = pgTable("predictions", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  marketId: integer("market_id").references(() => markets.id).notNull(),
-  probability: decimal("probability").notNull(),
-  amount: decimal("amount").notNull(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  marketId: integer("market_id").notNull().references(() => markets.id),
+  probability: numeric("probability").notNull(),
+  amount: numeric("amount").notNull(),
   position: text("position").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

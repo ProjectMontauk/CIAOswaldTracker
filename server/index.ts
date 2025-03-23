@@ -1,8 +1,18 @@
+import 'dotenv/config';
+
+// Log the environment for debugging
+console.log('Environment:', {
+  NODE_ENV: process.env.NODE_ENV,
+  DATABASE_URL: process.env.DATABASE_URL?.replace(/:.*@/, ':****@'), // Hide password in logs
+});
+
 import express, { type Express } from "express";
 import { setupVite, serveStatic, log } from "./vite";
 import { registerRoutes } from "./routes";
 import { Server } from "http";
 import path from "path";
+import { type Request, Response, NextFunction } from "express";
+import { db } from "@db"; // Import the db instance from your db/index.ts
 
 const app = express();
 app.use(express.json());
@@ -84,11 +94,9 @@ app.use((req, res, next) => {
 
 // Initialize routes and server
 (async () => {
-  // Set production mode
-  process.env.NODE_ENV = "production";
-
   const server = registerRoutes(app);
 
+  // Register error handling middleware before routes
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -103,6 +111,7 @@ app.use((req, res, next) => {
     const distPath = path.resolve(process.cwd(), "dist/public");
     console.log('Serving static files from:', distPath);
     app.use(express.static(distPath));
+    
     app.get("*", (_req, res) => {
       res.sendFile(path.resolve(distPath, "index.html"));
     });
@@ -111,10 +120,8 @@ app.use((req, res, next) => {
     await setupVite(app, server);
   }
 
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 3000;
   server.listen(Number(PORT), "0.0.0.0", () => {
     log(`Server running in ${isProduction ? 'production' : 'development'} mode on port ${PORT}`);
   });
 })();
-
-import { type Request, Response, NextFunction } from "express";

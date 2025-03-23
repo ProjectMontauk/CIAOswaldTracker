@@ -1,13 +1,17 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { ExternalLink, Plus, Home } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { Market } from "@db/schema";
+import { ExternalLink, Plus, Home } from "lucide-react";
 
 export default function PredictionMarketsPage() {
-  const { data: markets = [] } = useQuery<Market[]>({
+  const { data: markets, isLoading, error } = useQuery({
     queryKey: ['/api/markets'],
+    queryFn: async () => {
+      const res = await fetch('/api/markets');
+      if (!res.ok) throw new Error('Failed to fetch markets');
+      return res.json();
+    },
   });
 
   return (
@@ -16,19 +20,19 @@ export default function PredictionMarketsPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-primary">Kane Inquirer</h2>
-              <p className="text-sm text-muted-foreground">Question Everything</p>
+              <h2 className="text-2xl font-bold text-primary">Graphica</h2>
+              <p className="text-sm text-muted-foreground">Question Everything. Bet on Truth.</p>
             </div>
             <div className="flex gap-2">
               <Link href="/">
-                <Button variant="ghost">
-                  <Home className="h-4 w-4 mr-2" />
+                <Button variant="default" className="bg-[#0f172a] hover:bg-[#1e293b]">
+                  <Home className="h-5 w-5 mr-2" />
                   Home
                 </Button>
               </Link>
               <Link href="/markets/create">
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
+                <Button variant="default" className="bg-[#0f172a] hover:bg-[#1e293b]">
+                  <Plus className="h-5 w-5 mr-2" />
                   Create Market
                 </Button>
               </Link>
@@ -39,12 +43,10 @@ export default function PredictionMarketsPage() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8 text-center">Active Prediction Markets</h1>
-
-          <div className="space-y-4">
-            {markets.map((market) => (
-              <Link key={market.id} href={`/predict/${market.id}`} className="block">
-                <Card className="hover:bg-gray-50 transition-colors">
+          <div className="grid gap-6">
+            {markets?.map((market) => (
+              <Link key={market.id} href={`/predict/${market.id}`}>
+                <Card className="hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -56,10 +58,7 @@ export default function PredictionMarketsPage() {
                         </p>
                         <div className="flex items-center gap-4 mt-3">
                           <span className="text-sm text-muted-foreground">
-                            Active Participants: {market.participants}
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            Market Size: ${Number(market.totalLiquidity).toFixed(2)}
+                            Active Participants: {market.predictions?.length || 0}
                           </span>
                         </div>
                       </div>
