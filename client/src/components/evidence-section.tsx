@@ -36,28 +36,19 @@ export function EvidenceSection({ marketId }: EvidenceSectionProps) {
   const { data: evidence = [], refetch: refetchEvidence, error: evidenceError } = useQuery<Evidence[]>({
     queryKey: ['evidence', marketId, activeTab],
     queryFn: async () => {
-      console.log('🔍 Fetching evidence:', { marketId, activeTab });
-      
       const params = new URLSearchParams();
       if (marketId) params.set('marketId', marketId.toString());
       if (activeTab === 'yes' || activeTab === 'no') params.set('type', activeTab);
       
       const url = `/api/evidence?${params.toString()}`;
-      console.log('📡 Fetching from URL:', url);
       
       const res = await fetch(url);
       if (!res.ok) {
         const errorData = await res.json();
-        console.error('❌ Failed to fetch evidence:', errorData);
         throw new Error(JSON.stringify(errorData));
       }
       
       const data = await res.json();
-      console.log('✅ Fetched evidence:', {
-        count: data.length,
-        types: data.map((e: Evidence) => e.evidenceType),
-        data
-      });
       return data;
     },
     enabled: !!marketId && activeTab !== 'submit'
@@ -69,13 +60,11 @@ export function EvidenceSection({ marketId }: EvidenceSectionProps) {
         marketId,
         title: formData.title,
         content: formData.content,
-        text: formData.content,
+        text: formData.url,
         url: formData.url,
         evidenceType: formData.evidenceType
       };
       
-      console.log('🚀 Starting evidence submission with data:', submissionData);
-
       const res = await fetch("/api/evidence", {
         method: "POST",
         headers: {
@@ -86,16 +75,13 @@ export function EvidenceSection({ marketId }: EvidenceSectionProps) {
 
       if (!res.ok) {
         const errorText = await res.text();
-        console.error('❌ Evidence submission failed:', errorText);
         throw new Error(`Failed to submit evidence: ${errorText}`);
       }
 
       const responseData = await res.json();
-      console.log('✅ Evidence submission successful! Response:', responseData);
       return responseData;
     },
     onSuccess: async () => {
-      console.log('📝 Form reset and refreshing data...');
       setFormData({
         title: "",
         url: "",
@@ -103,25 +89,22 @@ export function EvidenceSection({ marketId }: EvidenceSectionProps) {
         evidenceType: "yes"
       });
       
-      console.log('🔄 Invalidating queries and refetching...');
-      await queryClient.invalidateQueries({ queryKey: ['evidence', marketId, activeTab] });
-      await refetchEvidence();
-      
-      console.log('📊 Current evidence state:', {
-        all: evidence,
-        yes: evidence.filter(e => e.evidenceType === 'yes'),
-        no: evidence.filter(e => e.evidenceType === 'no')
+      // Invalidate all evidence queries for this market
+      await queryClient.invalidateQueries({ 
+        queryKey: ['evidence', marketId]  // Remove activeTab from queryKey
       });
+      
+      // Switch to the appropriate tab based on submitted evidence type
+      setActiveTab(formData.evidenceType);
+      
+      await refetchEvidence();
     },
     onError: (error) => {
-      console.error('❌ Evidence submission error:', error);
     }
   });
 
   const voteOnEvidence = useMutation({
     mutationFn: async ({ evidenceId, value }: { evidenceId: number; value: number }) => {
-      console.log('🗳️ Starting vote submission:', { evidenceId, value });
-      
       try {
         const res = await fetch(`/api/evidence/${evidenceId}/vote`, {
           method: "POST",
@@ -134,63 +117,38 @@ export function EvidenceSection({ marketId }: EvidenceSectionProps) {
 
         if (!res.ok) {
           const errorText = await res.text();
-          console.error('❌ Vote request failed:', errorText);
           throw new Error(`Failed to vote: ${errorText}`);
         }
 
         const data = await res.json();
-        console.log('✅ Vote submitted successfully:', data);
         return data;
       } catch (error) {
-        console.error('❌ Vote request error:', error);
         throw error;
       }
     },
     onSuccess: async (data) => {
-      console.log('🔄 Vote recorded, refreshing evidence...');
       await queryClient.invalidateQueries({ queryKey: ['evidence', marketId, activeTab] });
       await refetchEvidence();
-      console.log('✨ Evidence refreshed after vote');
     },
     onError: (error) => {
-      console.error('❌ Vote mutation error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to submit vote. Please try again.",
-        variant: "destructive",
-      });
     }
   });
 
   const handleVote = async (evidenceId: number, value: number) => {
-    console.log('👆 Vote button clicked:', { evidenceId, value });
     try {
       await voteOnEvidence.mutate({ evidenceId, value });
     } catch (error) {
-      console.error('Failed to submit vote:', error);
     }
   };
 
   useEffect(() => {
     if (evidenceError) {
-      console.error('🚨 Evidence query error:', evidenceError);
     }
-    console.log('📊 Current evidence state:', {
-      marketId,
-      error: evidenceError,
-      dataLength: evidence?.length,
-      data: evidence
-    });
   }, [evidence, evidenceError, marketId]);
 
   const yesEvidence = evidence?.filter(e => e.evidenceType === 'yes') || [];
   const noEvidence = evidence?.filter(e => e.evidenceType === 'no') || [];
   
-  console.log('Filtered evidence:', {
-    yes: yesEvidence,
-    no: noEvidence
-  });
-
   // Add a function to calculate net votes
   const calculateNetVotes = (item: Evidence) => {
     const upvotes = item.votes?.filter(v => v.value > 0).length || 0;
@@ -199,94 +157,83 @@ export function EvidenceSection({ marketId }: EvidenceSectionProps) {
   };
 
   const EvidenceList = ({ items }: { items: Evidence[] }) => {
-    console.log('🎯 Rendering evidence list:', {
-      itemCount: items.length,
-      types: items.map(i => i.evidenceType)
-    });
-
     return (
       <div className="space-y-4">
-        {items.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No evidence found</p>
-        ) : (
-          items.map((item, index) => {
-            const netVotes = calculateNetVotes(item);
-            const hasUpvoted = item.votes?.some(v => v.value > 0) || false;
-            const hasDownvoted = item.votes?.some(v => v.value < 0) || false;
+        {items.map((item, index) => {
+          const netVotes = calculateNetVotes(item);
+          const hasUpvoted = item.votes?.some(v => v.value > 0) || false;
+          const hasDownvoted = item.votes?.some(v => v.value < 0) || false;
 
-            return (
-              <div key={item.id} className="p-4 bg-gray-50 rounded-lg">
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-center min-w-[40px]">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        console.log('⬆️ Upvote clicked for evidence:', item.id);
-                        handleVote(item.id, hasUpvoted ? 0 : 1);
-                      }}
-                      disabled={voteOnEvidence.isLoading}
-                      className="p-0 h-6 hover:bg-transparent"
-                    >
-                      <ArrowBigUp 
-                        className={cn(
-                          "h-6 w-6 transition-colors",
-                          hasUpvoted ? "text-orange-500 fill-orange-500" : "text-gray-500 hover:text-orange-500"
-                        )}
-                      />
-                    </Button>
-                    
-                    <span className={cn(
-                      "font-medium text-sm",
-                      netVotes > 0 ? "text-orange-500" : 
-                      netVotes < 0 ? "text-blue-500" : 
-                      "text-gray-500"
-                    )}>
-                      {netVotes}
-                    </span>
-                    
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        console.log('⬇️ Downvote clicked for evidence:', item.id);
-                        handleVote(item.id, hasDownvoted ? 0 : -1);
-                      }}
-                      disabled={voteOnEvidence.isLoading}
-                      className="p-0 h-6 hover:bg-transparent"
-                    >
-                      <ArrowBigDown 
-                        className={cn(
-                          "h-6 w-6 transition-colors",
-                          hasDownvoted ? "text-blue-500 fill-blue-500" : "text-gray-500 hover:text-blue-500"
-                        )}
-                      />
-                    </Button>
-                  </div>
-
-                  {/* Content section */}
-                  <div className="flex-1">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold">#{index + 1}</span>
-                        <span className="font-medium">{item.title}</span>
-                      </div>
-                      {item.url && (
-                        <a href={item.url} 
-                           target="_blank" 
-                           rel="noopener noreferrer" 
-                           className="text-blue-600 hover:underline text-sm block">
-                          Source Document
-                        </a>
+          return (
+            <div key={item.id} className="p-4 bg-gray-50 rounded-lg">
+              <div className="flex gap-4">
+                <div className="flex flex-col items-center min-w-[40px]">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      handleVote(item.id, hasUpvoted ? 0 : 1);
+                    }}
+                    disabled={voteOnEvidence.isLoading}
+                    className="p-0 h-6 hover:bg-transparent"
+                  >
+                    <ArrowBigUp 
+                      className={cn(
+                        "h-6 w-6 transition-colors",
+                        hasUpvoted ? "text-orange-500 fill-orange-500" : "text-gray-500 hover:text-orange-500"
                       )}
-                      <p className="text-gray-600">{item.content}</p>
+                    />
+                  </Button>
+                  
+                  <span className={cn(
+                    "font-medium text-sm",
+                    netVotes > 0 ? "text-orange-500" : 
+                    netVotes < 0 ? "text-blue-500" : 
+                    "text-gray-500"
+                  )}>
+                    {netVotes}
+                  </span>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      handleVote(item.id, hasDownvoted ? 0 : -1);
+                    }}
+                    disabled={voteOnEvidence.isLoading}
+                    className="p-0 h-6 hover:bg-transparent"
+                  >
+                    <ArrowBigDown 
+                      className={cn(
+                        "h-6 w-6 transition-colors",
+                        hasDownvoted ? "text-blue-500 fill-blue-500" : "text-gray-500 hover:text-blue-500"
+                      )}
+                    />
+                  </Button>
+                </div>
+
+                {/* Content section */}
+                <div className="flex-1">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">#{index + 1}</span>
+                      <span className="font-medium">{item.title}</span>
                     </div>
+                    {item.url && (
+                      <a href={item.url} 
+                         target="_blank" 
+                         rel="noopener noreferrer" 
+                         className="text-blue-600 hover:underline text-sm block">
+                        Source Document
+                      </a>
+                    )}
+                    <p className="text-gray-600">{item.content}</p>
                   </div>
                 </div>
               </div>
-            );
-          })
-        )}
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -352,7 +299,10 @@ export function EvidenceSection({ marketId }: EvidenceSectionProps) {
                     id="url"
                     placeholder="Enter the URL of the document..."
                     value={formData.url}
-                    onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+                    onChange={(e) => {
+                      const newUrl = e.target.value;
+                      setFormData(prev => ({ ...prev, url: newUrl }));
+                    }}
                   />
                 </div>
 

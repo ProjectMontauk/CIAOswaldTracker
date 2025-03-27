@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Prediction } from "@db/schema";
+import type { Prediction } from "server/db/schema";
 import { useToast } from "@/hooks/use-toast";
 
 type PredictionSubmission = {

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Evidence, User, Vote } from "@db/schema";
+import type { Evidence, User, Vote } from "server/db/schema";
 import { useToast } from "@/hooks/use-toast";
 
 type EvidenceSubmission = {

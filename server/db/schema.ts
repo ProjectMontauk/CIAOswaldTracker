@@ -1,30 +1,115 @@
-import { integer, pgTable, serial, text, timestamp, unique, relations } from "drizzle-orm/pg-core";
-import { users } from './users';
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, numeric } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
-export const evidence = pgTable('evidence', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull(),
-  marketId: integer('market_id'),
-  title: text('title').notNull(),
-  content: text('content').notNull(),
-  text: text('text'),
-  evidenceType: text('evidence_type').notNull(),
+console.log('db wins!');
+
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").unique().notNull(),
+  password: text("password").notNull(),
+  reputation: integer("reputation").notNull().default(0),
+  upvotesReceived: integer("upvotes_received").notNull().default(0),
+  downvotesReceived: integer("downvotes_received").notNull().default(0),
+  balance: decimal("balance").notNull().default("1000"), // Starting balance for betting
 });
 
-export const votes = pgTable('votes', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull(),
-  evidenceId: integer('evidence_id').notNull(),
-  value: integer('value').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-}, (table) => ({
-  userEvidenceUnique: unique().on(table.userId, table.evidenceId),
+export const markets = pgTable("markets", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  initialEvidence: text("initial_evidence"),
+  startingOdds: numeric("starting_odds"),
+  creatorId: integer("creator_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  participants: integer("participants").default(0),
+  totalLiquidity: numeric("total_liquidity").default("0"),
+  yes_resolution: text("yes_resolution"),
+  no_resolution: text("no_resolution"),
+});
+
+export const predictions = pgTable("predictions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  marketId: integer("market_id").notNull().references(() => markets.id),
+  probability: numeric("probability").notNull(),
+  amount: numeric("amount").notNull(),
+  position: text("position").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const evidence = pgTable("evidence", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  marketId: integer("market_id").references(() => markets.id), 
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  text: text("url"),
+  evidenceType: text("evidence_type").notNull().default('yes'),
+  url: text("url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const votes = pgTable("votes", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  evidenceId: integer("evidence_id").references(() => evidence.id).notNull(),
+  isUpvote: boolean("is_upvote").notNull(),
+});
+
+// Relations
+export const userRelations = relations(users, ({ many }) => ({
+  evidence: many(evidence),
+  votes: many(votes),
+  predictions: many(predictions),
+  markets: many(markets),
 }));
 
-// Define relations
-export const evidenceRelations = relations(evidence, ({ many }) => ({
+export const marketRelations = relations(markets, ({ many, one }) => ({
+  predictions: many(predictions),
+  evidence: many(evidence),
+  creator: one(users, {
+    fields: [markets.creatorId],
+    references: [users.id],
+  }),
+}));
+
+export const evidenceRelations = relations(evidence, ({ one, many }) => ({
+  user: one(users, {
+    fields: [evidence.userId],
+    references: [users.id],
+  }),
+  market: one(markets, {
+    fields: [evidence.marketId],
+    references: [markets.id],
+  }),
   votes: many(votes),
 }));
 
+export const votesRelations = relations(votes, ({ one }) => ({
+  user: one(users, {
+    fields: [votes.userId],
+    references: [users.id],
+  }),
+  evidence: one(evidence, {
+    fields: [votes.evidenceId],
+    references: [evidence.id],
+  }),
+}));
+
+export const predictionsRelations = relations(predictions, ({ one }) => ({
+  user: one(users, {
+    fields: [predictions.userId],
+    references: [users.id],
+  }),
+  market: one(markets, {
+    fields: [predictions.marketId],
+    references: [markets.id],
+  }),
+}));
+
+// Types
+export type User = typeof users.$inferSelect;
 export type Evidence = typeof evidence.$inferSelect;
-export type Vote = typeof votes.$inferSelect; 
+export type Prediction = typeof predictions.$inferSelect;
+export type Vote = typeof votes.$inferSelect;
+export type Market = typeof markets.$inferSelect;

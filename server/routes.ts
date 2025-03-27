@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { db } from "@db";
-import { evidence, predictions, votes, users, markets } from "@db/schema";
+import { db } from "server/db";
+import { evidence, predictions, votes, users, markets } from "server/db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { setupAuth } from "./auth";
 

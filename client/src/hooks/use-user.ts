@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { User } from "@db/schema";
+import type { User } from "server/db/schema";
 import { useToast } from "@/hooks/use-toast";
 
 type LoginData = {

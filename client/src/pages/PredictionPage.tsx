@@ -41,14 +41,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
     enabled: !!marketId,
   });
 
-  useEffect(() => {
-    if (market) {
-      console.log('Full market object:', market);
-      console.log('Yes Resolution:', market.yes_resolution);
-      console.log('No Resolution:', market.no_resolution);
-    }
-  }, [market]);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
