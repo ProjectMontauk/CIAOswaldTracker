@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import type { Market } from "@db/schema";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useParams } from 'wouter';
 
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
@@ -32,22 +33,22 @@ type EvidenceFormData = {
   evidenceType: 'yes' | 'no';
 };
 
-export default function PredictionPage({ params }: { params?: { id?: string } }) {
-  const marketId = params?.id ? parseInt(params.id) : undefined;
+export default function PredictionPage() {
+  const { id } = useParams();
 
   // Redirect to markets page if no marketId is provided
-  if (!marketId) {
+  if (!id) {
     window.location.href = '/markets';
     return null;
   }
 
-  const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(marketId);
+  const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(id);
   const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
   const [betAmount, setBetAmount] = useState(0);
 
-  const { data: market, isLoading: marketLoading } = useQuery<Market>({
-    queryKey: ['/api/markets', marketId],
-    enabled: !!marketId
+  const { data: market } = useQuery({
+    queryKey: ['market', id],
+    queryFn: () => fetch(`/api/markets/${id}`).then(res => res.json())
   });
 
   const evidenceForm = useForm<EvidenceFormData>({
@@ -60,23 +61,11 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   });
 
   // Display loading state while market data is being fetched
-  if (marketLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-lg text-muted-foreground">Loading market data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error if market not found
   if (!market) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-destructive mb-2">Market Not Found</h1>
-          <p className="text-muted-foreground">The requested prediction market could not be found.</p>
+          <p className="text-lg text-muted-foreground">Loading market data...</p>
         </div>
       </div>
     );
@@ -87,7 +76,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       title: data.title,
       content: data.content,
       text: data.text,
-      marketId,
+      marketId: id,
       evidenceType: data.evidenceType,
     });
     evidenceForm.reset();
@@ -96,9 +85,6 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
   // Filter evidence based on type directly from the filtered evidence array
   const yesEvidence = evidence.filter(item => item.evidenceType === 'yes');
   const noEvidence = evidence.filter(item => item.evidenceType === 'no');
-
-
-  const title = market?.title;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -128,20 +114,10 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-center mb-4">{title}</h1>
-          {market?.description && (
-            <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto">
-              {market.description}
-              console.log("Here", market.description))
-            </p>
-          )}
-        </div>
-
         <div className="space-y-8 max-w-4xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>Prediction Market</CardTitle>
+              <CardTitle>{market?.title || 'Loading...'}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -219,7 +195,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Evidence</CardTitle>
-                {marketId && (
+                {id && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="outline" size="sm">
@@ -237,7 +213,7 @@ export default function PredictionPage({ params }: { params?: { id?: string } })
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => marketId && clear(marketId)}>
+                        <AlertDialogAction onClick={() => id && clear(id)}>
                           Clear Evidence
                         </AlertDialogAction>
                       </AlertDialogFooter>

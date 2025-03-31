@@ -330,23 +330,31 @@ export function registerRoutes(app: Express): Server {
       console.log('🎯 POST /api/markets route hit');
       const { title, description } = req.body;
       
-      // Create market with 50-50 odds
       const [newMarket] = await db
         .insert(markets)
         .values({
           title,
           description,
-          creatorId: 1,                // Default user ID
-          yesOdds: "0.5",             // 50% for Yes
-          noOdds: "0.5",              // 50% for No
+          creatorId: 1,
+          yesOdds: "0.5",
+          noOdds: "0.5",
           createdAt: new Date(),
           participants: 0,
           totalLiquidity: "0"
         })
         .returning();
 
-      console.log('✅ Market created with 50-50 odds:', newMarket);
-      res.json(newMarket);
+      // Fetch full market data with relations
+      const marketWithDetails = await db.query.markets.findFirst({
+        where: eq(markets.id, newMarket.id),
+        with: {
+          predictions: true,
+          evidence: true,
+        }
+      });
+
+      console.log('✅ Market created with details:', marketWithDetails);
+      res.json(marketWithDetails);
     } catch (error) {
       console.error('❌ Error creating market:', error);
       res.status(500).json({ error: 'Failed to create market' });

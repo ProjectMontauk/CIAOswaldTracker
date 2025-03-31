@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, ArrowRight, Home, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from '@tanstack/react-query';
 
 type MarketFormData = {
   title: string;
@@ -39,6 +40,7 @@ export default function CreateMarketPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const form = useForm<MarketFormData>({
     defaultValues: {
@@ -63,26 +65,16 @@ export default function CreateMarketPage() {
 
   const onSubmit = async (data: MarketFormData) => {
     try {
-      console.log('📤 Submitting market:', data);
-
       const response = await fetch('/api/markets', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to create market');
-      }
-
-      console.log('✅ Market created:', result);
+      const newMarket = await response.json();
       
-      // Reset form
-      form.reset();
+      // Invalidate and refetch markets query
+      queryClient.invalidateQueries({ queryKey: ['markets'] });
       
       toast({
         title: "Success",
@@ -91,10 +83,10 @@ export default function CreateMarketPage() {
 
       navigate('/markets');
     } catch (error) {
-      console.error('❌ Error:', error);
+      console.error('Error:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : 'Failed to create market',
+        description: "Failed to create market",
         variant: "destructive",
       });
     }
