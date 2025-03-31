@@ -16,11 +16,14 @@ export const markets = pgTable("markets", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   initialEvidence: text("initial_evidence"),
-  startingOdds: decimal("starting_odds").notNull(),
   creatorId: integer("creator_id").references(() => users.id).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
   participants: integer("participants").notNull().default(0),
   totalLiquidity: decimal("total_liquidity").notNull().default("0"),
+  yesResolution: text("yes_resolution"),
+  noResolution: text("no_resolution"),
+  yesOdds: decimal("yes_odds").notNull().default("0.5"),
+  noOdds: decimal("no_odds").notNull().default("0.5"),
 });
 
 export const predictions = pgTable("predictions", {
@@ -42,6 +45,7 @@ export const evidence = pgTable("evidence", {
   text: text("text"),
   evidenceType: text("evidence_type").notNull().default('yes'),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  url: text("url"),
 });
 
 export const votes = pgTable("votes", {

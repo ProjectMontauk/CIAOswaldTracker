@@ -329,33 +329,27 @@ export function registerRoutes(app: Express): Server {
     try {
       console.log('🎯 POST /api/markets route hit');
       const { title, description } = req.body;
-      console.log('📝 Request body:', req.body);
-
-      // Validate input
-      if (!title || !description) {
-        console.log('❌ Missing required fields');
-        return res.status(400).json({ error: 'Title and description are required' });
-      }
-
-      // Log database operation
-      console.log('💾 Attempting database insert...');
+      
+      // Create market with 50-50 odds
       const [newMarket] = await db
         .insert(markets)
         .values({
           title,
           description,
+          creatorId: 1,                // Default user ID
+          yesOdds: "0.5",             // 50% for Yes
+          noOdds: "0.5",              // 50% for No
           createdAt: new Date(),
+          participants: 0,
+          totalLiquidity: "0"
         })
         .returning();
 
-      console.log('✅ Market created:', newMarket);
+      console.log('✅ Market created with 50-50 odds:', newMarket);
       res.json(newMarket);
     } catch (error) {
       console.error('❌ Error creating market:', error);
-      res.status(500).json({ 
-        error: 'Failed to create market',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
+      res.status(500).json({ error: 'Failed to create market' });
     }
   });
 

@@ -16,6 +16,7 @@ const client = postgres(process.env.DATABASE_URL, {
 });
 
 // Test connection
+/*
 const testConnection = async () => {
   try {
     const result = await client`SELECT 1`;
@@ -29,40 +30,15 @@ const testConnection = async () => {
     throw error;
   }
 };
+*/
+// Only run in development
+if (process.env.NODE_ENV === 'development') {
+  // testMarketInsert();  // Still commented out, but could be enabled for testing
+}
 
-// Add this test query
-const testMarketInsert = async () => {
-  try {
-    const result = await client`
-      INSERT INTO markets (
-        title, 
-        description, 
-        created_at, 
-        starting_odds,    -- Required field
-        creator_id,       -- Required field
-        participants,     -- Has default
-        total_liquidity  -- Has default
-      )
-      VALUES (
-        'Test Market', 
-        'Test Description', 
-        NOW(),
-        0.5,             -- Starting odds (50%)
-        1,               -- Default creator ID
-        0,               -- Default participants
-        '0'              -- Default total liquidity
-      )
-      RETURNING *
-    `;
-    console.log('✅ Test market insert successful:', result);
-  } catch (error) {
-    console.error('❌ Test market insert failed:', error);
-  }
-};
+// testConnection();
 
-testConnection();
-testMarketInsert();
-
+/*
 const testTableStructure = async () => {
   try {
     const columns = await client`
@@ -75,7 +51,37 @@ const testTableStructure = async () => {
     console.error('❌ Error checking table structure:', error);
   }
 };
+*/
+// testTableStructure();
 
-testTableStructure();
-
+/* 
+const testMarketInsert = async () => {
+  try {
+    const result = await client`
+      INSERT INTO markets (
+        title, 
+        description, 
+        created_at, 
+        starting_odds,
+        creator_id,
+        participants,
+        total_liquidity
+      )
+      VALUES (
+        'Test Market', 
+        'Test Description', 
+        NOW(),
+        0.5,
+        1,
+        0,
+        '0'
+      )
+      RETURNING *
+    `;
+    console.log('✅ Test market insert successful:', result);
+  } catch (error) {
+    console.error('❌ Test market insert failed:', error);
+  }
+};
+*/
 export const db = drizzle(client, { schema });
