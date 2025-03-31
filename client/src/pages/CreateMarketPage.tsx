@@ -63,6 +63,8 @@ export default function CreateMarketPage() {
 
   const onSubmit = async (data: MarketFormData) => {
     try {
+      console.log('📤 Submitting market:', data);
+
       const response = await fetch('/api/markets', {
         method: 'POST',
         headers: {
@@ -71,10 +73,17 @@ export default function CreateMarketPage() {
         body: JSON.stringify(data),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error(await response.text());
+        throw new Error(result.error || 'Failed to create market');
       }
 
+      console.log('✅ Market created:', result);
+      
+      // Reset form
+      form.reset();
+      
       toast({
         title: "Success",
         description: "Market created successfully",
@@ -82,6 +91,7 @@ export default function CreateMarketPage() {
 
       navigate('/markets');
     } catch (error) {
+      console.error('❌ Error:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : 'Failed to create market',

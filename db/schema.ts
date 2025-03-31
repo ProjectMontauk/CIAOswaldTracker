@@ -48,7 +48,8 @@ export const votes = pgTable("votes", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
   evidenceId: integer("evidence_id").references(() => evidence.id).notNull(),
-  isUpvote: boolean("is_upvote").notNull(),
+  value: integer("value").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Relations

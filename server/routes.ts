@@ -325,6 +325,40 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  app.post("/api/markets", async (req, res) => {
+    try {
+      console.log('🎯 POST /api/markets route hit');
+      const { title, description } = req.body;
+      console.log('📝 Request body:', req.body);
+
+      // Validate input
+      if (!title || !description) {
+        console.log('❌ Missing required fields');
+        return res.status(400).json({ error: 'Title and description are required' });
+      }
+
+      // Log database operation
+      console.log('💾 Attempting database insert...');
+      const [newMarket] = await db
+        .insert(markets)
+        .values({
+          title,
+          description,
+          createdAt: new Date(),
+        })
+        .returning();
+
+      console.log('✅ Market created:', newMarket);
+      res.json(newMarket);
+    } catch (error) {
+      console.error('❌ Error creating market:', error);
+      res.status(500).json({ 
+        error: 'Failed to create market',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

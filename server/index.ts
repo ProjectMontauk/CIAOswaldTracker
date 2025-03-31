@@ -3,56 +3,23 @@ import { setupVite, serveStatic, log } from "./vite";
 import { registerRoutes } from "./routes";
 import { Server } from "http";
 import path from "path";
+import "dotenv/config";
+import { db } from "@db";  // Points to db/index.ts
 
 const app = express();
 app.use(express.json());
 
-// Enhanced CORS and proxy middleware with development-friendly settings
+// Add more detailed CORS settings
 app.use((req, res, next) => {
-  const replit_host = req.headers.host || '';
-
-  // Set development-friendly headers
-  if (process.env.NODE_ENV !== 'production') {
-    // Always set the origin in development to match the host
-    const protocol = req.secure ? 'https' : 'http';
-    const origin = `${protocol}://${replit_host}`;
-
-    // Set headers that Vite expects
-    req.headers.origin = origin;
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, X-Requested-With, Accept');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.header('Cross-Origin-Opener-Policy', 'same-origin');
-
-    // Log headers in development for debugging
-    console.log('Development request:', {
-      url: req.url,
-      headers: {
-        host: replit_host,
-        origin: origin,
-        method: req.method
-      }
-    });
-  } else {
-    // Production mode - only accept Replit domains
-    const origin = req.headers.origin;
-    if (origin && (origin.endsWith('.replit.dev') || origin.includes('replit.co'))) {
-      res.header('Access-Control-Allow-Origin', origin);
-    } else {
-      const fallbackOrigin = `https://${replit_host}`;
-      res.header('Access-Control-Allow-Origin', fallbackOrigin);
-    }
-    res.header('Access-Control-Allow-Credentials', 'true');
-  }
-
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
-
+  
   next();
 });
 
@@ -111,9 +78,9 @@ app.use((req, res, next) => {
     await setupVite(app, server);
   }
 
-  const PORT = process.env.PORT || 5000;
-  server.listen(Number(PORT), "0.0.0.0", () => {
-    log(`Server running in ${isProduction ? 'production' : 'development'} mode on port ${PORT}`);
+  const port = process.env.PORT || 3000;
+  server.listen(port, () => {
+    console.log(`Server running on port ${port}`);
   });
 })();
 
