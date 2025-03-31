@@ -16,8 +16,8 @@ export default function PredictionMarketsPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-primary">Kane Inquirer</h2>
-              <p className="text-sm text-muted-foreground">Question Everything</p>
+              <h2 className="text-2xl font-bold text-primary">Tinfoil</h2>
+              <p className="text-sm text-muted-foreground">Question It All</p>
             </div>
             <div className="flex gap-2">
               <Link href="/">

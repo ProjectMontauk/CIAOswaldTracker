@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEvidence } from "@/hooks/use-evidence";
 import { usePredictions } from "@/hooks/use-predictions";
-import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2, Home, Plus } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Trophy, ThumbsUp, ThumbsDown, Trash2, Home, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import type { Market } from "@db/schema";
@@ -45,6 +45,7 @@ export default function PredictionPage() {
   const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(id);
   const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
   const [betAmount, setBetAmount] = useState(0);
+  const [showRules, setShowRules] = useState(false);
 
   const { data: market } = useQuery({
     queryKey: ['market', id],
@@ -92,8 +93,8 @@ export default function PredictionPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-primary">Kane Inquirer</h2>
-              <p className="text-sm text-muted-foreground">Question Everything</p>
+              <h2 className="text-2xl font-bold text-primary">Tinfoil</h2>
+              <p className="text-sm text-muted-foreground">Question it All</p>
             </div>
             <div className="flex gap-2">
               <Link href="/">
@@ -153,7 +154,6 @@ export default function PredictionPage() {
                       value={betAmount === 0 ? '' : betAmount}
                       onChange={(e) => {
                         const value = e.target.value;
-                        // Remove leading zeros and convert to number
                         const numValue = value ? parseInt(value.replace(/^0+/, '')) : 0;
                         setBetAmount(numValue);
                       }}
@@ -186,6 +186,50 @@ export default function PredictionPage() {
                 <div className="text-sm text-muted-foreground">
                   <p>Market Size: ${totalLiquidity.toFixed(2)}</p>
                   <p>Total Predictions: {predictions.length}</p>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Rules</h3>
+                  
+                  {/* Preview of Yes Resolution */}
+                  <p className="text-muted-foreground text-sm mb-1">
+                    {market?.yesResolution?.split('.')[0]}...
+                  </p>
+                  
+                  <Button 
+                    variant="link" 
+                    onClick={() => setShowRules(!showRules)}
+                    className="text-blue-500 text-sm h-auto p-0 mb-2 flex items-center gap-1"
+                  >
+                    {showRules ? (
+                      <>
+                        Show Less
+                        <ChevronUp className="h-4 w-4" />
+                      </>
+                    ) : (
+                      <>
+                        Read More
+                        <ChevronDown className="h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                  
+                  <div className="space-y-4">
+                    {showRules && (
+                      <>
+                        <div>
+                          <p className="text-muted-foreground mt-1">
+                            {market?.yesResolution || 'No resolution conditions specified'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground mt-1">
+                            {market?.noResolution || 'No resolution conditions specified'}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>

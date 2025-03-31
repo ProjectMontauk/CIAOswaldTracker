@@ -12,9 +12,8 @@ import { useQueryClient } from '@tanstack/react-query';
 
 type MarketFormData = {
   title: string;
-  description: string;
-  initialEvidence: string;
-  startingOdds: number;
+  yesResolution: string;
+  noResolution: string;
 };
 
 const steps = [
@@ -23,16 +22,12 @@ const steps = [
     description: "What question would you like the market to predict?",
   },
   {
-    title: "Description",
-    description: "Provide more context about the prediction market.",
+    title: "Resolution Conditions",
+    description: "Define how the market will be resolved",
   },
   {
-    title: "Initial Evidence",
-    description: "Add any initial evidence or context to help participants.",
-  },
-  {
-    title: "Market Parameters",
-    description: "Set the initial market parameters.",
+    title: "Review & Submit",
+    description: "Review market details before creation",
   },
 ];
 
@@ -45,9 +40,8 @@ export default function CreateMarketPage() {
   const form = useForm<MarketFormData>({
     defaultValues: {
       title: "",
-      description: "",
-      initialEvidence: "",
-      startingOdds: 50,
+      yesResolution: "",
+      noResolution: "",
     },
   });
 
@@ -63,6 +57,68 @@ export default function CreateMarketPage() {
     }
   };
 
+  // Render different form content based on step
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <div className="space-y-4">
+            <Label htmlFor="title">Market Question</Label>
+            <Input
+              id="title"
+              placeholder="Will X happen by Y date?"
+              {...form.register("title", { required: true })}
+            />
+          </div>
+        );
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <Label htmlFor="yesResolution">"Yes" Resolution Condition</Label>
+              <Textarea
+                id="yesResolution"
+                placeholder="The market will resolve as 'Yes' if..."
+                {...form.register("yesResolution", { required: true })}
+              />
+            </div>
+            <div className="space-y-4">
+              <Label htmlFor="noResolution">"No" Resolution Condition</Label>
+              <Textarea
+                id="noResolution"
+                placeholder="The market will resolve as 'No' if..."
+                {...form.register("noResolution", { required: true })}
+              />
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div className="rounded-lg border p-4">
+              <h3 className="font-semibold mb-2">Market Question</h3>
+              <p className="text-muted-foreground">{form.getValues("title")}</p>
+            </div>
+            <div className="rounded-lg border p-4">
+              <h3 className="font-semibold mb-2">Resolution Conditions</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="font-medium text-sm">Yes Resolution:</p>
+                  <p className="text-muted-foreground">{form.getValues("yesResolution")}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-sm">No Resolution:</p>
+                  <p className="text-muted-foreground">{form.getValues("noResolution")}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   const onSubmit = async (data: MarketFormData) => {
     try {
       const response = await fetch('/api/markets', {
@@ -72,8 +128,6 @@ export default function CreateMarketPage() {
       });
 
       const newMarket = await response.json();
-      
-      // Invalidate and refetch markets query
       queryClient.invalidateQueries({ queryKey: ['markets'] });
       
       toast({
@@ -98,8 +152,8 @@ export default function CreateMarketPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-primary">Kane Inquirer</h2>
-              <p className="text-sm text-muted-foreground">Question Everything</p>
+              <h2 className="text-2xl font-bold text-primary">Tinfoil</h2>
+              <p className="text-sm text-muted-foreground">Question it All</p>
             </div>
             <div className="flex gap-2">
               <Link href="/">
@@ -128,82 +182,25 @@ export default function CreateMarketPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                {currentStep === 0 && (
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Question</Label>
-                    <Input
-                      id="title"
-                      placeholder="e.g., Will Bitcoin reach $100,000 by the end of 2024?"
-                      {...form.register("title", { required: true })}
-                    />
-                  </div>
-                )}
+                {renderStepContent()}
 
-                {currentStep === 1 && (
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Market Description</Label>
-                    <Textarea
-                      id="description"
-                      placeholder="Provide details about what constitutes a correct prediction..."
-                      {...form.register("description", { required: true })}
-                      rows={4}
-                    />
-                  </div>
-                )}
-
-                {currentStep === 2 && (
-                  <div className="space-y-2">
-                    <Label htmlFor="initialEvidence">Initial Evidence</Label>
-                    <Textarea
-                      id="initialEvidence"
-                      placeholder="Share any relevant information, data, or context..."
-                      {...form.register("initialEvidence")}
-                      rows={4}
-                    />
-                  </div>
-                )}
-
-                {currentStep === 3 && (
-                  <div className="space-y-2">
-                    <Label htmlFor="startingOdds">Starting Probability (%)</Label>
-                    <Input
-                      id="startingOdds"
-                      type="number"
-                      min={1}
-                      max={99}
-                      {...form.register("startingOdds", {
-                        required: true,
-                        min: 1,
-                        max: 99,
-                        valueAsNumber: true,
-                      })}
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      Set the initial probability between 1% and 99%. This will determine the starting market odds.
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex justify-between pt-4">
+                <div className="flex justify-between mt-6">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={prevStep}
                     disabled={currentStep === 0}
                   >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Previous
+                    Back
                   </Button>
-
-                  <Button
-                    type={currentStep === steps.length - 1 ? "submit" : "button"}
-                    onClick={currentStep === steps.length - 1 ? undefined : nextStep}
-                  >
-                    {currentStep === steps.length - 1 ? "Create Market" : "Next"}
-                    {currentStep !== steps.length - 1 && (
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    )}
-                  </Button>
+                  
+                  {currentStep === steps.length - 1 ? (
+                    <Button type="submit">Create Market</Button>
+                  ) : (
+                    <Button type="button" onClick={nextStep}>
+                      Next
+                    </Button>
+                  )}
                 </div>
               </form>
             </CardContent>

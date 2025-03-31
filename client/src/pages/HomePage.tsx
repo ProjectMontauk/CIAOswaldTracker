@@ -10,8 +10,8 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-primary">Kane Inquirer</h2>
-              <p className="text-sm text-muted-foreground">Question Everything</p>
+              <h2 className="text-2xl font-bold text-primary">Tinfoil</h2>
+              <p className="text-sm text-muted-foreground">Question it All</p>
             </div>
             <Link href="/markets/create">
               <Button>
@@ -26,9 +26,9 @@ export default function HomePage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">Welcome to Kane Inquirer</h1>
+            <h1 className="text-4xl font-bold mb-4">Welcome to Tinfoil</h1>
             <p className="text-xl text-muted-foreground">
-              Question Everything
+              A home for honest debate about anything on the internet
             </p>
           </div>
 

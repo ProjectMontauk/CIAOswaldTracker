@@ -58,25 +58,12 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Get specific market with its evidence and predictions
+  // Get specific market
   app.get("/api/markets/:id", async (req, res) => {
     try {
       const marketId = parseInt(req.params.id);
       const market = await db.query.markets.findFirst({
         where: eq(markets.id, marketId),
-        with: {
-          evidence: {
-            with: {
-              votes: true,
-              user: true,
-            },
-          },
-          predictions: {
-            with: {
-              user: true,
-            },
-          },
-        },
       });
 
       if (!market) {
@@ -85,8 +72,7 @@ export function registerRoutes(app: Express): Server {
 
       res.json(market);
     } catch (error) {
-      console.error('Error fetching market:', error);
-      res.status(500).json({ error: 'Failed to fetch market' });
+      res.status(500).json({ error: "Failed to fetch market" });
     }
   });
 
@@ -328,16 +314,18 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/markets", async (req, res) => {
     try {
       console.log('🎯 POST /api/markets route hit');
-      const { title, description } = req.body;
+      const { title, yesResolution, noResolution } = req.body;
       
       const [newMarket] = await db
         .insert(markets)
         .values({
           title,
-          description,
+          description: "",  // Add empty string as default
           creatorId: 1,
           yesOdds: "0.5",
           noOdds: "0.5",
+          yesResolution,
+          noResolution,
           createdAt: new Date(),
           participants: 0,
           totalLiquidity: "0"

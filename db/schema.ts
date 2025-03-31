@@ -14,7 +14,7 @@ export const users = pgTable("users", {
 export const markets = pgTable("markets", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  description: text("description").notNull(),
+  description: text("description"),
   initialEvidence: text("initial_evidence"),
   creatorId: integer("creator_id").references(() => users.id).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
