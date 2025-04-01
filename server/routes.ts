@@ -4,6 +4,7 @@ import { db } from "@db";
 import { evidence, predictions, votes, users, markets } from "@db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { setupAuth } from "./auth";
+import { calculateMarketOdds } from '../shared/utils';
 
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
@@ -186,45 +187,50 @@ export function registerRoutes(app: Express): Server {
       return res.status(404).json({ error: "Market not found" });
     }
 
-    // Use a transaction to update both predictions and market odds
-    const [newPrediction] = await db.transaction(async (tx) => {
-      // Create the prediction
-      const [prediction] = await tx
-        .insert(predictions)
-        .values({
-          userId: 1,
-          marketId,
-          position,
-          amount: amount.toString(),
-          probability: "0.5",
-          createdAt: new Date()
-        })
-        .returning();
+    try {
+      // Use a transaction to update both predictions and market odds
+      const prediction = await db.transaction(async (tx) => {
+        // Create the prediction
+        const [newPrediction] = await tx
+          .insert(predictions)
+          .values({
+            userId: 1,
+            marketId,
+            position,
+            amount: amount.toString(),
+            probability: "0.5",
+            createdAt: new Date()
+          })
+          .returning();
 
-      // Get all predictions for this market
-      const marketPredictions = await tx.query.predictions.findMany({
-        where: eq(predictions.marketId, marketId),
+        // Get all predictions for this market
+        const marketPredictions = await tx.query.predictions.findMany({
+          where: eq(predictions.marketId, marketId),
+        });
+
+        // Calculate new odds using the shared function
+        const { marketOdds, yesAmount, noAmount, totalLiquidity } = 
+          calculateMarketOdds(marketPredictions, marketId);
+
+        // Update market with new odds
+        await tx
+          .update(markets)
+          .set({
+            currentOdds: marketOdds.toString(),
+            yesAmount: yesAmount.toString(),
+            noAmount: noAmount.toString(),
+            totalLiquidity: totalLiquidity.toString(),
+          })
+          .where(eq(markets.id, marketId));
+
+        return newPrediction;
       });
 
-      // Calculate new odds
-      const { marketOdds, yesAmount, noAmount, totalLiquidity } = 
-        calculateMarketOdds(marketPredictions, marketId);
-
-      // Update market with new odds
-      await tx
-        .update(markets)
-        .set({
-          currentOdds: marketOdds.toString(),
-          yesAmount: yesAmount.toString(),
-          noAmount: noAmount.toString(),
-          totalLiquidity: totalLiquidity.toString(),
-        })
-        .where(eq(markets.id, marketId));
-
-      return prediction;
-    });
-
-    res.json(newPrediction);
+      res.json(prediction);
+    } catch (error) {
+      console.error('Error creating prediction:', error);
+      res.status(500).json({ error: 'Failed to create prediction' });
+    }
   });
 
   app.get("/api/predictions", async (req, res) => {
