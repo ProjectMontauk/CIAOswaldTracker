@@ -191,15 +191,24 @@ export default function PredictionPage() {
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Rules</h3>
                   
-                  {/* Preview of Yes Resolution */}
-                  <p className="text-muted-foreground text-sm mb-1">
-                    {market?.yesResolution?.split('.')[0]}...
-                  </p>
+                  <div className="text-muted-foreground text-sm">
+                    {/* Show either preview or full text */}
+                    {showRules ? (
+                      // Full text
+                      <>
+                        <p className="mb-4">{market?.yesResolution}</p>
+                        <p>{market?.noResolution}</p>
+                      </>
+                    ) : (
+                      // Preview only
+                      <p>{market?.yesResolution?.split('.')[0]}...</p>
+                    )}
+                  </div>
                   
                   <Button 
                     variant="link" 
                     onClick={() => setShowRules(!showRules)}
-                    className="text-blue-500 text-sm h-auto p-0 mb-2 flex items-center gap-1"
+                    className="text-blue-500 text-sm h-auto p-0 mt-1 flex items-center gap-1"
                   >
                     {showRules ? (
                       <>
@@ -213,23 +222,6 @@ export default function PredictionPage() {
                       </>
                     )}
                   </Button>
-                  
-                  <div className="space-y-4">
-                    {showRules && (
-                      <>
-                        <div>
-                          <p className="text-muted-foreground mt-1">
-                            {market?.yesResolution || 'No resolution conditions specified'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground mt-1">
-                            {market?.noResolution || 'No resolution conditions specified'}
-                          </p>
-                        </div>
-                      </>
-                    )}
-                  </div>
                 </div>
               </div>
             </CardContent>
@@ -239,31 +231,6 @@ export default function PredictionPage() {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Evidence</CardTitle>
-                {id && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Clear All Evidence
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action will clear all evidence documents for this prediction market.
-                          This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => id && clear(id)}>
-                          Clear Evidence
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
               </div>
             </CardHeader>
             <CardContent>
