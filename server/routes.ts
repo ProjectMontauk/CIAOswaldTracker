@@ -170,57 +170,58 @@ export function registerRoutes(app: Express): Server {
 
   // Predictions routes
   app.post("/api/predictions", async (req, res) => {
-    try {
-      const { position, amount, marketId } = req.body;
-      if (!position || !amount || amount <= 0) {
-        return res.status(400).send("Position and amount are required");
+    const { marketId, prediction: predictionInput, amount } = req.body;
+    
+    // Validate required fields
+    if (!marketId || !predictionInput || !amount) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Verify market exists
+    const market = await db.query.markets.findFirst({
+      where: eq(markets.id, marketId)
+    });
+
+    if (!market) {
+      return res.status(404).json({ error: "Market not found" });
+    }
+
+    // Start transaction to handle user balance and prediction creation
+    const [newPrediction] = await db.transaction(async (tx) => {
+      // Get current user balance
+      const [user] = await tx
+        .select()
+        .from(users)
+        .where(eq(users.id, 1))
+        .limit(1);
+
+      if (!user || Number(user.balance) < amount) {
+        throw new Error("Insufficient balance");
       }
 
-      // Start a transaction to update user balance and create prediction
-      const [prediction] = await db.transaction(async (tx) => {
-        // Get current user balance
-        const [user] = await tx
-          .select()
-          .from(users)
-          .where(eq(users.id, 1))
-          .limit(1);
+      // Update user balance
+      await tx
+        .update(users)
+        .set({
+          balance: sql`${users.balance} - ${amount}`,
+        })
+        .where(eq(users.id, 1));
 
-        if (!user || Number(user.balance) < amount) {
-          throw new Error("Insufficient balance");
-        }
+      // Create prediction
+      return await tx
+        .insert(predictions)
+        .values({
+          userId: 1,
+          marketId,
+          position: predictionInput,
+          amount: amount.toString(),
+          probability: "0.5",
+          createdAt: new Date()
+        })
+        .returning();
+    });
 
-        // Update user balance
-        await tx
-          .update(users)
-          .set({
-            balance: sql`${users.balance} - ${amount}`,
-          })
-          .where(eq(users.id, 1));
-
-        // Create prediction
-        return await tx
-          .insert(predictions)
-          .values({
-            userId: 1,
-            marketId: marketId || 1, // Default to market 1 if not provided
-            position,
-            amount,
-            probability: "0.5", // Initial probability
-          })
-          .returning();
-      });
-
-      // Get updated market state
-      const marketState = await db.query.predictions.findMany({
-        where: marketId ? eq(predictions.marketId, marketId) : undefined,
-        orderBy: desc(predictions.createdAt),
-      });
-
-      res.json({ prediction, marketState });
-    } catch (error) {
-      console.error('Error processing prediction:', error);
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to process prediction' });
-    }
+    res.json(newPrediction);
   });
 
   app.get("/api/predictions", async (req, res) => {

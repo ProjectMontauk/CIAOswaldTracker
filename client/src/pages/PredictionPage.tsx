@@ -35,6 +35,7 @@ type EvidenceFormData = {
 
 export default function PredictionPage() {
   const { id } = useParams();
+  const marketId = Number(id);
 
   // Redirect to markets page if no marketId is provided
   if (!id) {
@@ -42,8 +43,8 @@ export default function PredictionPage() {
     return null;
   }
 
-  const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(id);
-  const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions();
+  const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(marketId);
+  const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions(marketId);
   const [betAmount, setBetAmount] = useState(0);
   const [showRules, setShowRules] = useState(false);
 
@@ -77,7 +78,7 @@ export default function PredictionPage() {
       title: data.title,
       content: data.content,
       text: data.text,
-      marketId: id,
+      marketId: marketId,
       evidenceType: data.evidenceType,
     });
     evidenceForm.reset();

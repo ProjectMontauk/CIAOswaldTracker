@@ -30,10 +30,11 @@ export const predictions = pgTable("predictions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
   marketId: integer("market_id").references(() => markets.id).notNull(),
-  probability: decimal("probability").notNull(),
+  position: text("position").notNull(),  // 'yes' or 'no'
   amount: decimal("amount").notNull(),
-  position: text("position").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  // Remove probability if it's not needed, or add it with a default
+  probability: decimal("probability").notNull().default("0.5"),
 });
 
 export const evidence = pgTable("evidence", {
