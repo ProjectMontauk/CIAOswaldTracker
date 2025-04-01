@@ -44,7 +44,7 @@ function calculateMarketOdds(predictions: Prediction[], marketId: number) {
 }
 
 // This is a custom hook that manages predictions
-export function usePredictions(marketId: number) {
+export function usePredictions(marketId: number, refetchMarket: () => void) {
   // useState is a built-in React hook that lets you add state to functional components
   const [isLoading, setIsLoading] = useState(false);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
@@ -73,9 +73,9 @@ export function usePredictions(marketId: number) {
   }, [marketId]); // Re-run when marketId changes
 
   // This is a function that will be available to any component using this hook
-  const submitPrediction = async (data: PredictionSubmitData) => {
+  const submit = async (data: PredictionSubmitData) => {
     try {
-      setIsLoading(true); // Update the loading state
+      setIsLoading(true);
       
       // Validate the data
       if (!data.marketId || !data.position || !data.amount) {
@@ -97,13 +97,14 @@ export function usePredictions(marketId: number) {
         throw new Error(errorData.error);
       }
 
-      const responseData = await response.json();
+      // After successful submission:
+      await refetchMarket(); // Refetch market data to get new odds
+
       toast({
         title: "Success",
         description: "Prediction submitted successfully",
       });
 
-      return responseData;
     } catch (error) {
       console.error('Error:', error);
       toast({
@@ -112,15 +113,15 @@ export function usePredictions(marketId: number) {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false); // Reset loading state
+      setIsLoading(false);
     }
   };
 
   // The hook returns an object with values/functions that components can use
   return {
-    submitPrediction,
-    isLoading,
     predictions,
+    submit,
+    isLoading,
     ...marketData  // Spread the market data
   };
 } 

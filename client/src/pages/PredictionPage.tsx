@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,14 +44,30 @@ export default function PredictionPage() {
   }
 
   const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(marketId);
-  const { predictions, submit: submitPrediction, isLoading: predictionsLoading, marketOdds, yesAmount, noAmount, totalLiquidity } = usePredictions(marketId);
+  const { predictions, submit, isLoading: predictionsLoading } = usePredictions(marketId);
   const [betAmount, setBetAmount] = useState(0);
   const [showRules, setShowRules] = useState(false);
 
   const { data: market } = useQuery({
     queryKey: ['market', id],
-    queryFn: () => fetch(`/api/markets/${id}`).then(res => res.json())
+    queryFn: async () => {
+      const response = await fetch(`/api/markets/${id}`);
+      const data = await response.json();
+      return data;
+    }
   });
+
+  // Add this to see the market data whenever it changes
+  useEffect(() => {
+    if (market) {
+      console.log('Market Data Updated:', {
+        id: market.id,
+        yesAmount: market.yesAmount,
+        noAmount: market.noAmount,
+        currentOdds: market.currentOdds
+      });
+    }
+  }, [market]);
 
   const evidenceForm = useForm<EvidenceFormData>({
     defaultValues: {
@@ -128,20 +144,20 @@ export default function PredictionPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 border rounded-lg">
                       <p className="text-3xl font-bold text-primary">
-                        {(marketOdds * 100).toFixed(1)}%
+                        {(Number(market.currentOdds) * 100).toFixed(1)}%
                       </p>
                       <p className="text-sm text-muted-foreground">Yes</p>
                       <p className="text-xs text-muted-foreground">
-                        Total: ${yesAmount.toFixed(2)}
+                        Total: ${Number(market.yesAmount).toFixed(2)}
                       </p>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
                       <p className="text-3xl font-bold text-primary">
-                        {((1 - marketOdds) * 100).toFixed(1)}%
+                        {((1 - Number(market.currentOdds)) * 100).toFixed(1)}%
                       </p>
                       <p className="text-sm text-muted-foreground">No</p>
                       <p className="text-xs text-muted-foreground">
-                        Total: ${noAmount.toFixed(2)}
+                        Total: ${Number(market.noAmount).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -166,7 +182,7 @@ export default function PredictionPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      onClick={() => submitPrediction({ 
+                      onClick={() => submit({ 
                         marketId,
                         position: 'yes',
                         amount: betAmount
@@ -178,7 +194,7 @@ export default function PredictionPage() {
                       Bet Yes
                     </Button>
                     <Button
-                      onClick={() => submitPrediction({ 
+                      onClick={() => submit({ 
                         marketId,
                         position: 'no',
                         amount: betAmount
@@ -193,7 +209,7 @@ export default function PredictionPage() {
                 </div>
 
                 <div className="text-sm text-muted-foreground">
-                  <p>Market Size: ${totalLiquidity.toFixed(2)}</p>
+                  <p>Market Size: ${Number(market.total_liquidity).toFixed(2)}</p>
                   <p>Total Predictions: {predictions.length}</p>
                 </div>
 
