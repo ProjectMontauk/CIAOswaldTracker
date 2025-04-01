@@ -166,7 +166,11 @@ export default function PredictionPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      onClick={() => submitPrediction({ position: 'yes', amount: betAmount })}
+                      onClick={() => submitPrediction({ 
+                        marketId,
+                        position: 'yes',
+                        amount: betAmount
+                      })}
                       disabled={predictionsLoading}
                       className="w-full"
                       variant="default"
@@ -174,7 +178,11 @@ export default function PredictionPage() {
                       Bet Yes
                     </Button>
                     <Button
-                      onClick={() => submitPrediction({ position: 'no', amount: betAmount })}
+                      onClick={() => submitPrediction({ 
+                        marketId,
+                        position: 'no',
+                        amount: betAmount
+                      })}
                       disabled={predictionsLoading}
                       className="w-full"
                       variant="outline"

@@ -170,10 +170,10 @@ export function registerRoutes(app: Express): Server {
 
   // Predictions routes
   app.post("/api/predictions", async (req, res) => {
-    const { marketId, prediction: predictionInput, amount } = req.body;
+    const { marketId, position, amount } = req.body;
     
     // Validate required fields
-    if (!marketId || !predictionInput || !amount) {
+    if (!marketId || !position || !amount) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -186,39 +186,42 @@ export function registerRoutes(app: Express): Server {
       return res.status(404).json({ error: "Market not found" });
     }
 
-    // Start transaction to handle user balance and prediction creation
+    // Use a transaction to update both predictions and market odds
     const [newPrediction] = await db.transaction(async (tx) => {
-      // Get current user balance
-      const [user] = await tx
-        .select()
-        .from(users)
-        .where(eq(users.id, 1))
-        .limit(1);
-
-      if (!user || Number(user.balance) < amount) {
-        throw new Error("Insufficient balance");
-      }
-
-      // Update user balance
-      await tx
-        .update(users)
-        .set({
-          balance: sql`${users.balance} - ${amount}`,
-        })
-        .where(eq(users.id, 1));
-
-      // Create prediction
-      return await tx
+      // Create the prediction
+      const [prediction] = await tx
         .insert(predictions)
         .values({
           userId: 1,
           marketId,
-          position: predictionInput,
+          position,
           amount: amount.toString(),
           probability: "0.5",
           createdAt: new Date()
         })
         .returning();
+
+      // Get all predictions for this market
+      const marketPredictions = await tx.query.predictions.findMany({
+        where: eq(predictions.marketId, marketId),
+      });
+
+      // Calculate new odds
+      const { marketOdds, yesAmount, noAmount, totalLiquidity } = 
+        calculateMarketOdds(marketPredictions, marketId);
+
+      // Update market with new odds
+      await tx
+        .update(markets)
+        .set({
+          currentOdds: marketOdds.toString(),
+          yesAmount: yesAmount.toString(),
+          noAmount: noAmount.toString(),
+          totalLiquidity: totalLiquidity.toString(),
+        })
+        .where(eq(markets.id, marketId));
+
+      return prediction;
     });
 
     res.json(newPrediction);
@@ -230,6 +233,7 @@ export function registerRoutes(app: Express): Server {
         orderBy: desc(predictions.createdAt),
         with: {
           user: true,
+          market: true,
         },
       });
       res.json(allPredictions);
