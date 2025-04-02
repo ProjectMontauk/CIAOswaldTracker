@@ -274,8 +274,8 @@ export default function PredictionPage() {
                 <TabsContent value="view-yes">
                   <div className="space-y-4">
                     {yesEvidence.map((item, index) => {
-                      const upvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => v.isUpvote).length ?? 0;
-                      const downvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => !v.isUpvote).length ?? 0;
+                      const upvotes = (item as any).votes?.filter((v: { value: number }) => v.value === 1).length ?? 0;
+                      const downvotes = (item as any).votes?.filter((v: { value: number }) => v.value === -1).length ?? 0;
                       const voteScore = upvotes - downvotes;
                       const user = (item as any).user;
                       const reputation = user?.reputation ?? 0;
@@ -356,8 +356,8 @@ export default function PredictionPage() {
                 <TabsContent value="view-no">
                   <div className="space-y-4">
                     {noEvidence.map((item, index) => {
-                      const upvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => v.isUpvote).length ?? 0;
-                      const downvotes = (item as any).votes?.filter((v: { isUpvote: boolean }) => !v.isUpvote).length ?? 0;
+                      const upvotes = (item as any).votes?.filter((v: { value: number }) => v.value === 1).length ?? 0;
+                      const downvotes = (item as any).votes?.filter((v: { value: number }) => v.value === -1).length ?? 0;
                       const voteScore = upvotes - downvotes;
                       const user = (item as any).user;
                       const reputation = user?.reputation ?? 0;

@@ -265,14 +265,15 @@ export function registerRoutes(app: Express): Server {
         return res.status(404).json({ error: "Evidence not found" });
       }
 
-      // Create the vote
+      // Create the vote with correct value
       await db.insert(votes).values({
         userId,
         evidenceId,
-        isUpvote,
+        value: isUpvote ? 1 : -1,  // Make sure upvote is 1, downvote is -1
+        createdAt: new Date()
       });
 
-      // Update author's reputation and vote counts
+      // Update author's reputation correctly
       await db
         .update(users)
         .set({
@@ -282,7 +283,7 @@ export function registerRoutes(app: Express): Server {
         })
         .where(eq(users.id, evidenceItem.userId));
 
-      // Fetch updated evidence with votes and user info
+      // Return updated evidence
       const updatedEvidence = await db.query.evidence.findMany({
         with: {
           votes: true,
