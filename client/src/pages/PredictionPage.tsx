@@ -172,32 +172,13 @@ export default function PredictionPage() {
             <CardContent>
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Market Odds</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 border rounded-lg">
-                      <p className="text-3xl font-bold text-primary">
-                        {(Number(market.currentOdds) * 100).toFixed(1)}%
-                      </p>
-                      <p className="text-sm text-muted-foreground">Yes</p>
-                      <p className="text-xs text-muted-foreground">
-                        Total: ${Number(market.yesAmount).toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="text-center p-4 border rounded-lg">
-                      <p className="text-3xl font-bold text-primary">
-                        {((1 - Number(market.currentOdds)) * 100).toFixed(1)}%
-                      </p>
-                      <p className="text-sm text-muted-foreground">No</p>
-                      <p className="text-xs text-muted-foreground">
-                        Total: ${Number(market.noAmount).toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
+                  <h3 className="text-xl font-semibold mb-4">Market Odds</h3>
+                  <OddsChart marketId={marketId} />
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <Label>Bet Amount ($)</Label>
+                    <Label className="text-lg">Bet Amount ($)</Label>
                     <Input
                       type="number"
                       value={betAmount === 0 ? '' : betAmount}
@@ -233,8 +214,8 @@ export default function PredictionPage() {
                 </div>
 
                 <div className="text-sm text-muted-foreground">
-                  <p>Market Size: ${(Number(market.yesAmount) + Number(market.noAmount)).toFixed(2)}</p>
-                  <p>Total Predictions: {predictions.length}</p>
+                  <p>Market Size: ${(Number(market.yesAmount) + Number(market.noAmount)).toFixed(0)}</p>
+                  <p>Total Predictions: {predictions.filter(p => p.marketId === marketId).length}</p>
                 </div>
 
                 <div>
@@ -273,15 +254,6 @@ export default function PredictionPage() {
                   </Button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Market Odds History</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <OddsChart marketId={marketId} />
             </CardContent>
           </Card>
 
