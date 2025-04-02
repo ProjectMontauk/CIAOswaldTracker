@@ -15,6 +15,7 @@ import { Link } from "wouter";
 import type { Market } from "@db/schema";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useParams } from 'wouter';
+import { OddsChart } from "@/components/OddsChart";
 
 // Helper function to extract domain from URL
 function getDomainFromUrl(url: string): string | null {
@@ -267,6 +268,15 @@ export default function PredictionPage() {
                   </Button>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Market Odds History</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OddsChart marketId={marketId} />
             </CardContent>
           </Card>
 
