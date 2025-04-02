@@ -209,7 +209,7 @@ export default function PredictionPage() {
                 </div>
 
                 <div className="text-sm text-muted-foreground">
-                  <p>Market Size: ${Number(market.total_liquidity).toFixed(2)}</p>
+                  <p>Market Size: ${(Number(market.yesAmount) + Number(market.noAmount)).toFixed(2)}</p>
                   <p>Total Predictions: {predictions.length}</p>
                 </div>
 
