@@ -1,8 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { evidence, predictions, votes, users, markets } from "@db/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { evidence, predictions, votes, users, markets, marketOddsHistory } from "@db/schema";
+import { eq, and, desc, sql, asc } from "drizzle-orm";
 import { setupAuth } from "./auth";
 import { calculateMarketOdds } from '../shared/utils';
 
@@ -223,6 +223,16 @@ export function registerRoutes(app: Express): Server {
           })
           .where(eq(markets.id, marketId));
 
+        // After updating market odds, record in history
+        await tx.insert(marketOddsHistory).values({
+          marketId,
+          yesOdds: marketOdds.toString(),
+          noOdds: (1 - marketOdds).toString(),
+          yesAmount: yesAmount.toString(),
+          noAmount: noAmount.toString(),
+          totalLiquidity: totalLiquidity.toString()
+        });
+
         return newPrediction;
       });
 
@@ -358,6 +368,21 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error('❌ Error creating market:', error);
       res.status(500).json({ error: 'Failed to create market' });
+    }
+  });
+
+  app.get("/api/markets/:id/odds-history", async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+      const history = await db.query.marketOddsHistory.findMany({
+        where: eq(marketOddsHistory.marketId, Number(id)),
+        orderBy: asc(marketOddsHistory.timestamp)
+      });
+      
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch odds history" });
     }
   });
 

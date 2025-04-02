@@ -60,6 +60,17 @@ export const votes = pgTable("votes", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const marketOddsHistory = pgTable("market_odds_history", {
+  id: serial("id").primaryKey(),
+  marketId: integer("market_id").references(() => markets.id).notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  yesOdds: numeric("yes_odds").notNull(),
+  noOdds: numeric("no_odds").notNull(),
+  yesAmount: numeric("yes_amount").notNull(),
+  noAmount: numeric("no_amount").notNull(),
+  totalLiquidity: numeric("total_liquidity").notNull(),
+});
+
 // Relations
 export const userRelations = relations(users, ({ many }) => ({
   evidence: many(evidence),
@@ -71,6 +82,7 @@ export const userRelations = relations(users, ({ many }) => ({
 export const marketRelations = relations(markets, ({ many, one }) => ({
   predictions: many(predictions),
   evidence: many(evidence),
+  oddsHistory: many(marketOddsHistory),
   creator: one(users, {
     fields: [markets.creatorId],
     references: [users.id],
@@ -116,4 +128,15 @@ export type User = typeof users.$inferSelect;
 export type Evidence = typeof evidence.$inferSelect;
 export type Prediction = typeof predictions.$inferSelect;
 export type Vote = typeof votes.$inferSelect;
-export type Market = typeof markets.$inferSelect;
+export type Market = {
+  id: number;
+  title: string;
+  description: string | null;
+  yesResolution: string | null;
+  noResolution: string | null;
+  currentOdds: string;
+  yesAmount: string;
+  noAmount: string;
+  totalLiquidity: string;
+  createdAt: Date | null;
+};
