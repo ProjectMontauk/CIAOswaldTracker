@@ -48,7 +48,7 @@ export default function PredictionPage() {
   const [betAmount, setBetAmount] = useState(0);
   const [showRules, setShowRules] = useState(false);
 
-  const { data: market } = useQuery({
+  const { data: market, refetch: refetchMarket } = useQuery({
     queryKey: ['market', id],
     queryFn: async () => {
       const response = await fetch(`/api/markets/${id}`);
@@ -103,6 +103,20 @@ export default function PredictionPage() {
   // Filter evidence based on type directly from the filtered evidence array
   const yesEvidence = evidence.filter(item => item.evidenceType === 'yes');
   const noEvidence = evidence.filter(item => item.evidenceType === 'no');
+
+  // Function to handle bet submission with delayed refetch
+  const handleBet = async (position: 'yes' | 'no') => {
+    await submit({ 
+      marketId,
+      position,
+      amount: betAmount
+    });
+
+    // Wait 250ms then refetch market data
+    setTimeout(async () => {
+      await refetchMarket();
+    }, 250);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -182,11 +196,7 @@ export default function PredictionPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      onClick={() => submit({ 
-                        marketId,
-                        position: 'yes',
-                        amount: betAmount
-                      })}
+                      onClick={() => handleBet('yes')}
                       disabled={predictionsLoading}
                       className="w-full"
                       variant="default"
@@ -194,11 +204,7 @@ export default function PredictionPage() {
                       Bet Yes
                     </Button>
                     <Button
-                      onClick={() => submit({ 
-                        marketId,
-                        position: 'no',
-                        amount: betAmount
-                      })}
+                      onClick={() => handleBet('no')}
                       disabled={predictionsLoading}
                       className="w-full"
                       variant="outline"

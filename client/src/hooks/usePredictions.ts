@@ -58,6 +58,9 @@ export function usePredictions(marketId: number, refetchMarket: () => void) {
   // useToast is another custom hook you're using for notifications
   const { toast } = useToast();
 
+  // Add a state to trigger refetch
+  const [shouldRefetch, setShouldRefetch] = useState(false);
+
   // Fetch predictions and calculate odds for this specific market
   useEffect(() => {
     const fetchData = async () => {
@@ -70,7 +73,7 @@ export function usePredictions(marketId: number, refetchMarket: () => void) {
       setMarketData(odds);
     };
     fetchData();
-  }, [marketId]); // Re-run when marketId changes
+  }, [marketId, shouldRefetch]); // Refetch when shouldRefetch changes
 
   // This is a function that will be available to any component using this hook
   const submit = async (data: PredictionSubmitData) => {
@@ -104,6 +107,11 @@ export function usePredictions(marketId: number, refetchMarket: () => void) {
         title: "Success",
         description: "Prediction submitted successfully",
       });
+
+      // Trigger refetch after successful submission
+      setTimeout(() => {
+        setShouldRefetch(prev => !prev);
+      }, 500); // Half second delay
 
     } catch (error) {
       console.error('Error:', error);
