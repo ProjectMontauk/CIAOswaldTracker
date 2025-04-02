@@ -100,9 +100,21 @@ export default function PredictionPage() {
     evidenceForm.reset();
   };
 
-  // Filter evidence based on type directly from the filtered evidence array
-  const yesEvidence = evidence.filter(item => item.evidenceType === 'yes');
-  const noEvidence = evidence.filter(item => item.evidenceType === 'no');
+  // Filter and sort evidence based on vote score
+  const getVoteScore = (item: any) => {
+    const upvotes = item.votes?.filter((v: { value: number }) => v.value === 1).length ?? 0;
+    const downvotes = item.votes?.filter((v: { value: number }) => v.value === -1).length ?? 0;
+    return upvotes - downvotes;
+  };
+
+  // Sort evidence by vote score (highest first)
+  const yesEvidence = evidence
+    .filter(item => item.evidenceType === 'yes')
+    .sort((a, b) => getVoteScore(b) - getVoteScore(a));
+
+  const noEvidence = evidence
+    .filter(item => item.evidenceType === 'no')
+    .sort((a, b) => getVoteScore(b) - getVoteScore(a));
 
   // Function to handle bet submission with delayed refetch
   const handleBet = async (position: 'yes' | 'no') => {
