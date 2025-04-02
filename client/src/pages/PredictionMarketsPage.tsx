@@ -10,6 +10,13 @@ export default function PredictionMarketsPage() {
     queryKey: ['/api/markets'],
   });
 
+  // Sort markets by total market size (descending)
+  const sortedMarkets = [...markets].sort((a, b) => {
+    const aTotal = Number(a.yesAmount) + Number(a.noAmount);
+    const bTotal = Number(b.yesAmount) + Number(b.noAmount);
+    return bTotal - aTotal;  // Descending order
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
@@ -42,24 +49,21 @@ export default function PredictionMarketsPage() {
           <h1 className="text-3xl font-bold mb-8 text-center">Active Prediction Markets</h1>
 
           <div className="space-y-4">
-            {markets.map((market) => (
+            {sortedMarkets.map((market, index) => (
               <Link key={market.id} href={`/predict/${market.id}`} className="block">
                 <Card className="hover:bg-gray-50 transition-colors">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold text-lg mb-2">
-                          {market.title}
+                          {index + 1}. {market.title}
                         </h3>
                         <p className="text-sm text-muted-foreground">
                           {market.description}
                         </p>
                         <div className="flex items-center gap-4 mt-3">
                           <span className="text-sm text-muted-foreground">
-                            Active Participants: {market.participants}
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            Market Size: ${Number(market.totalLiquidity).toFixed(2)}
+                            Market Size: ${(Number(market.yesAmount) + Number(market.noAmount)).toFixed(2)}
                           </span>
                         </div>
                       </div>
