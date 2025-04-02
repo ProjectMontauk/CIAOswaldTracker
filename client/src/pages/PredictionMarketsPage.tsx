@@ -61,9 +61,17 @@ export default function PredictionMarketsPage() {
                         <p className="text-sm text-muted-foreground">
                           {market.description}
                         </p>
-                        <div className="flex items-center gap-4 mt-3">
+                        <div className="flex items-center gap-2 mt-3">
                           <span className="text-sm text-muted-foreground">
-                            Market Size: ${(Number(market.yesAmount) + Number(market.noAmount)).toFixed(2)}
+                            Market Answer: {Number(market.currentOdds) >= 0.5 ? (
+                              <span className="text-green-600 font-medium">Yes</span>
+                            ) : (
+                              <span className="text-red-600 font-medium">No</span>
+                            )}
+                          </span>
+                          <span className="mx-1">|</span>
+                          <span className="text-sm text-muted-foreground">
+                            Market Size: ${Math.floor(Number(market.yesAmount) + Number(market.noAmount))}
                           </span>
                         </div>
                       </div>
