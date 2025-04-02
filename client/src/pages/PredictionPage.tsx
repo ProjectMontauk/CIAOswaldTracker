@@ -125,9 +125,14 @@ export default function PredictionPage() {
       amount: betAmount
     });
 
-    // Wait 250ms then refetch market data
+    // Wait 250ms then refetch market data and odds history
     setTimeout(async () => {
       await refetchMarket();
+      // @ts-ignore
+      if (window.refetchOddsHistory) {
+        // @ts-ignore
+        await window.refetchOddsHistory();
+      }
     }, 250);
   };
 
@@ -211,18 +216,18 @@ export default function PredictionPage() {
                     <Button
                       onClick={() => handleBet('yes')}
                       disabled={predictionsLoading}
-                      className="w-full"
+                      className="w-full bg-green-500 hover:bg-green-600"
                       variant="default"
                     >
-                      Bet Yes
+                      Yes {(Number(market.currentOdds) * 100).toFixed(0)}¢
                     </Button>
                     <Button
                       onClick={() => handleBet('no')}
                       disabled={predictionsLoading}
-                      className="w-full"
-                      variant="outline"
+                      className="w-full bg-red-500 hover:bg-red-600 text-white"
+                      variant="default"
                     >
-                      Bet No
+                      No {((1 - Number(market.currentOdds)) * 100).toFixed(0)}¢
                     </Button>
                   </div>
                 </div>
