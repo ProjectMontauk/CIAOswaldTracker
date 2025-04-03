@@ -43,12 +43,15 @@ export function OddsChart({ marketId }: { marketId: number }) {
               animationDuration={500}
               dataKey="yesOdds" 
               stroke="#10b981" 
-              dot={(props: any): ReactElement => (
+              key="yesOdds"
+              dot={(props) => (
                 <circle
+                  key={`dot-${props.cx}-${props.cy}`}
                   cx={props.cx}
                   cy={props.cy}
                   r={props.index === history.length - 1 ? 4 : 0}
                   fill="#10b981"
+                  strokeWidth={2}
                 />
               )}
               strokeWidth={2}
