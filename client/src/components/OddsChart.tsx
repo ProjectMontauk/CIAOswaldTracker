@@ -33,7 +33,11 @@ export function OddsChart({ marketId }: { marketId: number }) {
       </div>
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={history} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <LineChart 
+            data={history} 
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            animationDuration={0}
+          >
             <Line 
               type="linear" 
               dataKey="yesOdds" 
