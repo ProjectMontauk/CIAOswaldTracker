@@ -25,7 +25,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: import.meta.env.VITE_API_URL,
+        target: "https://cia-oswald-tracker.vercel.app",
         changeOrigin: true,
         secure: false,
         ws: true,
