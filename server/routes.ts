@@ -91,12 +91,14 @@ export function registerRoutes(app: Express): Server {
   // Get all markets
   app.get("/api/markets", async (req, res) => {
     try {
+      console.log("Fetching all markets");
       const allMarkets = await db.query.markets.findMany({
         orderBy: desc(markets.createdAt),
         with: {
           predictions: true,
         },
       });
+      console.log('Found markets:', allMarkets.length, 'First market title:', allMarkets[0]?.title);
 
       res.json(allMarkets);
     } catch (error) {

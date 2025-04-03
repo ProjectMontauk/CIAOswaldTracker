@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import type { Market } from "@db/schema";
 
 export default function PredictionMarketsPage() {
+  console.log(`before query`);
   const { data: markets = [] } = useQuery<Market[]>({
     queryKey: ['/api/markets'],
   });
-  console.log(markets);
+  console.log(`markets: ${markets}`);
 
   // Sort markets by total market size (descending)
   const sortedMarkets = [...markets].sort((a, b) => {
