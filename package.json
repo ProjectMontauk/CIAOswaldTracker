@@ -12,8 +12,9 @@
     "preview": "vite preview",
     "check": "tsc",
     "db:push": "drizzle-kit push",
-    "db:generate": "drizzle-kit generate:pg",
-    "db:migrate": "tsx db/migrate.ts"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx db/migrate.ts",
+    "migrate:data": "tsx scripts/migrate-data.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

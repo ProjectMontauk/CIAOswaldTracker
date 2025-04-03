@@ -63,17 +63,28 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/markets/:id", async (req, res) => {
     try {
       const marketId = parseInt(req.params.id);
+      console.log('Fetching market:', marketId); // Debug log
+      
       const market = await db.query.markets.findFirst({
         where: eq(markets.id, marketId),
       });
 
       if (!market) {
-        return res.status(404).json({ error: "Market not found" });
+        console.log('Market not found:', marketId); // Debug log
+        return res.status(404).json({ 
+          error: "Market not found",
+          requestedId: marketId 
+        });
       }
 
+      console.log('Found market:', market); // Debug log
       res.json(market);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch market" });
+      console.error('Error fetching market:', error);
+      res.status(500).json({ 
+        error: "Failed to fetch market",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
