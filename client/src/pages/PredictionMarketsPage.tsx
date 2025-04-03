@@ -9,6 +9,7 @@ export default function PredictionMarketsPage() {
   const { data: markets = [] } = useQuery<Market[]>({
     queryKey: ['/api/markets'],
   });
+  console.log(markets);
 
   // Sort markets by total market size (descending)
   const sortedMarkets = [...markets].sort((a, b) => {
