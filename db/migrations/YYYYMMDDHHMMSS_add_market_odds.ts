@@ -1,30 +1,31 @@
-import { pgTable, numeric, decimal } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { markets } from "../schema";
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
-export async function up(db: any) {
-  await db.alterTable('markets')
-    .addColumn('current_odds', 'numeric', (col) => col.notNull().default('0.5'))
-    .addColumn('yes_amount', 'numeric', (col) => col.notNull().default('0'))
-    .addColumn('no_amount', 'numeric', (col) => col.notNull().default('0'))
-    .execute();
+export async function up(db: PostgresJsDatabase) {
+  await db.execute(sql`
+    ALTER TABLE markets
+    ADD COLUMN current_odds NUMERIC NOT NULL DEFAULT 0.5,
+    ADD COLUMN yes_amount NUMERIC NOT NULL DEFAULT 0,
+    ADD COLUMN no_amount NUMERIC NOT NULL DEFAULT 0;
+  `);
 
   // Change total_liquidity from decimal to numeric
-  await db.alterTable('markets')
-    .alterColumn('total_liquidity')
-    .setDataType('numeric')
-    .execute();
+  await db.execute(sql`
+    ALTER TABLE markets
+    ALTER COLUMN total_liquidity TYPE NUMERIC;
+  `);
 }
 
-export async function down(db: any) {
-  await db.alterTable('markets')
-    .dropColumn('current_odds')
-    .dropColumn('yes_amount')
-    .dropColumn('no_amount')
-    .execute();
+export async function down(db: PostgresJsDatabase) {
+  await db.execute(sql`
+    ALTER TABLE markets
+    DROP COLUMN current_odds,
+    DROP COLUMN yes_amount,
+    DROP COLUMN no_amount;
+  `);
 
-  await db.alterTable('markets')
-    .alterColumn('total_liquidity')
-    .setDataType('decimal')
-    .execute();
+  await db.execute(sql`
+    ALTER TABLE markets
+    ALTER COLUMN total_liquidity TYPE DECIMAL;
+  `);
 } 

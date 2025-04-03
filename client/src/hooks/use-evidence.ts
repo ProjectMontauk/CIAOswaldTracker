@@ -16,7 +16,7 @@ type EvidenceWithRelations = Evidence & {
   text?: string;
 };
 
-export function useEvidence(marketId?: number) {
+export function useEvidence(marketId: number | null = null) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 

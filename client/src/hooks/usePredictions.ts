@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from '@tanstack/react-query';
 
-interface PredictionSubmitData {
+export interface PredictionSubmission {
   marketId: number;
   position: 'yes' | 'no';
   amount: number;
@@ -14,7 +15,9 @@ interface Prediction {
 }
 
 // Calculate odds for a specific market based on its predictions
-function calculateMarketOdds(predictions: Prediction[], marketId: number) {
+function calculateMarketOdds(predictions: Prediction[], marketId: number | null) {
+  if (!marketId) return { marketOdds: 0.5, yesAmount: 0, noAmount: 0, totalLiquidity: 0 };
+  
   const marketPredictions = predictions.filter(p => p.marketId === marketId);
   
   const yesAmount = marketPredictions
@@ -44,7 +47,8 @@ function calculateMarketOdds(predictions: Prediction[], marketId: number) {
 }
 
 // This is a custom hook that manages predictions
-export function usePredictions(marketId: number, refetchMarket: () => void) {
+export function usePredictions(marketId: number, refetchMarket?: () => void) {
+  const queryClient = useQueryClient();
   // useState is a built-in React hook that lets you add state to functional components
   const [isLoading, setIsLoading] = useState(false);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
@@ -76,7 +80,7 @@ export function usePredictions(marketId: number, refetchMarket: () => void) {
   }, [marketId, shouldRefetch]); // Refetch when shouldRefetch changes
 
   // This is a function that will be available to any component using this hook
-  const submit = async (data: PredictionSubmitData) => {
+  const submit = async (data: PredictionSubmission) => {
     try {
       setIsLoading(true);
       
@@ -101,7 +105,10 @@ export function usePredictions(marketId: number, refetchMarket: () => void) {
       }
 
       // After successful submission:
-      await refetchMarket(); // Refetch market data to get new odds
+      await queryClient.invalidateQueries({ queryKey: ['market', data.marketId] });
+      if (refetchMarket) {
+        await refetchMarket();
+      }
 
       toast({
         title: "Success",

@@ -1,6 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, type ReactElement } from 'react';
 
 interface OddsHistoryPoint {
   timestamp: string;
@@ -36,23 +36,21 @@ export function OddsChart({ marketId }: { marketId: number }) {
           <LineChart 
             data={history} 
             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            animationDuration={0}
           >
             <Line 
-              type="linear" 
+              type="linear"
+              isAnimationActive={history.length > 1}
+              animationDuration={500}
               dataKey="yesOdds" 
               stroke="#10b981" 
-              dot={(props) => {
-                const isLastPoint = props.index === history.length - 1;
-                return isLastPoint ? (
-                  <circle 
-                    cx={props.cx} 
-                    cy={props.cy} 
-                    r={4} 
-                    fill="#10b981"
-                  />
-                ) : null;
-              }}
+              dot={(props: any): ReactElement => (
+                <circle
+                  cx={props.cx}
+                  cy={props.cy}
+                  r={props.index === history.length - 1 ? 4 : 0}
+                  fill="#10b981"
+                />
+              )}
               strokeWidth={2}
               name="Yes Probability"
             />
@@ -71,7 +69,6 @@ export function OddsChart({ marketId }: { marketId: number }) {
               }}
               tick={{ fontSize: 12 }}
               ticks={[history[0]?.timestamp]}
-              label={false}
             />
             <YAxis 
               domain={[0, 1]} 

@@ -2,10 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Prediction } from "@db/schema";
 import { useToast } from "@/hooks/use-toast";
 
-type PredictionSubmission = {
+interface PredictionSubmission {
+  marketId: number;
   position: 'yes' | 'no';
   amount: number;
-};
+}
 
 export function usePredictions() {
   const { toast } = useToast();

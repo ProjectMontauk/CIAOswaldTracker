@@ -45,7 +45,7 @@ export default function PredictionPage() {
   }
 
   const { evidence, submit: submitEvidence, vote, isLoading: evidenceLoading } = useEvidence(marketId);
-  const { predictions, submit, isLoading: predictionsLoading } = usePredictions(marketId);
+  const { predictions, submit, isLoading: predictionsLoading } = usePredictions();
   const [betAmount, setBetAmount] = useState(0);
   const [showRules, setShowRules] = useState(false);
 
