@@ -9,6 +9,7 @@ export default function PredictionMarketsPage() {
   console.log(`before query`);
   const { data: markets = [] } = useQuery<Market[]>({
     queryKey: ['/api/markets'],
+    queryFn: () => fetch('/api/markets').then(res => res.json())
   });
   console.log(`markets: ${markets}`);
 
