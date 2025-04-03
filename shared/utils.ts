@@ -1,5 +1,5 @@
 interface Prediction {
-  position: 'yes' | 'no';
+  position: string;
   amount: string;
   marketId: number;
 }
@@ -8,11 +8,11 @@ export function calculateMarketOdds(predictions: Prediction[], marketId: number)
   const marketPredictions = predictions.filter(p => p.marketId === marketId);
   
   const yesAmount = marketPredictions
-    .filter(p => p.position === 'yes')
+    .filter(p => p.position.toLowerCase() === 'yes')
     .reduce((sum, p) => sum + Number(p.amount), 0);
     
   const noAmount = marketPredictions
-    .filter(p => p.position === 'no')
+    .filter(p => p.position.toLowerCase() === 'no')
     .reduce((sum, p) => sum + Number(p.amount), 0);
     
   const totalAmount = yesAmount + noAmount;

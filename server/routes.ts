@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { evidence, predictions, votes, users, markets, marketOddsHistory } from "@db/schema";
-import { eq, and, desc, sql, asc } from "drizzle-orm";
+import { eq, and, desc, sql, asc, isNull } from "drizzle-orm";
 import { setupAuth } from "./auth";
 import { calculateMarketOdds } from '../shared/utils';
 
@@ -50,7 +50,7 @@ export function registerRoutes(app: Express): Server {
       // Delete evidence with null marketId
       await db
         .delete(evidence)
-        .where(eq(evidence.marketId, null));
+        .where(isNull(evidence.marketId));
 
       res.json({ message: "Successfully deleted all evidence without market ID" });
     } catch (error) {
