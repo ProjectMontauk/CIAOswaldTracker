@@ -4,7 +4,7 @@ import { registerRoutes } from "./routes";
 import { Server } from "http";
 import path from "path";
 import "dotenv/config";
-import { db } from "@db";  // Points to db/index.ts
+import { db, testConnection } from "@db";  // Import testConnection
 
 const app = express();
 app.use(express.json());
@@ -51,6 +51,14 @@ app.use((req, res, next) => {
 
 // Initialize routes and server
 (async () => {
+  // Test database connection first
+  try {
+    await testConnection();
+  } catch (error) {
+    console.error('Failed to connect to database:', error);
+    process.exit(1);  // Exit if database connection fails
+  }
+
   // Set production mode
   process.env.NODE_ENV = "production";
 
@@ -61,6 +69,11 @@ app.use((req, res, next) => {
     const message = err.message || "Internal Server Error";
     console.error('Error details:', err);
     res.status(status).json({ message });
+  });
+
+  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    console.error('Server Error:', err);  // This will show in Vercel logs
+    res.status(500).json({ error: err.message });
   });
 
   const isProduction = process.env.NODE_ENV === "production";
