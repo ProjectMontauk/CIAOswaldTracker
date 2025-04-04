@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://cia-oswald-tracker.vercel.app/api/:path*"
+      "destination": "https://cia-oswald-tracker.vercel.app"
     },
     {
       "source": "/(.*)",
