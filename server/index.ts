@@ -1,5 +1,5 @@
 import express, { type Express } from "express";
-import { setupVite, serveStatic, log } from "./vite";
+import { log } from "./utils";  // Move log function to utils.ts
 import { registerRoutes } from "./routes";
 import { Server } from "http";
 import path from "path";
@@ -62,9 +62,6 @@ app.use((req, res, next) => {
     process.exit(1);  // Exit if database connection fails
   }
 
-  // Set production mode
-  process.env.NODE_ENV = "production";
-
   const server = registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -82,16 +79,17 @@ app.use((req, res, next) => {
   const isProduction = process.env.NODE_ENV === "production";
   console.log(`Starting server in ${isProduction ? 'production' : 'development'} mode`);
 
-  if (isProduction) {
+  // Only use Vite in development
+  if (process.env.NODE_ENV === "development") {
+    const { setupVite } = await import("./vite");
+    await setupVite(app, server);
+  } else {
+    // In production, serve static files
     const distPath = path.resolve(process.cwd(), "dist/public");
-    console.log('Serving static files from:', distPath);
     app.use(express.static(distPath));
     app.get("*", (_req, res) => {
       res.sendFile(path.resolve(distPath, "index.html"));
     });
-  } else {
-    console.log('Setting up Vite development server');
-    await setupVite(app, server);
   }
 
   const port = process.env.PORT || 3000;
