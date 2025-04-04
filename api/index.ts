@@ -1,5 +1,4 @@
 import express, { type Express } from "express";
-import { log } from "./utils";  // Move log function to utils.ts
 import { registerRoutes } from "./routes";
 import { Server } from "http";
 import path from "path";
@@ -45,7 +44,7 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-      log(logLine);
+      console.log(logLine);
     }
   });
 
