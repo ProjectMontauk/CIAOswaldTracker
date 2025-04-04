@@ -91,18 +91,20 @@ export function registerRoutes(app: Express): Server {
   // Get all markets
   app.get("/api/markets", async (req, res) => {
     try {
-      console.log("Fetching all markets");
+      console.log('🎯 API: /api/markets endpoint hit');
+      console.log('🔌 Database URL:', process.env.DATABASE_URL?.substring(0, 20) + '...');
+      
       const allMarkets = await db.query.markets.findMany({
         orderBy: desc(markets.createdAt),
         with: {
           predictions: true,
         },
       });
-      console.log('Found markets:', allMarkets.length, 'First market title:', allMarkets[0]?.title);
-
+      
+      console.log('📊 Found markets:', allMarkets.length);
       res.json(allMarkets);
     } catch (error) {
-      console.error('Error fetching markets:', error);
+      console.error('❌ Error in /api/markets:', error);
       res.status(500).json({ error: 'Failed to fetch markets' });
     }
   });
