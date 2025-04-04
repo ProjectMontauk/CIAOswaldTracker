@@ -6,6 +6,9 @@ import path from "path";
 import "dotenv/config";
 import { db, testConnection } from "@db";  // Import testConnection
 
+
+console.log('do we get to index.ts?');
+
 const app = express();
 app.use(express.json());
 

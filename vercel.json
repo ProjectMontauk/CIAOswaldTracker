@@ -5,8 +5,8 @@
   "outputDirectory": "./dist/public",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://cia-oswald-tracker.vercel.app"
+      "source": "/api/(.*)",
+      "destination": "https://api.cia-oswald-tracker.vercel.app/"
     },
     {
       "source": "/(.*)",
