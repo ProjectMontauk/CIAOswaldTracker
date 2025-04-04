@@ -6,8 +6,12 @@ import { eq, and, desc, sql, asc, isNull } from "drizzle-orm";
 import { setupAuth } from "./auth";
 import { calculateMarketOdds } from '../shared/utils';
 
+console.log('Do we get we get routes');
+
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
+
+  console.log('Are we inside registerRoutes');
 
   // Add a heartbeat route to verify server is running
   app.get("/api/health", (req, res) => {
