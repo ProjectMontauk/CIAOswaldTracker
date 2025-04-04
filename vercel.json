@@ -5,11 +5,11 @@
   "outputDirectory": "./dist/public",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://api.cia-oswald-tracker.vercel.app/"
+      "source": "/api/:path*", 
+      "destination": "/api/:path*"   
     },
-    {
-      "source": "/(.*)",
+    { 
+      "source": "/(.*)", 
       "destination": "/dist/public/index.html"
     }
   ]
