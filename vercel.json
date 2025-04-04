@@ -1,5 +1,5 @@
 {
- "$schema": "https://openapi.vercel.sh/vercel.json",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "./dist/public",
@@ -9,4 +9,4 @@
       "destination": "server/index.ts"
     }
   ]
-} 
+}

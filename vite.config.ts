@@ -5,12 +5,14 @@ import path, { dirname } from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import { fileURLToPath } from "url";
 
-console.log(import.meta.env.VITE_API_URL);
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 export default defineConfig({
-  plugins: [react(), runtimeErrorOverlay(), themePlugin()],
+  plugins: [
+    react(),
+    runtimeErrorOverlay(),
+    themePlugin()
+  ],
   resolve: {
     alias: {
       "@db": path.resolve(__dirname, "db"),
@@ -25,7 +27,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://cia-oswald-tracker.vercel.app",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
         ws: true,

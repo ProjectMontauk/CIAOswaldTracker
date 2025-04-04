@@ -4,13 +4,18 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import type { Market } from "@db/schema";
+import { useState } from "react";
 
 export default function PredictionMarketsPage() {
+
   console.log(`before query`);
+  
   const { data: markets = [] } = useQuery<Market[]>({
     queryKey: ['/api/markets'],
     queryFn: () => fetch('/api/markets').then(res => res.json())
   });
+  
+
   console.log(`markets: ${markets}`);
 
   // Sort markets by total market size (descending)
@@ -19,6 +24,8 @@ export default function PredictionMarketsPage() {
     const bTotal = Number(b.yesAmount) + Number(b.noAmount);
     return bTotal - aTotal;  // Descending order
   });
+
+  console.log('do we get here twice?');
 
   return (
     <div className="min-h-screen bg-gray-50">
