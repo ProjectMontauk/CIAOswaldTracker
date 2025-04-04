@@ -4,7 +4,7 @@ import { registerRoutes } from "./routes";
 import { Server } from "http";
 import path from "path";
 import "dotenv/config";
-import { db, testConnection } from "@db";  // Import testConnection
+import { db, testConnection } from "../db";  // Use relative path
 
 
 console.log('do we get to index.ts?');
